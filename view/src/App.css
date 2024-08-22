@@ -295,6 +295,9 @@ body {
   .mw-sm-50 {
     max-width: 50% !important;
   }
+  .mw-sm-35 {
+    max-width: 35% !important;
+  }
   .mw-sm-25 {
     max-width: 25% !important;
   }
@@ -308,6 +311,9 @@ body {
   }
   .mw-md-50 {
     max-width: 50% !important;
+  }
+  .mw-md-35 {
+    max-width: 35% !important;
   }
   .mw-md-25 {
     max-width: 25% !important;
@@ -323,6 +329,9 @@ body {
   .mw-lg-50 {
     max-width: 50% !important;
   }
+  .mw-lg-35 {
+    max-width: 35% !important;
+  }
   .mw-lg-25 {
     max-width: 25% !important;
   }
@@ -337,6 +346,9 @@ body {
   .mw-xl-50 {
     max-width: 50% !important;
   }
+  .mw-xl-35 {
+    max-width: 35% !important;
+  }
   .mw-xl-25 {
     max-width: 25% !important;
   }
@@ -350,6 +362,9 @@ body {
   }
   .mw-xxl-50 {
     max-width: 50% !important;
+  }
+  .mw-xxl-35 {
+    max-width: 35% !important;
   }
   .mw-xxl-25 {
     max-width: 25% !important;

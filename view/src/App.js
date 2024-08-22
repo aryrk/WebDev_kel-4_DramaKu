@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navigation from "./components/Navigation";
 import Page2 from "./pages/page2";
 import Page1 from "./pages/page1";
-import Navigation from "./components/Navigation";
-import "./App.css"
+import DetailPage from "./pages/DetailPage";
+import "./App.css";
 
 function App() {
   // const [backendData, setBackendData] = useState([{}]);
@@ -30,14 +31,13 @@ function App() {
   return (
     <div>
       <Navigation />
-      <center>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Page1 />} />
-            <Route path="/page2" element={<Page2 />} />
-          </Routes>
-        </Router>
-      </center>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Page1 />} />
+          <Route path="/page2" element={<Page2 />} />
+          <Route path="/Detail" element={<DetailPage />} />
+        </Routes>
+      </Router>
     </div>
   );
 }

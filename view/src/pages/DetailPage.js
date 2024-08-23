@@ -1,6 +1,18 @@
 import React from "react";
-import { Container, Row, Col, Image, Card } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Image,
+  Card,
+  Form,
+  Button,
+} from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
+import { Rating } from "@mui/material";
+import $ from "jquery";
 
 function MovieInfo(props) {
   const {
@@ -16,9 +28,9 @@ function MovieInfo(props) {
   return (
     <div>
       <center>
-        <Container className="mw-100 mt-4 pt-1 pt-lg-0 p-0 ps-0 ps-md-3 ps-lg-0">
+        <Container className="mw-100 pt-1 pt-lg-0 p-0">
           <Row className="justify-content-center justify-content-md-start">
-            <Col sm="auto" className="pe-0 pe-md-4">
+            <Col sm="auto" className="pe-0 pe-md-2 ps-0 ps-md-3">
               <center>
                 <Image
                   src={poster}
@@ -32,13 +44,13 @@ function MovieInfo(props) {
             </Col>
             <Col
               sm="auto"
-              className="text-start text-break ps-4 ps-md-0 pe-4 pe-md-0 mt-3 mt-lg-0 pt-1 mw-sm-100 mw-md-35 mw-xl-50"
+              className="text-start text-break mw-sm-100 mw-md-35 mw-xl-50 pt-3 pt-md-0"
             >
               <p className="mb-1 fs_primary fs-1 fs-lg-5">{judul}</p>
               <p className="mb-1 fs_secondary">
                 Other titles:
                 {otherTitles.map((title, i) => (
-                  <span>
+                  <span key={i}>
                     {" "}
                     {title}
                     {i < title.length - 1 ? ", " : ""}
@@ -49,7 +61,7 @@ function MovieInfo(props) {
               <p className="fs_secondary">{synopsis}</p>
               <p className="fs_secondary mb-1">
                 {genres.map((genre, i) => (
-                  <span>
+                  <span key={i}>
                     {" "}
                     {genre}
                     {i < genre.length - 1 ? ", " : ""}
@@ -71,7 +83,7 @@ function Actor(props) {
   return (
     <Card
       style={{ width: "8rem", display: "inline-block", verticalAlign: "top" }}
-      className="border-0 ps-0 ps-lg-3 pe-2"
+      className="border-0 ps-0 ps-lg-1"
     >
       <center>
         <Card.Img
@@ -85,7 +97,7 @@ function Actor(props) {
       </center>
       <Card.Body className="pt-2 pb-3 ps-0 pe-0">
         <Card.Text
-          className="fs-6 text-center"
+          className="fs_secondary text-center"
           style={{ whiteSpace: "break-spaces", textTransform: "capitalize" }}
         >
           {name}
@@ -105,7 +117,7 @@ function Trailer(props) {
   }
   return (
     <center>
-      <div className="ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 embed-responsive embed-responsive-16by9">
+      <div className="mt-4 embed-responsive embed-responsive-16by9">
         <iframe
           className="embed-responsive-item rounded-3 w-100"
           src={src}
@@ -121,10 +133,389 @@ function Trailer(props) {
   );
 }
 
+function CommentHeader(props) {
+  const { totalComments } = props;
+
+  return (
+    <div className="mt-3 fs_sm_secondary">
+      <Container className="d-grid w-100 mb-2">
+        <Row className="justify-content-sm-center">
+          <Col
+            sm="auto"
+            md="5"
+            className="d-grid justify-content-center justify-content-md-start fs_sm_secondary fs_md_primary ps-0"
+          >
+            ({totalComments}) People think about this drama
+          </Col>
+          <Col
+            sm="auto"
+            md="7"
+            className="d-grid justify-content-center justify-content-md-end"
+          >
+            <Container className="pe-0 ps-0 pt-2 pt-md-0">
+              <Row>
+                <Col className="col-sm-5 col-md-auto">Filtered by:</Col>
+                <Col className="col-7 me-0 pe-0">
+                  <select className="form-select form-select-sm">
+                    <option value="5">⭐⭐⭐⭐⭐</option>
+                    <option value="5">⭐⭐⭐⭐</option>
+                    <option value="5">⭐⭐⭐</option>
+                    <option value="5">⭐⭐</option>
+                    <option value="5">⭐</option>
+                  </select>
+                </Col>
+              </Row>
+            </Container>
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  );
+}
+
+function StarRating(props) {
+  const { rating } = props;
+  return (
+    <div className="d-inline">
+      {[...Array(5)].map((star, i) => {
+        const ratingValue = i + 1;
+        return (
+          <FontAwesomeIcon
+            icon={faStar}
+            color={ratingValue <= rating ? "#ffc107" : "#e4e5e9"}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+var comments, commentCount, commentShown, commentHidden;
+
+$(document).ready(function () {
+  $(".text_overflow_js").each(function () {
+    var text = $(this).text();
+    var originalText = text;
+    if (text.length > 200) {
+      $(this).html(
+        text.substr(0, 200) +
+          '... <button class="btn fs_secondary p-0 m-0 text-primary border-0" onclick="readMore(this,`' +
+          originalText +
+          '`)">Read more</button>'
+      );
+    }
+  });
+
+  comments = $(".comment");
+  commentCount = comments.length;
+  commentShown = 3;
+  commentHidden = commentCount - commentShown;
+  comments.slice(commentShown).addClass("d-none");
+  $("#load_more_comments_div").html(
+    '<button id="loadMore" class="btn bg-transparent border-0 p-0 m-0 text-primary mt-2"  onclick="loadMoreComments()">Load more rating ...</button>'
+  );
+  if (commentHidden === 0) {
+    $("#loadMore").addClass("d-none");
+  }
+});
+
+window.readMore = function (btn, text) {
+  $(btn).parent().html(text);
+  console.log("read more");
+};
+
+window.loadMoreComments = function () {
+  console.log("load more");
+  commentShown += 3;
+  commentHidden = commentCount - commentShown;
+  comments.slice(0, commentShown).removeClass("d-none");
+  if (commentHidden === 0) {
+    $("#loadMore").addClass("d-none");
+  }
+};
+function Comment(props) {
+  const { profile_src, username, date, rating, comment } = props;
+
+  return (
+    <Container className="p-0 justify-content-center align-middle mt-3 comment">
+      <Row>
+        <Col sm="2" md="1" className="p-0 col-2">
+          <Image
+            fluid
+            loading="lazy"
+            thumbnail
+            src={profile_src}
+            className="rounded-circle border-0 img_cover p-2"
+            style={{ width: "60px", height: "60px" }}
+          />
+        </Col>
+        <Col md="11" className="p-0 col-9 pe-0 pe-md-3">
+          <Container className="d-grid justify-content-start mt-1 ps-0 pe-0">
+            <Row>
+              <Col className="d-grid justify-content-start pe-0 fs_secondary text-start">
+                <strong>
+                  <span className="text-break">{username}</span>{" "}
+                  <span className="d-inline-block">
+                    · {date} · <StarRating rating={rating} />
+                  </span>
+                </strong>
+              </Col>
+              <div className="w-100"></div>
+              <Col className="justify-content-start text-start pe-0 fs_secondary text_overflow_js">
+                {comment}
+              </Col>
+            </Row>
+          </Container>
+        </Col>
+      </Row>
+    </Container>
+  );
+}
+
+function CommentSection() {
+  return (
+    <section>
+      <CommentHeader totalComments="10k" />
+      <Comment
+        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        username="Nara"
+        date="4/4/2014"
+        rating="4"
+        comment="It is a wonderful drama! Love it so much!!! i need long comments
+                to see how it is being seen in the display. Lorem ipsum dolor
+                sit amet, consectetur adipiscing elit. Donec nec odio vitae
+                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
+                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
+                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
+                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
+                odio vitae nunc. Donec nec odio vitae"
+      />
+      <Comment
+        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        username="Nara"
+        date="4/4/2014"
+        rating="4"
+        comment="It is a wonderful drama! Love it so much!!! i need long comments
+                to see how it is being seen in the display. Lorem ipsum dolor
+                sit amet, consectetur adipiscing elit. Donec nec odio vitae
+                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
+                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
+                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
+                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
+                odio vitae nunc. Donec nec odio vitae"
+      />
+      <Comment
+        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        username="Nara"
+        date="4/4/2014"
+        rating="4"
+        comment="It is a wonderful drama! Love it so much!!! i need long comments
+                to see how it is being seen in the display. Lorem ipsum dolor
+                sit amet, consectetur adipiscing elit. Donec nec odio vitae
+                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
+                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
+                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
+                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
+                odio vitae nunc. Donec nec odio vitae"
+      />
+      <Comment
+        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        username="Nara"
+        date="4/4/2014"
+        rating="4"
+        comment="It is a wonderful drama! Love it so much!!! i need long comments
+                to see how it is being seen in the display. Lorem ipsum dolor
+                sit amet, consectetur adipiscing elit. Donec nec odio vitae
+                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
+                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
+                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
+                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
+                odio vitae nunc. Donec nec odio vitae"
+      />
+      <Comment
+        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        username="Nara"
+        date="4/4/2014"
+        rating="4"
+        comment="It is a wonderful drama! Love it so much!!! i need long comments
+                to see how it is being seen in the display. Lorem ipsum dolor
+                sit amet, consectetur adipiscing elit. Donec nec odio vitae
+                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
+                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
+                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
+                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
+                odio vitae nunc. Donec nec odio vitae"
+      />
+      <Comment
+        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        username="Nara"
+        date="4/4/2014"
+        rating="4"
+        comment="It is a wonderful drama! Love it so much!!! i need long comments
+                to see how it is being seen in the display. Lorem ipsum dolor
+                sit amet, consectetur adipiscing elit. Donec nec odio vitae
+                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
+                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
+                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
+                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
+                odio vitae nunc. Donec nec odio vitae"
+      />
+      <Comment
+        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        username="Nara"
+        date="4/4/2014"
+        rating="4"
+        comment="It is a wonderful drama! Love it so much!!! i need long comments
+                to see how it is being seen in the display. Lorem ipsum dolor
+                sit amet, consectetur adipiscing elit. Donec nec odio vitae
+                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
+                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
+                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
+                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
+                odio vitae nunc. Donec nec odio vitae"
+      />
+      <Comment
+        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        username="Nara"
+        date="4/4/2014"
+        rating="4"
+        comment="It is a wonderful drama! Love it so much!!! i need long comments
+                to see how it is being seen in the display. Lorem ipsum dolor
+                sit amet, consectetur adipiscing elit. Donec nec odio vitae
+                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
+                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
+                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
+                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
+                odio vitae nunc. Donec nec odio vitae"
+      />
+      <Comment
+        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        username="Nara"
+        date="4/4/2014"
+        rating="4"
+        comment="It is a wonderful drama! Love it so much!!! i need long comments
+                to see how it is being seen in the display. Lorem ipsum dolor
+                sit amet, consectetur adipiscing elit. Donec nec odio vitae
+                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
+                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
+                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
+                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
+                odio vitae nunc. Donec nec odio vitae"
+      />
+
+      <div
+        id="load_more_comments_div"
+        className="d-flex justify-content-start"
+      ></div>
+    </section>
+  );
+}
+
+function AddComment() {
+  return (
+    <div className="justify-content-start mt-4 fw-normal">
+      <span className="d-flex fs_primary mb-2 ps-2">Add Yours!</span>
+      <div className="justify-content-start">
+        <Form className="bg-secondary p-4 pb-1 text-light rounded-3">
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={3} className="d-flex justify-content-start">
+              Name
+            </Form.Label>
+            <Col>
+              <Form.Control type="text" />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={3} className="d-flex justify-content-start">
+              Rate
+            </Form.Label>
+            <Col className="d-flex justify-content-start pt-2">
+              <Rating
+                style={{ backgroundColor: "transparent" }}
+                name="no-value"
+                defaultValue={0}
+                icon={
+                  <FontAwesomeIcon
+                    icon={faStar}
+                    color="#ffc107"
+                    className="fs-5 pe-1"
+                  />
+                }
+                emptyIcon={
+                  <FontAwesomeIcon
+                    icon={faStar}
+                    color="#e4e5e9"
+                    className="fs-5 pe-1"
+                  />
+                }
+              />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={3} className="d-flex justify-content-start">
+              Your thoughts
+            </Form.Label>
+            <Col>
+              <Form.Control as="textarea" />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label
+              column
+              sm={3}
+              className="d-flex justify-content-start"
+            ></Form.Label>
+            <Col className="d-flex justify-content-start">
+              You can only submit your comment once.
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label
+              column
+              sm={3}
+              className="d-flex justify-content-start"
+            ></Form.Label>
+            <Col className="d-flex justify-content-start">
+              <Button className="rounded-4">Submit</Button>
+            </Col>
+          </Form.Group>
+        </Form>
+      </div>
+    </div>
+  );
+}
+
 function DetailPage() {
   return (
     <center>
-      <div className="w-sm-100 w-xl-75">
+      <div className="w-sm-100 w-xl-75 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
         <MovieInfo
           poster="https://d1csarkz8obe9u.cloudfront.net/posterpreviews/action-mistery-movie-poster-design-template-2ec690d65c22aa12e437d765dbf7e4af_screen.jpg?ts=1680854635"
           judul="The OUTSIDER"
@@ -136,13 +527,13 @@ function DetailPage() {
           availability="Fansub bla bla"
         />
         <div
-          className="container-fluid mt-4 ps-4 ps-md-4 ps-lg-0 pe-0"
+          className="container-fluid mt-4 p-0"
           style={{ overflow: "hidden" }}
         >
           <div className="row">
             <div className="col-12 p-0">
               <div
-                className="justify-content-center pe-2"
+                className="justify-content-center"
                 style={{ whiteSpace: "nowrap", overflowX: "scroll" }}
               >
                 <Actor
@@ -207,6 +598,10 @@ function DetailPage() {
         </div>
 
         <Trailer src="https://youtu.be/eNDKWr3Xmjk" />
+
+        <CommentSection />
+
+        <AddComment />
       </div>
     </center>
   );

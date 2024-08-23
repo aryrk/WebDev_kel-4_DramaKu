@@ -370,3 +370,49 @@ body {
     max-width: 25% !important;
   }
 }
+
+@media (max-width: 576px) {
+  .fs_sm_primary {
+    font-size: 1.1rem;
+  }
+  .fs_sm_secondary {
+    font-size: 0.80rem;
+  }
+}
+
+@media (min-width: 576px) {
+  .fs_md_primary {
+    font-size: 1.1rem;
+  }
+  .fs_md_secondary {
+    font-size: 0.80rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .fs_lg_primary {
+    font-size: 1.1rem;
+  }
+  .fs_lg_secondary {
+    font-size: 0.80rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .fs_xl_primary {
+    font-size: 1.1rem;
+  }
+  .fs_xl_secondary {
+    font-size: 0.80rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .fs_xxl_primary {
+    font-size: 1.1rem;
+  }
+  .fs_xxl_secondary {
+    font-size: 0.80rem;
+  }
+}
+

@@ -83,7 +83,7 @@ function Actor(props) {
   return (
     <Card
       style={{ width: "8rem", display: "inline-block", verticalAlign: "top" }}
-      className="border-0 ps-0 ps-lg-1"
+      className="border-0 ps-0 ps-lg-1 bg-transparent text-white"
     >
       <center>
         <Card.Img
@@ -156,7 +156,7 @@ function CommentHeader(props) {
               <Row>
                 <Col className="col-sm-5 col-md-auto">Filtered by:</Col>
                 <Col className="col-7 me-0 pe-0">
-                  <select className="form-select form-select-sm">
+                  <select className="form-select form-select-sm bg-secondary border-0">
                     <option value="5">⭐⭐⭐⭐⭐</option>
                     <option value="5">⭐⭐⭐⭐</option>
                     <option value="5">⭐⭐⭐</option>
@@ -245,7 +245,7 @@ function Comment(props) {
             loading="lazy"
             thumbnail
             src={profile_src}
-            className="rounded-circle border-0 img_cover p-2"
+            className="rounded-circle border-0 img_cover p-2 bg-transparent"
             style={{ width: "60px", height: "60px" }}
           />
         </Col>

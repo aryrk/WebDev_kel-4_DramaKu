@@ -1,8 +1,25 @@
+/* ===== Scrollbar CSS ===== */
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #444856 #ffffff00;
+  }
 
+
+  *::-webkit-scrollbar-track {
+    background: #ffffff;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #444856;
+    border: 0px none #444856;
+  }
 body {
   font-family: 'Inter';
   src: local('Inter'), url(https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap);
   font-weight: 400;
+  background-color: #080f2b;
+  color: white;
 }
 .fs_primary {
   font-size: 1.1rem;
@@ -17,6 +34,26 @@ body {
 }
 .img_cover {
   object-fit: cover;
+}
+
+.bg_pallete_1 {
+  background-color: #080f2b;
+  color: white;
+}
+
+.bg_pallete_2 {
+  background-color: #1b1a54;
+  color: white;
+}
+
+.bg_pallete_3 {
+  background-color: #525c91;
+  color: white;
+}
+
+.bg_pallete_4 {
+  background-color: #9290c2;
+  color: white;
 }
 
 /* Font Size Breakpoint */

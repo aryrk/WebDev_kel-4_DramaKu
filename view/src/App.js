@@ -6,8 +6,6 @@ import {
   NavigationProvider,
   useNavigation,
 } from "./components/NavigationContext";
-import Page2 from "./pages/page2";
-import Page1 from "./pages/page1";
 import DetailPage from "./pages/DetailPage";
 import Login from "./pages/Login";
 import "./App.css";
@@ -19,8 +17,7 @@ function AppContent() {
     <div>
       {showNavigation && <Navigation />}
       <Routes>
-        <Route path="/" element={<Page1 />} />
-        <Route path="/page2" element={<Page2 />} />
+        <Route path="/" element={<Login />} />
         <Route path="/detail" element={<DetailPage />} />
         <Route path="/login" element={<Login />} />
       </Routes>

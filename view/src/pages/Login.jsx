@@ -4,7 +4,7 @@ import { Form, Row, Col, Image, InputGroup } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigation } from "../components/NavigationContext";
 import { useEffect } from "react";
-import styles from "./pagesStyle/Login.css";
+import "./pagesStyle/Login.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faKey } from "@fortawesome/free-solid-svg-icons";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
@@ -132,7 +132,7 @@ function LoginBackground(props) {
             {posters.map((poster, index) => (
               <CarouselImage
                 key={index}
-                src={process.env.PUBLIC_URL + poster}
+                src={poster}
               />
             ))}
           </div>

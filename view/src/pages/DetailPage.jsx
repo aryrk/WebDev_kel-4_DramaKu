@@ -181,6 +181,7 @@ function StarRating(props) {
         const ratingValue = i + 1;
         return (
           <FontAwesomeIcon
+          key={i}
             icon={faStar}
             color={ratingValue <= rating ? "#ffc107" : "#e4e5e9"}
           />

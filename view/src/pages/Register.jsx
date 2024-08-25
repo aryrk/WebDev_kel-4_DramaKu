@@ -1,5 +1,4 @@
 import React from 'react'
-import { useNavigation } from "../components/NavigationContext";
 import { useEffect } from "react";
 import {LoginBackground} from "./Login"
 import { Form, InputGroup } from "react-bootstrap";
@@ -7,6 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faKey } from "@fortawesome/free-solid-svg-icons";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { withConfig } from '../Config';
 
 function RegisterForm() {
   return (
@@ -78,11 +78,10 @@ function RegisterForm() {
   );
 }
 
-const Register = () => {
-    const { setShowNavigation } = useNavigation();
+const Register = ({config}) => {
   useEffect(() => {
-    setShowNavigation(false);
-  }, [setShowNavigation]);
+    document.title = `Register - ${config.short_name}`;
+  }, [config]);
   return (
     <div>
       <RegisterForm/>
@@ -91,4 +90,4 @@ const Register = () => {
   )
 }
 
-export default Register
+export default withConfig(Register)

@@ -2,7 +2,6 @@ import React from "react";
 import { withConfig } from "../Config";
 import { Form, Row, Col, Image, InputGroup } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigation } from "../components/NavigationContext";
 import { useEffect } from "react";
 import "./pagesStyle/Login.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -145,10 +144,9 @@ function LoginBackground(props) {
 }
 
 const Login = ({ config }) => {
-  const { setShowNavigation } = useNavigation();
   useEffect(() => {
-    setShowNavigation(false);
-  }, [setShowNavigation]);
+    document.title = `Login - ${config.short_name}`;
+  }, [config]);
   return (
     <div>
       <LoginForm config={config} />

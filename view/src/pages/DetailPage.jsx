@@ -13,6 +13,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { Rating } from "@mui/material";
 import $ from "jquery";
+import { useEffect } from "react";
+import { useNavigation } from "../components/NavigationContext";
+
 
 function MovieInfo(props) {
   const {
@@ -78,12 +81,19 @@ function MovieInfo(props) {
   );
 }
 
+
+function ActorDetail(){
+  return(
+    <div className="tooltip_content">Hai</div>
+  );
+}
+
 function Actor(props) {
   const { src, name } = props;
   return (
     <Card
       style={{ width: "8rem", display: "inline-block", verticalAlign: "top" }}
-      className="border-0 ps-0 ps-lg-1 bg-transparent text-white"
+      className="border-0 ps-0 ps-lg-1 bg-transparent text-white "
     >
       <center>
         <Card.Img
@@ -440,7 +450,7 @@ function AddComment() {
     <div className="justify-content-start mt-4 fw-normal">
       <span className="d-flex fs_primary mb-2 ps-2">Add Yours!</span>
       <div className="justify-content-start">
-        <Form className="bg-secondary p-4 pb-1 text-light rounded-3">
+        <Form className="bg_pallete_2 p-4 pb-1 text-light rounded-3">
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={3} className="d-flex justify-content-start">
               Name
@@ -510,6 +520,10 @@ function AddComment() {
 }
 
 function DetailPage() {
+  const { setShowNavigation } = useNavigation();
+  useEffect(() => {
+    setShowNavigation(true);
+  }, [setShowNavigation]);
   return (
     <center>
       <div className="w-sm-100 w-xl-75 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">

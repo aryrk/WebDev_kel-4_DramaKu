@@ -87,9 +87,7 @@ function Actor(props) {
     >
       <center>
         <Card.Img
-          className="img_cover border-0 rounded-3"
-          fluid
-          thumbnail
+          className="img_cover img-thumbnail p-0 border-0 rounded-3 img-fluid"
           src={src}
           loading="lazy"
           style={{ width: "110px", height: "141px" }}
@@ -119,12 +117,11 @@ function Trailer(props) {
     <center>
       <div className="mt-4 embed-responsive embed-responsive-16by9">
         <iframe
-          className="embed-responsive-item rounded-3 w-100"
+          className="embed-responsive-item rounded-3 w-100 border-0"
           src={src}
           allowFullScreen
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerpolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
           style={{ height: "calc(35vw + 100px)" }}
           title={src}
         ></iframe>
@@ -200,7 +197,7 @@ $(document).ready(function () {
     if (text.length > 200) {
       $(this).html(
         text.substr(0, 200) +
-          '... <button class="btn fs_secondary p-0 m-0 text-primary border-0" onclick="readMore(this,`' +
+          '... <button class="btn fs_secondary p-0 m-0 link border-0" onclick="readMore(this,`' +
           originalText +
           '`)">Read more</button>'
       );
@@ -213,7 +210,7 @@ $(document).ready(function () {
   commentHidden = commentCount - commentShown;
   comments.slice(commentShown).addClass("d-none");
   $("#load_more_comments_div").html(
-    '<button id="loadMore" class="btn bg-transparent border-0 p-0 m-0 text-primary mt-2"  onclick="loadMoreComments()">Load more rating ...</button>'
+    '<button id="loadMore" class="btn bg-transparent border-0 p-0 m-0 link mt-2"  onclick="loadMoreComments()">Load more rating ...</button>'
   );
   if (commentHidden === 0) {
     $("#loadMore").addClass("d-none");
@@ -222,7 +219,6 @@ $(document).ready(function () {
 
 window.readMore = function (btn, text) {
   $(btn).parent().html(text);
-  console.log("read more");
 };
 
 window.loadMoreComments = function () {

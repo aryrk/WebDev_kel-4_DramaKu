@@ -14,6 +14,11 @@
     background-color: #444856;
     border: 0px none #444856;
   }
+
+.link {
+  color: #afadf0 !important;
+  text-decoration: none;
+}
 body {
   font-family: 'Inter';
   src: local('Inter'), url(https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap);

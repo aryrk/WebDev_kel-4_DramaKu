@@ -54,10 +54,12 @@ function LoginForm(props) {
             Sign in
           </button>
           <br></br>
-          <button className="btn border-0 bg_pallete_3 mt-3 mb-2 rounded-3 w-100">
+          <button className="btn border-0 bg_pallete_3 mt-3 mb-4 pb-2 rounded-3 w-100">
             Sign in with Google{" "}
             <FontAwesomeIcon className="ms-1" icon={faGoogle} />
           </button>
+
+          <a href="/register" className="link">Don't have an account yet?  Sign Up</a>
         </Form>
       </div>
     </center>
@@ -156,3 +158,4 @@ const Login = ({ config }) => {
 };
 
 export default withConfig(Login);
+export { LoginBackground };

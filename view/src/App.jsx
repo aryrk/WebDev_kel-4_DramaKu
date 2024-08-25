@@ -8,6 +8,7 @@ import {
 } from "./components/NavigationContext";
 import DetailPage from "./pages/DetailPage";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import "./App.css";
 
 function AppContent() {
@@ -20,6 +21,7 @@ function AppContent() {
         <Route path="/" element={<Login />} />
         <Route path="/detail" element={<DetailPage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </div>
   );

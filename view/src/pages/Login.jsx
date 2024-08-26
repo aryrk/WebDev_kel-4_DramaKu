@@ -58,7 +58,9 @@ function LoginForm(props) {
             <FontAwesomeIcon className="ms-1" icon={faGoogle} />
           </button>
 
-          <a href="/register" className="link">Don't have an account yet?  Sign Up</a>
+          <a href="/register" className="link">
+            Don't have an account yet? Sign Up
+          </a>
         </Form>
       </div>
     </center>
@@ -131,10 +133,7 @@ function LoginBackground(props) {
           >
             {/* loop for posters */}
             {posters.map((poster, index) => (
-              <CarouselImage
-                key={index}
-                src={poster}
-              />
+              <CarouselImage key={index} src={poster} />
             ))}
           </div>
         </div>

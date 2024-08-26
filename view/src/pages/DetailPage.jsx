@@ -16,7 +16,6 @@ import $ from "jquery";
 import { useEffect } from "react";
 import { useNavigation } from "../components/NavigationContext";
 
-
 function MovieInfo(props) {
   const {
     poster,
@@ -81,11 +80,8 @@ function MovieInfo(props) {
   );
 }
 
-
-function ActorDetail(){
-  return(
-    <div className="tooltip_content">Hai</div>
-  );
+function ActorDetail() {
+  return <div className="tooltip_content">Hai</div>;
 }
 
 function Actor(props) {
@@ -188,7 +184,7 @@ function StarRating(props) {
         const ratingValue = i + 1;
         return (
           <FontAwesomeIcon
-          key={i}
+            key={i}
             icon={faStar}
             color={ratingValue <= rating ? "#ffc107" : "#e4e5e9"}
           />

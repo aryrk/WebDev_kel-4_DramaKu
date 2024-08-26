@@ -61,6 +61,17 @@ body {
   color: white;
 }
 
+select {
+  background-color: #0078d7 !important;
+  color: white !important;
+  border: 0px !important;
+}
+select option {
+  background-color: #080f2b !important;
+  color: white !important;
+  border: 0px !important;
+}
+
 /* Font Size Breakpoint */
 @media (max-width: 576px) {
   .fs-sm-1 {
@@ -184,6 +195,9 @@ body {
   .w-sm-25 {
     width: 25% !important;
   }
+  .w-sm-10{
+    width: 10% !important;
+  }
 }
 
 @media (min-width: 576px) {
@@ -198,6 +212,9 @@ body {
   }
   .w-md-25 {
     width: 25% !important;
+  }
+  .w-md-10{
+    width: 10% !important;
   }
 }
 
@@ -214,6 +231,9 @@ body {
   .w-lg-25 {
     width: 25% !important;
   }
+  .w-lg-10{
+    width: 10% !important;
+  }
 }
 
 @media (min-width: 992px) {
@@ -229,6 +249,9 @@ body {
   .w-xl-25 {
     width: 25% !important;
   }
+  .w-xl-10{
+    width: 10% !important;
+  }
 }
 
 @media (min-width: 1200px) {
@@ -243,6 +266,9 @@ body {
   }
   .w-xxl-25 {
     width: 25% !important;
+  }
+  .w-xxl-10{
+    width: 10% !important;
   }
 }
 
@@ -458,3 +484,33 @@ body {
   }
 }
 
+/* display unset */
+@media (max-width: 576px) {
+  .d-sm-unset {
+    display: unset !important;
+  }
+}
+
+@media (min-width: 576px) {
+  .d-md-unset {
+    display: unset !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .d-lg-unset {
+    display: unset !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .d-xl-unset {
+    display: unset !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .d-xxl-unset {
+    display: unset !important;
+  }
+}

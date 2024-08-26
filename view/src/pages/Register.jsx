@@ -1,12 +1,12 @@
-import React from 'react'
+import React from "react";
 import { useEffect } from "react";
-import {LoginBackground} from "./Login"
+import { LoginBackground } from "./Login";
 import { Form, InputGroup } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faKey } from "@fortawesome/free-solid-svg-icons";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
-import { withConfig } from '../Config';
+import { withConfig } from "../Config";
 
 function RegisterForm() {
   return (
@@ -39,7 +39,7 @@ function RegisterForm() {
               id="basic-addon1"
               className="bg_pallete_3 border-0"
             >
-              <FontAwesomeIcon icon={faGoogle}/>
+              <FontAwesomeIcon icon={faGoogle} />
             </InputGroup.Text>
             <Form.Control
               placeholder="Email"
@@ -71,23 +71,25 @@ function RegisterForm() {
             <FontAwesomeIcon className="ms-1" icon={faGoogle} />
           </button>
 
-          <a href="/login" className="link">Already have an account? Login here!</a>
+          <a href="/login" className="link">
+            Already have an account? Login here!
+          </a>
         </Form>
       </div>
     </center>
   );
 }
 
-const Register = ({config}) => {
+const Register = ({ config }) => {
   useEffect(() => {
     document.title = `Register - ${config.short_name}`;
   }, [config]);
   return (
     <div>
-      <RegisterForm/>
+      <RegisterForm />
       <LoginBackground />
     </div>
-  )
-}
+  );
+};
 
-export default withConfig(Register)
+export default withConfig(Register);

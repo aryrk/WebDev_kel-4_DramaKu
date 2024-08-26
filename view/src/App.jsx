@@ -9,6 +9,7 @@ import {
 import DetailPage from "./pages/DetailPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Actors from "./pages/CMS/Actors";
 import "./App.css";
 
 function AppContent() {
@@ -22,6 +23,7 @@ function AppContent() {
         <Route path="/detail" element={<DetailPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/cms/actors" element={<Actors />} />
       </Routes>
     </div>
   );

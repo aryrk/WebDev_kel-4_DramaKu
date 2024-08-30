@@ -29,14 +29,14 @@ function AppContent() {
       <div
         className={
           showSidebar &&
-          "sidebar-wrapper wrapper d-flex align-items-stretch w-100 h-100"
+          "sidebar-wrapper wrapper d-flex align-items-stretch justify-content-center w-100 h-100"
         }
       >
         {showSidebar && <Sidebar />}
         <div
           className={
             showSidebar &&
-            "sidebar-wrapper wrapper d-flex align-items-stretch w-100 h-100"
+            "sidebar-wrapper wrapper d-flex align-items-stretch justify-content-center w-100 h-100"
           }
         >
           <Routes>

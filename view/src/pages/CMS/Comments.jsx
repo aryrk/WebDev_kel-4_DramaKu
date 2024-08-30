@@ -18,7 +18,7 @@ function CommentsItem(props) {
   const { username, rate, drama, comments, status } = props;
   return (
     <tr>
-      <td className="text-center">
+      <td className="text-center text-light">
         <Checkbox />
       </td>
       <td>{username}</td>
@@ -46,7 +46,7 @@ function CommentsItem(props) {
 function CommentsTable() {
   useEffect(() => {
     new DataTable("#comments", {
-      columnDefs: [{ width: "120px", targets: 2 }],
+      columnDefs: [{ width: "130px", targets: 2 }],
     });
 
     return () => {
@@ -105,12 +105,14 @@ function Footer() {
     <div className="d-flex justify-content-start text-start">
       <div className="justify-content-start">
         <div className="w-100">
-          <a href="#">Select All</a>
+          <a href="#" className="link">
+            Select All
+          </a>
         </div>
-        <Button variant="primary" className="pt-2 pb-2 ms-0">
+        <Button variant="primary" className="mt-3 pt-2 pb-2 ms-0">
           Approve
         </Button>
-        <Button variant="danger" className="ms-3 pt-2 pb-2">
+        <Button variant="danger" className="mt-3 ms-3 pt-2 pb-2">
           Delete
         </Button>
       </div>
@@ -119,9 +121,10 @@ function Footer() {
 }
 
 const Comments = () => {
-  const { setShowSidebar } = useGlobalState();
+  const { setShowSidebar, setActiveMenu } = useGlobalState();
   useEffect(() => {
     setShowSidebar(true);
+    setActiveMenu("Comments");
   }, [setShowSidebar]);
   return (
     <center>

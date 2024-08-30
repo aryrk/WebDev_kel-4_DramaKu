@@ -1,27 +1,27 @@
 /* ===== Scrollbar CSS ===== */
-  /* Firefox */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: #444856 #ffffff00;
-  }
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #444856 #ffffff00;
+}
 
+*::-webkit-scrollbar-track {
+  background: #ffffff;
+}
 
-  *::-webkit-scrollbar-track {
-    background: #ffffff;
-  }
-
-  *::-webkit-scrollbar-thumb {
-    background-color: #444856;
-    border: 0px none #444856;
-  }
+*::-webkit-scrollbar-thumb {
+  background-color: #444856;
+  border: 0px none #444856;
+}
 
 .link {
   color: #afadf0 !important;
   text-decoration: none;
 }
 body {
-  font-family: 'Inter';
-  src: local('Inter'), url(https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap);
+  font-family: "Inter";
+  src: local("Inter"),
+    url(https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap);
   font-weight: 400;
   background-color: #141414;
   color: white;
@@ -30,7 +30,7 @@ body {
   font-size: 1.1rem;
 }
 .fs_secondary {
-  font-size: 0.80rem;
+  font-size: 0.8rem;
 }
 
 .bg_secondary {
@@ -85,25 +85,28 @@ select option {
   color: white !important;
   border: 0;
 }
+.MuiButtonBase-root {
+  color: white !important;
+}
 
 /* Font Size Breakpoint */
 @media (max-width: 576px) {
   .fs-sm-1 {
     font-size: calc(1.375rem + 1.5vw) !important;
   }
-  .fs-sm-2{
+  .fs-sm-2 {
     font-size: calc(1.325rem + 0.9vw) !important;
   }
-  .fs-sm-3{
+  .fs-sm-3 {
     font-size: calc(1.3rem + 0.6vw) !important;
   }
-  .fs-sm-4{
+  .fs-sm-4 {
     font-size: calc(1.275rem + 0.3vw) !important;
   }
-  .fs-sm-5{
+  .fs-sm-5 {
     font-size: 1.25rem !important;
   }
-  .fs-sm-6{
+  .fs-sm-6 {
     font-size: 1rem !important;
   }
 }
@@ -112,19 +115,19 @@ select option {
   .fs-md-1 {
     font-size: calc(1.375rem + 1.5vw) !important;
   }
-  .fs-md-2{
+  .fs-md-2 {
     font-size: calc(1.325rem + 0.9vw) !important;
   }
-  .fs-md-3{
+  .fs-md-3 {
     font-size: calc(1.3rem + 0.6vw) !important;
   }
-  .fs-md-4{
+  .fs-md-4 {
     font-size: calc(1.275rem + 0.3vw) !important;
   }
-  .fs-md-5{
+  .fs-md-5 {
     font-size: 1.25rem !important;
   }
-  .fs-md-6{
+  .fs-md-6 {
     font-size: 1rem !important;
   }
 }
@@ -133,19 +136,19 @@ select option {
   .fs-lg-1 {
     font-size: calc(1.375rem + 1.5vw) !important;
   }
-  .fs-lg-2{
+  .fs-lg-2 {
     font-size: calc(1.325rem + 0.9vw) !important;
   }
-  .fs-lg-3{
+  .fs-lg-3 {
     font-size: calc(1.3rem + 0.6vw) !important;
   }
-  .fs-lg-4{
+  .fs-lg-4 {
     font-size: calc(1.275rem + 0.3vw) !important;
   }
-  .fs-lg-5{
+  .fs-lg-5 {
     font-size: 1.25rem !important;
   }
-  .fs-lg-6{
+  .fs-lg-6 {
     font-size: 1rem !important;
   }
 }
@@ -154,19 +157,19 @@ select option {
   .fs-xl-1 {
     font-size: calc(1.375rem + 1.5vw) !important;
   }
-  .fs-xl-2{
+  .fs-xl-2 {
     font-size: calc(1.325rem + 0.9vw) !important;
   }
-  .fs-xl-3{
+  .fs-xl-3 {
     font-size: calc(1.3rem + 0.6vw) !important;
   }
-  .fs-xl-4{
+  .fs-xl-4 {
     font-size: calc(1.275rem + 0.3vw) !important;
   }
-  .fs-xl-5{
+  .fs-xl-5 {
     font-size: 1.25rem !important;
   }
-  .fs-xl-6{
+  .fs-xl-6 {
     font-size: 1rem !important;
   }
 }
@@ -175,25 +178,24 @@ select option {
   .fs-xxl-1 {
     font-size: calc(1.375rem + 1.5vw) !important;
   }
-  .fs-xxl-2{
+  .fs-xxl-2 {
     font-size: calc(1.325rem + 0.9vw) !important;
   }
-  .fs-xxl-3{
+  .fs-xxl-3 {
     font-size: calc(1.3rem + 0.6vw) !important;
   }
-  .fs-xxl-4{
+  .fs-xxl-4 {
     font-size: calc(1.275rem + 0.3vw) !important;
   }
-  .fs-xxl-5{
+  .fs-xxl-5 {
     font-size: 1.25rem !important;
   }
-  .fs-xxl-6{
+  .fs-xxl-6 {
     font-size: 1rem !important;
   }
 }
 
 /* Font Size Breakpoint */
-
 
 /* width Breakpoint */
 @media (max-width: 576px) {
@@ -212,7 +214,7 @@ select option {
   .w-sm-25 {
     width: 25% !important;
   }
-  .w-sm-10{
+  .w-sm-10 {
     width: 10% !important;
   }
 }
@@ -233,7 +235,7 @@ select option {
   .w-md-25 {
     width: 25% !important;
   }
-  .w-md-10{
+  .w-md-10 {
     width: 10% !important;
   }
 }
@@ -254,7 +256,7 @@ select option {
   .w-lg-25 {
     width: 25% !important;
   }
-  .w-lg-10{
+  .w-lg-10 {
     width: 10% !important;
   }
 }
@@ -275,7 +277,7 @@ select option {
   .w-xl-25 {
     width: 25% !important;
   }
-  .w-xl-10{
+  .w-xl-10 {
     width: 10% !important;
   }
 }
@@ -296,7 +298,7 @@ select option {
   .w-xxl-25 {
     width: 25% !important;
   }
-  .w-xxl-10{
+  .w-xxl-10 {
     width: 10% !important;
   }
 }
@@ -473,7 +475,7 @@ select option {
     font-size: 1.1rem;
   }
   .fs_sm_secondary {
-    font-size: 0.80rem;
+    font-size: 0.8rem;
   }
 }
 
@@ -482,7 +484,7 @@ select option {
     font-size: 1.1rem;
   }
   .fs_md_secondary {
-    font-size: 0.80rem;
+    font-size: 0.8rem;
   }
 }
 
@@ -491,7 +493,7 @@ select option {
     font-size: 1.1rem;
   }
   .fs_lg_secondary {
-    font-size: 0.80rem;
+    font-size: 0.8rem;
   }
 }
 
@@ -500,7 +502,7 @@ select option {
     font-size: 1.1rem;
   }
   .fs_xl_secondary {
-    font-size: 0.80rem;
+    font-size: 0.8rem;
   }
 }
 
@@ -509,7 +511,7 @@ select option {
     font-size: 1.1rem;
   }
   .fs_xxl_secondary {
-    font-size: 0.80rem;
+    font-size: 0.8rem;
   }
 }
 

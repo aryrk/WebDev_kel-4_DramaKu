@@ -237,9 +237,10 @@ function ActorTable() {
 }
 
 const Actors = () => {
-  const { setShowSidebar } = useGlobalState();
+  const { setShowSidebar, setActiveMenu } = useGlobalState();
   useEffect(() => {
     setShowSidebar(true);
+    setActiveMenu("Actors");
   }, [setShowSidebar]);
   return (
     <center>

@@ -64,12 +64,12 @@ function AddUser() {
 }
 
 function User(props) {
-  // const { no, country, actorName, birthDate, src } = props;
+  const { no, username, email } = props;
   return (
     <tr>
-      <td className="text-center">1</td>
-      <td>Username</td>
-      <td>Email</td>
+      <td className="text-center">{no}</td>
+      <td>{username}</td>
+      <td>{email}</td>
       <td className="align-middle text-center">
         <center>
           <a href="#" className="me-2 link">
@@ -94,7 +94,7 @@ function UserTable() {
     new DataTable("#actors", {
       columnDefs: [
         { width: "60px", targets: 0 },
-        { width: "300px", targets: 3 },
+        { width: "330px", targets: 3 },
       ],
     });
     return () => {
@@ -112,7 +112,9 @@ function UserTable() {
         </tr>
       </thead>
       <tbody>
-        <User />
+        <User no="1" username="Aryrk" email="emailku@gmail.com" />
+        <User no="2" username="Saepul" email="saepul@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
       </tbody>
     </Table>
   );

@@ -1,5 +1,4 @@
 import React from "react";
-
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
 import Login from "./pages/Login";
@@ -10,20 +9,17 @@ import DetailPage from "./pages/DetailPage";
 import Navigation from "./components/Navigation";
 import Users from "./pages/CMS/Users";
 import ContentCard from "./pages/ContentCard";
-import {
-  NavigationProvider,
-  useNavigation,
-} from "./components/NavigationContext";
+
 import Sidebar from "./components/Sidebar";
-import ContentCard from "./pages/ContentCard";
-import Footer from "./components/Footer";
-import { SidebarProvider, useSidebar } from "./components/SidebarContext";
+import {
+  GlobalStateProvider,
+  useGlobalState,
+} from "./components/GlobalStateContext"; // Import GlobalStateContext
 
 import "./App.css";
 
 function AppContent() {
-  const { showNavigation } = useNavigation();
-  const { showSidebar } = useSidebar();
+  const { showNavigation, showSidebar } = useGlobalState(); // Gunakan useGlobalState
 
   return (
     <div>
@@ -56,53 +52,17 @@ function AppContent() {
     </div>
   );
 }
+
 function App() {
   return (
-    <NavigationProvider>
-      <SidebarProvider>
-        <Router>
-          <AppContent />
-        </Router>
-      </SidebarProvider>
-    </NavigationProvider>
+    <GlobalStateProvider>
+      {" "}
+      {/* Ganti NavigationProvider dan SidebarProvider dengan GlobalStateProvider */}
+      <Router>
+        <AppContent />
+      </Router>
+    </GlobalStateProvider>
   );
 }
-
-// function App() {
-//   // const [backendData, setBackendData] = useState([{}]);
-
-//   // useEffect(() => {
-//   //   fetch("/api")
-//   //     .then((res) => res.json())
-//   //     .then((data) => setBackendData(data));
-//   // }, [])
-
-//   // return (
-//   //   <div>
-//   //     <Navigation />
-
-//   //     <button className="btn bg-primary">Click me</button>
-//   //     {typeof backendData.users === "undefined" ? (
-//   //       <p>Loading...</p>
-//   //     ) : (
-//   //       backendData.users.map((user, i) => <p key={i}>{user}</p>)
-//   //     )}
-//   //   </div>
-//   // );
-//   var { showNavigation } = useNavigation();
-//   return (
-//     <div>
-//       {showNavigation && <Navigation />}
-//       <Router>
-//         <Routes>
-//           <Route path="/" element={<Page1 />} />
-//           <Route path="/page2" element={<Page2 />} />
-//           <Route path="/detail" element={<DetailPage />} />
-//           <Route path="/login" element={<Login />} />
-//         </Routes>
-//       </Router>
-//     </div>
-//   );
-// }
 
 export default App;

@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
-import { useNavigation } from "../components/NavigationContext";
-import Footer from "../components/Footer";
+import { useGlobalState } from "../components/GlobalStateContext";
 
 function ContentCard() {
-  const { setShowNavigation } = useNavigation();
+  const { setShowNavigation } = useGlobalState();
 
   useEffect(() => {
     setShowNavigation(true);
@@ -153,6 +152,7 @@ function ContentCard() {
                 src={card.image}
                 width="250px" // Adjusted width
                 alt={card.title}
+                loading="lazy"
                 style={{
                   borderRadius: "15px",
                   height: "350px", // Adjusted height

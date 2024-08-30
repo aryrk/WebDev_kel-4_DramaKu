@@ -16,7 +16,7 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faEdit } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { useSidebar } from "../../components/SidebarContext";
+import { useGlobalState } from "../../components/GlobalStateContext";
 
 import "datatables.net";
 
@@ -237,10 +237,9 @@ function ActorTable() {
 }
 
 const Actors = () => {
-  const { setShowSidebar } = useSidebar();
+  const { setShowSidebar } = useGlobalState();
   useEffect(() => {
     setShowSidebar(true);
-    // setAct
   }, [setShowSidebar]);
   return (
     <center>

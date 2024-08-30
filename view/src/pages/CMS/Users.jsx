@@ -9,7 +9,7 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faEdit } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { useSidebar } from "../../components/SidebarContext";
+import { useGlobalState } from "../../components/GlobalStateContext";
 
 import "datatables.net";
 
@@ -119,9 +119,10 @@ function UserTable() {
 }
 
 const Users = () => {
-  const { setShowSidebar } = useSidebar();
+  const { setActiveMenu, setShowSidebar } = useGlobalState();
   useEffect(() => {
     setShowSidebar(true);
+    setActiveMenu("Users");
   }, [setShowSidebar]);
   return (
     <center>

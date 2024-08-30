@@ -67,26 +67,35 @@ select {
   border: 0px !important;
 }
 select option {
-  background-color: #080f2b !important;
+  background-color: #141414 !important;
   color: white !important;
   border: 0px !important;
 }
 
 .filepond--root .filepond--image-preview {
   background: black !important;
+  border-radius: 15px;
 }
 .filepond--drop-label {
   background: black !important;
   color: white !important;
   border: 0;
+  border-radius: 15px;
 }
 .filepond--list-scroller {
   background: black !important;
   color: white !important;
   border: 0;
+  border-radius: 15px;
 }
 .MuiButtonBase-root {
   color: white !important;
+  border-radius: 15px;
+}
+.filepond--panel {
+  background: black !important;
+
+  border-radius: 15px !important;
 }
 
 /* Font Size Breakpoint */

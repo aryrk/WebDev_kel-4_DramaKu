@@ -27,6 +27,10 @@ var toggleAside = function () {
   $(".inner-container").toggleClass("w-xl-75");
 };
 
+var toggleMenu = function (self) {
+  $(self).next().slideToggle();
+};
+
 const Sidebar = ({ config }) => {
   const { activeMenu, setActiveMenu } = useGlobalState();
 
@@ -56,12 +60,39 @@ const Sidebar = ({ config }) => {
           </a>
         </h2>
         <ul className="list-unstyled components mb-5">
-          <li
-            id="Dramas"
-            className={`ps-4 pe-4 ${activeMenu === "Dramas" ? "active" : ""}`}
-            onClick={() => handleMenuClick("Dramas")}
-          >
-            <a href="#">Dramas</a>
+          <li id="Dramas" className="ps-4 pe-4">
+            <a
+              href="#homeSubmenu"
+              data-toggle="collapse"
+              aria-expanded="false"
+              className="dropdown-toggle"
+              onClick={(e) => toggleMenu(e.target)}
+            >
+              Dramas
+            </a>
+            <ul
+              className={`ms-0 ${
+                activeMenu === "Validate" || activeMenu === "Input New Drama"
+                  ? ""
+                  : "collapse"
+              } list-unstyled`}
+              id="homeSubmenu"
+            >
+              <li
+                className={`ps-3 ${activeMenu === "Validate" ? "active" : ""}`}
+                onClick={() => handleMenuClick("Validate")}
+              >
+                <a href="#">Validate</a>
+              </li>
+              <li
+                className={`ps-3 ${
+                  activeMenu === "Input New Drama" ? "active" : ""
+                }`}
+                onClick={() => handleMenuClick("Input New Drama")}
+              >
+                <a href="/cms/drama/input">Input New Drama</a>
+              </li>
+            </ul>
           </li>
           <li
             id="Countries"

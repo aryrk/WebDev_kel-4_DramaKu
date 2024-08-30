@@ -128,7 +128,7 @@ a[data-toggle="collapse"] {
 }
 
 .sidebar-content {
-  overflow: auto;
+  overflow: auto !important;
 }
 
 #sidebar .active {

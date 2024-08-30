@@ -9,6 +9,7 @@ import DetailPage from "./pages/DetailPage";
 import Navigation from "./components/Navigation";
 import Users from "./pages/CMS/Users";
 import ContentCard from "./pages/ContentCard";
+import DramaInput from "./pages/CMS/Drama/DramaInput";
 
 import Footer from "./components/Footer";
 
@@ -36,18 +37,19 @@ function AppContent() {
         <div
           className={
             showSidebar &&
-            "sidebar-wrapper wrapper d-flex align-items-stretch justify-content-center w-100 h-100"
+            "sidebar-content wrapper d-flex align-items-stretch justify-content-center w-100 h-100"
           }
         >
           <Routes>
             <Route path="/" element={<Login />} />
-            <Route path="/detail" element={<DetailPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/detail" element={<DetailPage />} />
+            <Route path="/home" element={<ContentCard />} />
             <Route path="/cms/actors" element={<Actors />} />
             <Route path="/cms/comments" element={<Comments />} />
             <Route path="/cms/users" element={<Users />} />
-            <Route path="/home" element={<ContentCard />} />
+            <Route path="/cms/drama/input" element={<DramaInput />} />
           </Routes>
           {showFooter && <Footer />}
         </div>

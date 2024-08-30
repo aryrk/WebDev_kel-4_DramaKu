@@ -200,6 +200,9 @@ select option {
   .w-sm-100 {
     width: 100% !important;
   }
+  .w-sm-90 {
+    width: 90% !important;
+  }
   .w-sm-75 {
     width: 75% !important;
   }
@@ -217,6 +220,9 @@ select option {
 @media (min-width: 576px) {
   .w-md-100 {
     width: 100% !important;
+  }
+  .w-md-90 {
+    width: 90% !important;
   }
   .w-md-75 {
     width: 75% !important;
@@ -236,6 +242,9 @@ select option {
   .w-lg-100 {
     width: 100% !important;
   }
+  .w-lg-90 {
+    width: 90% !important;
+  }
   .w-lg-75 {
     width: 75% !important;
   }
@@ -254,6 +263,9 @@ select option {
   .w-xl-100 {
     width: 100% !important;
   }
+  .w-xl-90 {
+    width: 90% !important;
+  }
   .w-xl-75 {
     width: 75% !important;
   }
@@ -271,6 +283,9 @@ select option {
 @media (min-width: 1200px) {
   .w-xxl-100 {
     width: 100% !important;
+  }
+  .w-xxl-90 {
+    width: 90% !important;
   }
   .w-xxl-75 {
     width: 75% !important;

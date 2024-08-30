@@ -1,9 +1,11 @@
-import React from "react";
+import React, { createContext, useContext, useState } from "react";
 import $ from "jquery";
 import "./sidebar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { withConfig } from "../Config";
+
+const SidebarActiveContext = createContext();
 
 var fullHeight = function () {
   $(".js-fullheight").css("height", $(window).height());
@@ -22,9 +24,15 @@ var toggleAside = function () {
       $("#content").addClass("sidebar-content");
     }
   }
+  $(".inner-container").toggleClass("w-xl-90");
+  $(".inner-container").toggleClass("w-xl-75");
 };
 
 const Sidebar = ({ config }) => {
+  const [ActiveMenu, setActiveMenu] = useState("");
+
+  $({ ActiveMenu }).addClass("active");
+
   return (
     <nav id="sidebar">
       <div className="custom-menu">
@@ -45,7 +53,7 @@ const Sidebar = ({ config }) => {
           </a>
         </h2>
         <ul className="list-unstyled components mb-5">
-          <li className="ps-4 pe-4 active">
+          <li className="ps-4 pe-4" id="Dramas">
             <a href="#">Dramas</a>
           </li>
           <li className="ps-4 pe-4">
@@ -74,5 +82,8 @@ const Sidebar = ({ config }) => {
     </nav>
   );
 };
+export function ActiveMenu() {
+  return useContext(SidebarActiveContext);
+}
 
 export default withConfig(Sidebar);

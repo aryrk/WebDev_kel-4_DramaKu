@@ -1,8 +1,4 @@
 import React from "react";
-<<<<<<< HEAD
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-=======
 
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
@@ -13,22 +9,14 @@ import Comments from "./pages/CMS/Comments";
 import DetailPage from "./pages/DetailPage";
 import Navigation from "./components/Navigation";
 import Users from "./pages/CMS/Users";
->>>>>>> d25e274ee045f36b3746091154770ad78a887af9
+import ContentCard from "./pages/ContentCard";
 import {
   NavigationProvider,
   useNavigation,
 } from "./components/NavigationContext";
-<<<<<<< HEAD
-import DetailPage from "./pages/DetailPage";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Actors from "./pages/CMS/Actors";
-import ContentCard from "./pages/ContentCard";
-=======
 import Sidebar from "./components/Sidebar";
 import { SidebarProvider, useSidebar } from "./components/SidebarContext";
 
->>>>>>> d25e274ee045f36b3746091154770ad78a887af9
 import "./App.css";
 
 function AppContent() {
@@ -38,16 +26,6 @@ function AppContent() {
   return (
     <div>
       {showNavigation && <Navigation />}
-<<<<<<< HEAD
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/detail" element={<DetailPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/cms/actors" element={<Actors />} />
-        <Route path="/home" element={<ContentCard />} />
-      </Routes>
-=======
       <div
         className={
           showSidebar &&
@@ -67,10 +45,10 @@ function AppContent() {
             <Route path="/cms/actors" element={<Actors />} />
             <Route path="/cms/comments" element={<Comments />} />
             <Route path="/cms/users" element={<Users />} />
+            <Route path="/home" element={<ContentCard />} />
           </Routes>
         </div>
       </div>
->>>>>>> d25e274ee045f36b3746091154770ad78a887af9
     </div>
   );
 }

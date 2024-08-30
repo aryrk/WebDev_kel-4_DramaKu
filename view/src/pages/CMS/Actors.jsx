@@ -240,10 +240,11 @@ const Actors = () => {
   const { setShowSidebar } = useSidebar();
   useEffect(() => {
     setShowSidebar(true);
+    // setAct
   }, [setShowSidebar]);
   return (
     <center>
-      <div className="w-sm-100 w-xl-75 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
+      <div className="inner-container w-sm-100 w-xl-90 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
         <AddActor />
         <ActorTable />
       </div>

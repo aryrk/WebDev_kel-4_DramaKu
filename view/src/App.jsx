@@ -10,6 +10,8 @@ import Navigation from "./components/Navigation";
 import Users from "./pages/CMS/Users";
 import ContentCard from "./pages/ContentCard";
 
+import Footer from "./components/Footer";
+
 import Sidebar from "./components/Sidebar";
 import {
   GlobalStateProvider,
@@ -19,7 +21,7 @@ import {
 import "./App.css";
 
 function AppContent() {
-  const { showNavigation, showSidebar } = useGlobalState(); // Gunakan useGlobalState
+  const { showFooter, showNavigation, showSidebar } = useGlobalState(); // Gunakan useGlobalState
 
   return (
     <div>
@@ -47,6 +49,7 @@ function AppContent() {
             <Route path="/cms/users" element={<Users />} />
             <Route path="/home" element={<ContentCard />} />
           </Routes>
+          {showFooter && <Footer />}
         </div>
       </div>
     </div>

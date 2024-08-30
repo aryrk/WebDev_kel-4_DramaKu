@@ -3,10 +3,11 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import { useGlobalState } from "../components/GlobalStateContext";
 
 function ContentCard() {
-  const { setShowNavigation } = useGlobalState();
+  const { setShowNavigation, setShowFooter } = useGlobalState();
 
   useEffect(() => {
     setShowNavigation(true);
+    setShowFooter(true);
   }, [setShowNavigation]);
 
   const cardData = [
@@ -153,6 +154,7 @@ function ContentCard() {
                 width="250px" // Adjusted width
                 alt={card.title}
                 loading="lazy"
+                // className="img-fluid thumbnail"
                 style={{
                   borderRadius: "15px",
                   height: "350px", // Adjusted height
@@ -177,7 +179,6 @@ function ContentCard() {
           </Col>
         ))}
       </Row>
-      <Footer config={{ config }} />
     </Container>
   );
 }

@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
+import { withConfig } from "../Config";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import "@fortawesome/fontawesome-free/css/all.min.css";
+// import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Footer = ({ config }) => {
   useEffect(() => {
@@ -245,4 +246,4 @@ const Footer = ({ config }) => {
   );
 };
 
-export default Footer;
+export default withConfig(Footer);

@@ -9,11 +9,12 @@ import {
   Row,
   Col,
 } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./CustomNavbar.css";
 import { withConfig } from "../Config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 // import "@fortawesome/fontawesome-free/css/all.min.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 const CustomNavbar = ({ config }) => {
   useEffect(() => {

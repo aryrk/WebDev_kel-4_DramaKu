@@ -1,7 +1,7 @@
 // import React, { useEffect, useState } from "react";
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navigation from "./components/Navigation";
+
 import {
   NavigationProvider,
   useNavigation,
@@ -10,6 +10,7 @@ import DetailPage from "./pages/DetailPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Actors from "./pages/CMS/Actors";
+import ContentCard from "./pages/ContentCard";
 import "./App.css";
 
 function AppContent() {
@@ -24,6 +25,7 @@ function AppContent() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/cms/actors" element={<Actors />} />
+        <Route path="/home" element={<ContentCard />} />
       </Routes>
     </div>
   );

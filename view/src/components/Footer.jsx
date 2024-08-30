@@ -15,31 +15,31 @@ const Footer = ({ config }) => {
         style={{ backgroundColor: "#212121", color: "wheat" }}
       >
         <Container>
-          <Row>
-            <Col md={4}>
+          <Row className="g-4">
+            <Col xs={12} md={4}>
               <h5>PlutoCinema</h5>
               <p>
                 Kami menyediakan film terbaru dan terbaik untuk Anda. Tonton
                 film sekarang juga!
               </p>
-              <div className="d-flex">
+              <div className="d-flex flex-wrap">
                 <Button
                   variant="link"
-                  className="p-0 me-3"
+                  className="p-0 me-2"
                   style={{ color: "wheat" }}
                 >
                   <FaTwitter size={24} />
                 </Button>
                 <Button
                   variant="link"
-                  className="p-0 me-3"
+                  className="p-0 me-2"
                   style={{ color: "wheat" }}
                 >
                   <FaFacebookF size={24} />
                 </Button>
                 <Button
                   variant="link"
-                  className="p-0 me-3"
+                  className="p-0 me-2"
                   style={{ color: "wheat" }}
                 >
                   <FaInstagram size={24} />
@@ -54,7 +54,7 @@ const Footer = ({ config }) => {
               </div>
             </Col>
 
-            <Col md={2}>
+            <Col xs={12} md={2}>
               <h6 className="text-uppercase">Countries</h6>
               <ListGroup variant="flush">
                 <ListGroup.Item className="bg-transparent p-0 border-0">
@@ -96,7 +96,7 @@ const Footer = ({ config }) => {
               </ListGroup>
             </Col>
 
-            <Col md={2}>
+            <Col xs={12} md={2}>
               <h6 className="text-uppercase">Genre</h6>
               <ListGroup variant="flush">
                 <ListGroup.Item className="bg-transparent p-0 border-0">
@@ -138,7 +138,7 @@ const Footer = ({ config }) => {
               </ListGroup>
             </Col>
 
-            <Col md={4}>
+            <Col xs={12} md={4}>
               <h6 className="text-uppercase">Subscribe to Newsletter</h6>
               <Form>
                 <Form.Group controlId="formBasicEmail">

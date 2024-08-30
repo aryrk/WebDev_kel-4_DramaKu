@@ -1,0 +1,21 @@
+/* Navigation.css */
+.navbar-custom {
+  background-color: #212121 !important;
+  color: wheat;
+}
+
+.navbar-custom .navbar-brand {
+  color: wheat;
+}
+
+.dropdown-toggle {
+  color: wheat;
+}
+
+.submit {
+  background-color: #525c91;
+}
+
+.search-icon {
+  color: wheat;
+}

@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { useNavigation } from "../components/NavigationContext";
+import Footer from "../components/Footer";
 
 function ContentCard() {
   const { setShowNavigation } = useNavigation();
@@ -176,6 +177,7 @@ function ContentCard() {
           </Col>
         ))}
       </Row>
+      <Footer config={{ config }} />
     </Container>
   );
 }

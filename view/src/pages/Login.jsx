@@ -1,12 +1,17 @@
 import React from "react";
-import { withConfig } from "../Config";
-import { Form, Row, Col, Image, InputGroup } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect } from "react";
-import "./pagesStyle/Login.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import { Col, Form, Image, InputGroup, Row } from "react-bootstrap";
+
 import { faKey } from "@fortawesome/free-solid-svg-icons";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import { withConfig } from "../Config";
+
+import "bootstrap/dist/css/bootstrap.min.css";
+
+import "./pagesStyle/Login.css";
 
 function LoginForm(props) {
   const { config } = props;
@@ -15,10 +20,7 @@ function LoginForm(props) {
       className="d-flex align-items-center justify-content-center position-absolute"
       style={{ height: "100vh", width: "100vw", zIndex: "1000000" }}
     >
-      <div
-        className="w-30 ms-5 me-5 rounded-4 text-light pt-3"
-        style={{ backgroundColor: "#191e2fd4" }}
-      >
+      <div className="w-30 ms-5 me-5 rounded-4 text-light pt-3 bg_pallete_1">
         <span className="fs-5">{config.short_name}</span>
         <Form className="p-5 pb-4 pt-3">
           <InputGroup className="mb-3">
@@ -32,7 +34,7 @@ function LoginForm(props) {
               placeholder="Username"
               aria-label="Username"
               aria-describedby="basic-addon1"
-              className="bg_pallete_1 border-0 text-white rounded-end"
+              className="bg-dark border-0 text-white rounded-end"
             />
           </InputGroup>
           <InputGroup className="mb-3">
@@ -46,7 +48,7 @@ function LoginForm(props) {
               placeholder="Password"
               aria-label="Password"
               aria-describedby="basic-addon1"
-              className="bg_pallete_1 border-0 text-white rounded-end"
+              className="bg-dark border-0 text-white rounded-end"
             />
           </InputGroup>
           <button className="btn border-0 bg_pallete_3 mt-3 rounded-3 w-100">

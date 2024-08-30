@@ -1,12 +1,16 @@
 import React from "react";
 import { useEffect } from "react";
-import { LoginBackground } from "./Login";
+
 import { Form, InputGroup } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import { faKey } from "@fortawesome/free-solid-svg-icons";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import { withConfig } from "../Config";
+import { LoginBackground } from "./Login";
+
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function RegisterForm() {
   return (
@@ -14,10 +18,7 @@ function RegisterForm() {
       className="d-flex align-items-center justify-content-center position-absolute"
       style={{ height: "100vh", width: "100vw", zIndex: "1000000" }}
     >
-      <div
-        className="w-30 ms-5 me-5 rounded-4 text-light pt-3"
-        style={{ backgroundColor: "#191e2fd4" }}
-      >
+      <div className="w-30 ms-5 me-5 rounded-4 text-light pt-3 bg_pallete_1">
         <span className="fs-5">Registration</span>
         <Form className="p-5 pb-4 pt-3">
           <InputGroup className="mb-3">
@@ -31,7 +32,7 @@ function RegisterForm() {
               placeholder="Username"
               aria-label="Username"
               aria-describedby="basic-addon1"
-              className="bg_pallete_1 border-0 text-white rounded-end"
+              className="bg-dark border-0 text-white rounded-end"
             />
           </InputGroup>
           <InputGroup className="mb-3">
@@ -45,7 +46,7 @@ function RegisterForm() {
               placeholder="Email"
               aria-label="Email"
               aria-describedby="basic-addon1"
-              className="bg_pallete_1 border-0 text-white rounded-end"
+              className="bg-dark border-0 text-white rounded-end"
             />
           </InputGroup>
           <InputGroup className="mb-3">

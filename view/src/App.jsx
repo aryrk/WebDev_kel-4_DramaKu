@@ -1,15 +1,16 @@
-// import React, { useEffect, useState } from "react";
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navigation from "./components/Navigation";
-import {
-  NavigationProvider,
-  useNavigation,
-} from "./components/NavigationContext";
-import DetailPage from "./pages/DetailPage";
+
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+
 import Login from "./pages/Login";
-import Register from "./pages/Register";
 import Actors from "./pages/CMS/Actors";
+import Register from "./pages/Register";
+import Comments from "./pages/CMS/Comments";
+import DetailPage from "./pages/DetailPage";
+import Navigation from "./components/Navigation";
+import Users from "./pages/CMS/Users";
+import { NavigationProvider, useNavigation } from "./components/NavigationContext";
+
 import "./App.css";
 
 function AppContent() {
@@ -24,6 +25,8 @@ function AppContent() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/cms/actors" element={<Actors />} />
+        <Route path="/cms/comments" element={<Comments />} />
+        <Route path="/cms/users" element={<Users />} />
       </Routes>
     </div>
   );

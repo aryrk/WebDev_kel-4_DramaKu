@@ -1,21 +1,28 @@
 import React from "react";
-import { Container, Col, Form, Row, Button, Table } from "react-bootstrap";
-import { FilePond, registerPlugin } from "react-filepond";
-import "filepond/dist/filepond.min.css";
-import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
-import FilePondPluginImagePreview from "filepond-plugin-image-preview";
-import FilePondPluginImageCrop from "filepond-plugin-image-crop";
-import FilepondPluginImageResize from "filepond-plugin-image-resize";
-import FilePondPluginImageTransform from "filepond-plugin-image-transform";
-import FilePondPluginImageEdit from "filepond-plugin-image-edit";
-import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit } from "@fortawesome/free-regular-svg-icons";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import "datatables.net-dt/css/dataTables.dataTables.min.css";
-import $ from "jquery";
-import "datatables.net";
 import { useEffect } from "react";
+
+import $ from "jquery";
+import DataTable from "datatables.net-dt";
+import { FilePond, registerPlugin } from "react-filepond";
+import FilePondPluginImageCrop from "filepond-plugin-image-crop";
+import FilePondPluginImageEdit from "filepond-plugin-image-edit";
+import FilepondPluginImageResize from "filepond-plugin-image-resize";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+import { Button, Col, Container, Form, Row, Table } from "react-bootstrap";
+import FilePondPluginImageTransform from "filepond-plugin-image-transform";
+import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
+
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEdit } from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import { useSidebar } from "../../components/SidebarContext";
+
+import "datatables.net";
+
+import "filepond/dist/filepond.min.css";
+import "datatables.net-dt/css/dataTables.dataTables.min.css";
+import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 
 function AddActor() {
   registerPlugin(
@@ -40,7 +47,10 @@ function AddActor() {
                 Country
               </Form.Label>
               <Col sm="9" md="8" lg="9">
-                <Form.Control defaultValue="email@example.com" />
+                <Form.Control
+                  defaultValue="email@example.com"
+                  className="bg-black border-0 text-light"
+                />
               </Col>
             </Form.Group>
 
@@ -53,7 +63,10 @@ function AddActor() {
                 Actor Name
               </Form.Label>
               <Col sm="9" md="8" lg="9">
-                <Form.Control placeholder="Password" />
+                <Form.Control
+                  placeholder="Password"
+                  className="bg-black border-0 text-light"
+                />
               </Col>
             </Form.Group>
             <Form.Group
@@ -65,7 +78,11 @@ function AddActor() {
                 Birth Date
               </Form.Label>
               <Col sm="9" md="8" lg="9">
-                <Form.Control type="date" placeholder="Password" />
+                <Form.Control
+                  type="date"
+                  placeholder="Password"
+                  className="bg-black border-0 text-light"
+                />
               </Col>
             </Form.Group>
           </Col>
@@ -118,7 +135,7 @@ function Actor(props) {
       <td className="text-center">{no}</td>
       <td>{country}</td>
       <td>{actorName}</td>
-      <td>{birthDate}</td>
+      <td className="text-center">{birthDate}</td>
       <td>
         <center>
           <img
@@ -147,8 +164,15 @@ function Actor(props) {
 
 function ActorTable() {
   useEffect(() => {
-    $("#actors").DataTable();
-
+    new DataTable("#actors", {
+      columnDefs: [
+        { width: "60px", targets: 0 },
+        { width: "200px", targets: 1 },
+        { width: "130px", targets: 3 },
+        { width: "140px", targets: 4 },
+        { width: "110px", targets: 5 },
+      ],
+    });
     return () => {
       $("#actors").DataTable().destroy();
     };
@@ -160,9 +184,15 @@ function ActorTable() {
           <th className="text-center">#</th>
           <th>Country</th>
           <th>Actor Name</th>
-          <th style={{ width: "150px" }}>Birth Date</th>
-          <th style={{ width: "130px" }}>Actor</th>
-          <th style={{ width: "85px" }}>Actions</th>
+          <th style={{ width: "150px" }} className="text-center">
+            Birth Date
+          </th>
+          <th style={{ width: "130px" }} className="text-center">
+            Actor
+          </th>
+          <th style={{ width: "85px" }} className="text-center">
+            Actions
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -207,6 +237,10 @@ function ActorTable() {
 }
 
 const Actors = () => {
+  const { setShowSidebar } = useSidebar();
+  useEffect(() => {
+    setShowSidebar(true);
+  }, [setShowSidebar]);
   return (
     <center>
       <div className="w-sm-100 w-xl-75 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">

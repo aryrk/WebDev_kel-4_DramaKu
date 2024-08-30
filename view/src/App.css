@@ -23,7 +23,7 @@ body {
   font-family: 'Inter';
   src: local('Inter'), url(https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap);
   font-weight: 400;
-  background-color: #080f2b;
+  background-color: #141414;
   color: white;
 }
 .fs_primary {
@@ -42,7 +42,7 @@ body {
 }
 
 .bg_pallete_1 {
-  background-color: #080f2b;
+  background-color: #141414;
   color: white;
 }
 
@@ -70,6 +70,20 @@ select option {
   background-color: #080f2b !important;
   color: white !important;
   border: 0px !important;
+}
+
+.filepond--root .filepond--image-preview {
+  background: black !important;
+}
+.filepond--drop-label {
+  background: black !important;
+  color: white !important;
+  border: 0;
+}
+.filepond--list-scroller {
+  background: black !important;
+  color: white !important;
+  border: 0;
 }
 
 /* Font Size Breakpoint */

@@ -223,7 +223,9 @@ const CustomNavbar = ({ config }) => {
                 </NavDropdown.Item>
               </NavDropdown>
             </Nav>
-            <Button className="submit">Submit</Button>
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
           </Navbar.Collapse>
         </Container>
       </Navbar>

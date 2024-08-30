@@ -9,34 +9,55 @@ import Comments from "./pages/CMS/Comments";
 import DetailPage from "./pages/DetailPage";
 import Navigation from "./components/Navigation";
 import Users from "./pages/CMS/Users";
-import { NavigationProvider, useNavigation } from "./components/NavigationContext";
+import {
+  NavigationProvider,
+  useNavigation,
+} from "./components/NavigationContext";
+import Sidebar from "./components/Sidebar";
+import { SidebarProvider, useSidebar } from "./components/SidebarContext";
 
 import "./App.css";
 
 function AppContent() {
   const { showNavigation } = useNavigation();
+  const { showSidebar } = useSidebar();
 
   return (
     <div>
       {showNavigation && <Navigation />}
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/detail" element={<DetailPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/cms/actors" element={<Actors />} />
-        <Route path="/cms/comments" element={<Comments />} />
-        <Route path="/cms/users" element={<Users />} />
-      </Routes>
+      <div
+        className={
+          showSidebar &&
+          "sidebar-wrapper wrapper d-flex align-items-stretch w-100 h-100"
+        }
+      >
+        {showSidebar && <Sidebar />}
+        <div
+          className={showSidebar && "sidebar-content d-block w-100 h-100"}
+          id="content"
+        >
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/detail" element={<DetailPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/cms/actors" element={<Actors />} />
+            <Route path="/cms/comments" element={<Comments />} />
+            <Route path="/cms/users" element={<Users />} />
+          </Routes>
+        </div>
+      </div>
     </div>
   );
 }
 function App() {
   return (
     <NavigationProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <SidebarProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </SidebarProvider>
     </NavigationProvider>
   );
 }

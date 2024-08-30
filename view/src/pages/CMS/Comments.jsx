@@ -8,6 +8,7 @@ import { Button, Table } from "react-bootstrap";
 import { Checkbox } from "@mui/material";
 
 import { StarRating } from "../DetailPage";
+import { useSidebar } from "../../components/SidebarContext";
 
 import "datatables.net";
 
@@ -118,6 +119,10 @@ function Footer() {
 }
 
 const Comments = () => {
+  const { setShowSidebar } = useSidebar();
+  useEffect(() => {
+    setShowSidebar(true);
+  }, [setShowSidebar]);
   return (
     <center>
       <div className="w-sm-100 w-xl-75 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">

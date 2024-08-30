@@ -2,13 +2,21 @@ import React from "react";
 import { useEffect } from "react";
 
 import $ from "jquery";
-import { Button, Card, Col, Container, Form, Image, Row } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Col,
+  Container,
+  Form,
+  Image,
+  Row,
+} from "react-bootstrap";
 
 import { Rating } from "@mui/material";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { useNavigation } from "../components/NavigationContext";
+import { useGlobalState } from "../components/GlobalStateContext";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -512,7 +520,7 @@ function AddComment() {
 }
 
 function DetailPage() {
-  const { setShowNavigation } = useNavigation();
+  const { setShowNavigation } = useGlobalState();
   useEffect(() => {
     setShowNavigation(true);
   }, [setShowNavigation]);

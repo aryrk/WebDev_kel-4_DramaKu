@@ -8,7 +8,7 @@ import { Button, Table } from "react-bootstrap";
 import { Checkbox } from "@mui/material";
 
 import { StarRating } from "../DetailPage";
-import { useSidebar } from "../../components/SidebarContext";
+import { useGlobalState } from "../../components/GlobalStateContext";
 
 import "datatables.net";
 
@@ -119,7 +119,7 @@ function Footer() {
 }
 
 const Comments = () => {
-  const { setShowSidebar } = useSidebar();
+  const { setShowSidebar } = useGlobalState();
   useEffect(() => {
     setShowSidebar(true);
   }, [setShowSidebar]);

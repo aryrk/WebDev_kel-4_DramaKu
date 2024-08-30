@@ -1,11 +1,10 @@
-import React, { createContext, useContext, useState } from "react";
+import React from "react";
 import $ from "jquery";
 import "./sidebar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { useGlobalState } from "./GlobalStateContext";
 import { withConfig } from "../Config";
-
-const SidebarActiveContext = createContext();
 
 var fullHeight = function () {
   $(".js-fullheight").css("height", $(window).height());
@@ -29,12 +28,16 @@ var toggleAside = function () {
 };
 
 const Sidebar = ({ config }) => {
-  const [ActiveMenu, setActiveMenu] = useState("");
+  const { activeMenu, setActiveMenu } = useGlobalState();
 
-  $({ ActiveMenu }).addClass("active");
+  const handleMenuClick = (menu) => {
+    setActiveMenu(menu);
+    $(`.components li`).removeClass("active");
+    $(`#${menu}`).addClass("active");
+  };
 
   return (
-    <nav id="sidebar">
+    <nav id="sidebar" className="js-fullheight">
       <div className="custom-menu">
         <button
           type="button"
@@ -53,28 +56,62 @@ const Sidebar = ({ config }) => {
           </a>
         </h2>
         <ul className="list-unstyled components mb-5">
-          <li className="ps-4 pe-4" id="Dramas">
+          <li
+            id="Dramas"
+            className={`ps-4 pe-4 ${activeMenu === "Dramas" ? "active" : ""}`}
+            onClick={() => handleMenuClick("Dramas")}
+          >
             <a href="#">Dramas</a>
           </li>
-          <li className="ps-4 pe-4">
+          <li
+            id="Countries"
+            className={`ps-4 pe-4 ${
+              activeMenu === "Countries" ? "active" : ""
+            }`}
+            onClick={() => handleMenuClick("Countries")}
+          >
             <a href="#">Countries</a>
           </li>
-          <li className="ps-4 pe-4">
+          <li
+            id="Awards"
+            className={`ps-4 pe-4 ${activeMenu === "Awards" ? "active" : ""}`}
+            onClick={() => handleMenuClick("Awards")}
+          >
             <a href="#">Awards</a>
           </li>
-          <li className="ps-4 pe-4">
+          <li
+            id="Genres"
+            className={`ps-4 pe-4 ${activeMenu === "Genres" ? "active" : ""}`}
+            onClick={() => handleMenuClick("Genres")}
+          >
             <a href="#">Genres</a>
           </li>
-          <li className="ps-4 pe-4">
+          <li
+            id="Actors"
+            className={`ps-4 pe-4 ${activeMenu === "Actors" ? "active" : ""}`}
+            onClick={() => handleMenuClick("Actors")}
+          >
             <a href="#">Actors</a>
           </li>
-          <li className="ps-4 pe-4">
+          <li
+            id="Comments"
+            className={`ps-4 pe-4 ${activeMenu === "Comments" ? "active" : ""}`}
+            onClick={() => handleMenuClick("Comments")}
+          >
             <a href="#">Comments</a>
           </li>
-          <li className="ps-4 pe-4">
+          <li
+            id="Users"
+            className={`ps-4 pe-4 ${activeMenu === "Users" ? "active" : ""}`}
+            onClick={() => handleMenuClick("Users")}
+          >
             <a href="#">Users</a>
           </li>
-          <li className="ps-4 pe-4">
+          <li
+            id="Logout"
+            className={`ps-4 pe-4 ${activeMenu === "Logout" ? "active" : ""}`}
+            onClick={() => handleMenuClick("Logout")}
+          >
             <a href="#">Logout</a>
           </li>
         </ul>
@@ -82,8 +119,5 @@ const Sidebar = ({ config }) => {
     </nav>
   );
 };
-export function ActiveMenu() {
-  return useContext(SidebarActiveContext);
-}
 
 export default withConfig(Sidebar);

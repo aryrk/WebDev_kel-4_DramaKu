@@ -165,6 +165,7 @@ function Actor(props) {
 function ActorTable() {
   useEffect(() => {
     new DataTable("#actors", {
+      scrollY: "45vh",
       columnDefs: [
         { width: "60px", targets: 0 },
         { width: "200px", targets: 1 },
@@ -246,7 +247,7 @@ const Actors = () => {
     setShowFooter(false);
   }, [setShowSidebar]);
   return (
-    <center>
+    <center className="w-100">
       <div className="inner-container w-sm-100 w-xl-90 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
         <AddActor />
         <ActorTable />

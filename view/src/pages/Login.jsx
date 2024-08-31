@@ -146,11 +146,12 @@ function LoginBackground(props) {
 }
 
 const Login = ({ config }) => {
-  const { setShowNavigation, setShowFooter } = useGlobalState();
+  const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
   useEffect(() => {
     document.title = `Login - ${config.short_name}`;
     setShowNavigation(false);
     setShowFooter(false);
+    setShowSidebar(false);
   }, [config]);
   return (
     <div>

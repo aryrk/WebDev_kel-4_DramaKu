@@ -55,11 +55,12 @@ function MovieCard(props) {
 }
 
 const SearchResultPage = () => {
-  const { setShowNavigation, setShowFooter } = useGlobalState();
+  const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
 
   useEffect(() => {
     setShowNavigation(true);
     setShowFooter(true);
+    setShowSidebar(false);
   }, [setShowNavigation]);
   return (
     <>

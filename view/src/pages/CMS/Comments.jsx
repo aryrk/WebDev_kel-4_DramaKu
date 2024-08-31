@@ -47,6 +47,7 @@ function CommentsTable() {
   useEffect(() => {
     new DataTable("#comments", {
       columnDefs: [{ width: "130px", targets: 2 }],
+      scrollY: "60vh",
     });
 
     return () => {
@@ -95,6 +96,83 @@ function CommentsTable() {
           comments="This movie is so good. I can't stand it. I don't know why people like this movie. It's so overrated."
           status="Pending"
         />
+        <CommentsItem
+          username="Bob"
+          rate="5"
+          drama="[2024] USA - The Last Dance"
+          comments="This movie is so good. I can't stand it. I don't know why people like this movie. It's so overrated."
+          status="Pending"
+        />
+        <CommentsItem
+          username="Bob"
+          rate="5"
+          drama="[2024] USA - The Last Dance"
+          comments="This movie is so good. I can't stand it. I don't know why people like this movie. It's so overrated."
+          status="Pending"
+        />
+        <CommentsItem
+          username="Bob"
+          rate="5"
+          drama="[2024] USA - The Last Dance"
+          comments="This movie is so good. I can't stand it. I don't know why people like this movie. It's so overrated."
+          status="Pending"
+        />
+        <CommentsItem
+          username="Bob"
+          rate="5"
+          drama="[2024] USA - The Last Dance"
+          comments="This movie is so good. I can't stand it. I don't know why people like this movie. It's so overrated."
+          status="Pending"
+        />
+        <CommentsItem
+          username="Bob"
+          rate="5"
+          drama="[2024] USA - The Last Dance"
+          comments="This movie is so good. I can't stand it. I don't know why people like this movie. It's so overrated."
+          status="Pending"
+        />
+        <CommentsItem
+          username="Bob"
+          rate="5"
+          drama="[2024] USA - The Last Dance"
+          comments="This movie is so good. I can't stand it. I don't know why people like this movie. It's so overrated."
+          status="Pending"
+        />
+        <CommentsItem
+          username="Bob"
+          rate="5"
+          drama="[2024] USA - The Last Dance"
+          comments="This movie is so good. I can't stand it. I don't know why people like this movie. It's so overrated."
+          status="Pending"
+        />
+        <CommentsItem
+          username="Bob"
+          rate="5"
+          drama="[2024] USA - The Last Dance"
+          comments="This movie is so good. I can't stand it. I don't know why people like this movie. It's so overrated."
+          status="Pending"
+        />
+        <CommentsItem
+          username="Bob"
+          rate="5"
+          drama="[2024] USA - The Last Dance"
+          comments="This movie is so good. I can't stand it. I don't know why people like this movie. It's so overrated."
+          status="Pending"
+        />
+        <CommentsItem
+          username="Bob"
+          rate="5"
+          drama="[2024] USA - The Last Dance"
+          comments="This movie is so good. I can't stand it. I don't know why people like this movie. It's so overrated."
+          status="Pending"
+        />
+        <CommentsItem
+          username="Bob"
+          rate="5"
+          drama="[2024] USA - The Last Dance"
+          comments="This movie is so good. I can't stand it. I don't know why people like this movie. It's so overrated."
+          status="Pending"
+        />
       </tbody>
     </Table>
   );
@@ -130,7 +208,7 @@ const Comments = () => {
     setShowFooter(false);
   }, [setShowSidebar]);
   return (
-    <center>
+    <center className="w-100">
       <div className="inner-container w-sm-100 w-xl-90 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
         <CommentsTable />
         <Footer />

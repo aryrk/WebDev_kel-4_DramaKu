@@ -14,7 +14,14 @@ export function GlobalStateProvider({ children }) {
     sessionStorage.setItem("showNavigation", showNavigation);
   }, [showNavigation]);
 
-  const [showSidebar, setShowSidebar] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(() => {
+    const savedShowSidebar = sessionStorage.getItem("showSidebar");
+    return savedShowSidebar === "true" ? true : false;
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem("showSidebar", showSidebar);
+  }, [showSidebar]);
 
   const [showFooter, setShowFooter] = useState(() => {
     const savedShowFooter = sessionStorage.getItem("showFooter");

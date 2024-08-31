@@ -7,11 +7,12 @@ import { useGlobalState } from "../components/GlobalStateContext";
 import "./pagesStyle/ContentCard.css";
 
 function ContentCard() {
-  const { setShowNavigation, setShowFooter } = useGlobalState();
+  const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
 
   useEffect(() => {
     setShowNavigation(true);
     setShowFooter(true);
+    setShowSidebar(false);
   }, [setShowNavigation]);
 
   const cardData = [

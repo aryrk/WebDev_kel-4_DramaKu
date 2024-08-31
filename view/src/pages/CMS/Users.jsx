@@ -96,6 +96,7 @@ function UserTable() {
         { width: "60px", targets: 0 },
         { width: "330px", targets: 3 },
       ],
+      scrollY: "45vh",
     });
     return () => {
       $("#actors").DataTable().destroy();
@@ -115,6 +116,39 @@ function UserTable() {
         <User no="1" username="Aryrk" email="emailku@gmail.com" />
         <User no="2" username="Saepul" email="saepul@gmail.com" />
         <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
+        <User no="3" username="Jamal" email="jamal@gmail.com" />
       </tbody>
     </Table>
   );
@@ -130,7 +164,7 @@ const Users = () => {
     setShowFooter(false);
   }, [setShowSidebar]);
   return (
-    <center>
+    <center className="w-100">
       <div className="inner-container w-sm-100 w-xl-90 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
         <AddUser />
         <UserTable />

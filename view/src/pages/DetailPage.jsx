@@ -74,7 +74,29 @@ function MovieInfo(props) {
                   </span>
                 ))}
               </p>
-              <p className="fs_secondary mb-1">Rating: {rating}</p>
+              <p className="fs_secondary mb-1">
+                Rating: {rating}{" "}
+                <Rating
+                  name="half-rating-read"
+                  defaultValue={rating}
+                  precision={0.1}
+                  readOnly
+                  icon={
+                    <FontAwesomeIcon
+                      icon={faStar}
+                      color="#ffc107"
+                      className="fs_secondary"
+                    />
+                  }
+                  emptyIcon={
+                    <FontAwesomeIcon
+                      icon={faStar}
+                      color="#e4e5e9"
+                      className="fs_secondary"
+                    />
+                  }
+                />
+              </p>
               <p className="fs_secondary mb-1">Availability: {availability}</p>
             </Col>
           </Row>
@@ -515,11 +537,31 @@ function AddComment() {
   );
 }
 
+function BackgroundPoster(props) {
+  const { src } = props;
+  return (
+    <div
+      className="position-absolute top-0 start-0"
+      style={{ zIndex: "-1", filter: "blur(10px)", opacity: "0.1" }}
+    >
+      <Image
+        src={src}
+        fluid
+        thumbnail
+        loading="lazy"
+        className="h-sm-100 img_cover border-0 rounded-4 p-0"
+        style={{ width: "100vw", height: "65vh" }}
+      />
+    </div>
+  );
+}
+
 function DetailPage() {
-  const { setShowNavigation, setShowFooter } = useGlobalState();
+  const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
   useEffect(() => {
     setShowNavigation(true);
     setShowFooter(true);
+    setShowSidebar(false);
   }, [setShowNavigation]);
   return (
     <center>
@@ -610,6 +652,8 @@ function DetailPage() {
         <CommentSection />
 
         <AddComment />
+
+        <BackgroundPoster src="https://d1csarkz8obe9u.cloudfront.net/posterpreviews/action-mistery-movie-poster-design-template-2ec690d65c22aa12e437d765dbf7e4af_screen.jpg?ts=1680854635" />
       </div>
     </center>
   );

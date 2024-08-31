@@ -83,11 +83,12 @@ function RegisterForm() {
 }
 
 const Register = ({ config }) => {
-  const { setShowNavigation, setShowFooter } = useGlobalState();
+  const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
   useEffect(() => {
     document.title = `Register - ${config.short_name}`;
     setShowNavigation(false);
     setShowFooter(false);
+    setShowSidebar(false);
   }, [config]);
   return (
     <div>

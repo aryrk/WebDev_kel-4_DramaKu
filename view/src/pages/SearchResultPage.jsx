@@ -64,7 +64,7 @@ const SearchResultPage = () => {
   }, [setShowNavigation]);
   return (
     <>
-      <section className="pt-3 pt-md-4 text-wheat">
+      <section className="pt-3 pt-md-4 text-white">
         <center>
           <Container className="p-0 m-0 w-100 text-start">
             <div className="text-center mb-4 mb-md-5">

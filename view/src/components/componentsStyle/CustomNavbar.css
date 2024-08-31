@@ -1,15 +1,15 @@
 /* Navigation.css */
 .navbar-custom {
   background-color: #212121 !important;
-  color: wheat;
+  color: white;
 }
 
 .navbar-custom .navbar-brand {
-  color: wheat;
+  color: white;
 }
 
 .dropdown-toggle {
-  color: wheat;
+  color: white;
 }
 
 .submit {
@@ -17,5 +17,5 @@
 }
 
 .search-icon {
-  color: wheat;
+  color: white;
 }

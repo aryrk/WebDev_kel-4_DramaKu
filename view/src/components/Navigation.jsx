@@ -45,7 +45,7 @@ const CustomNavbar = ({ config }) => {
             <Nav.Link href="#search">
               <FontAwesomeIcon
                 icon={faMagnifyingGlass}
-                className="text-wheat"
+                className="text-white"
               />
             </Nav.Link>
           </Nav>

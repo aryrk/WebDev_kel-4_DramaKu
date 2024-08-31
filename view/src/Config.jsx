@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 const loadConfig = async () => {
   try {
-    const response = await fetch('/manifest.json');
+    const response = await fetch("/manifest.json");
     const manifestData = await response.json();
     return manifestData;
   } catch (error) {

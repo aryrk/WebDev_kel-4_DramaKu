@@ -19,7 +19,7 @@ const Footer = ({ config }) => {
     <>
       <footer
         className="py-5"
-        style={{ backgroundColor: "#212121", color: "wheat" }}
+        style={{ backgroundColor: "#212121", color: "white" }}
       >
         <Container>
           <Row className="g-4">
@@ -30,28 +30,28 @@ const Footer = ({ config }) => {
                 <Button
                   variant="link"
                   className="p-0 me-2"
-                  style={{ color: "wheat" }}
+                  style={{ color: "white" }}
                 >
                   <FontAwesomeIcon icon={faTwitter} size="lg" />
                 </Button>
                 <Button
                   variant="link"
                   className="p-0 me-2"
-                  style={{ color: "wheat" }}
+                  style={{ color: "white" }}
                 >
                   <FontAwesomeIcon icon={faFacebook} size="lg" />
                 </Button>
                 <Button
                   variant="link"
                   className="p-0 me-2"
-                  style={{ color: "wheat" }}
+                  style={{ color: "white" }}
                 >
                   <FontAwesomeIcon icon={faInstagram} size="lg" />
                 </Button>
                 <Button
                   variant="link"
                   className="p-0"
-                  style={{ color: "wheat" }}
+                  style={{ color: "white" }}
                 >
                   <FontAwesomeIcon icon={faGithub} size="lg" />
                 </Button>
@@ -65,7 +65,7 @@ const Footer = ({ config }) => {
                   <a
                     href="#"
                     className="text-decoration-none"
-                    style={{ color: "wheat" }}
+                    style={{ color: "white" }}
                   >
                     Indonesia
                   </a>
@@ -74,7 +74,7 @@ const Footer = ({ config }) => {
                   <a
                     href="#"
                     className="text-decoration-none"
-                    style={{ color: "wheat" }}
+                    style={{ color: "white" }}
                   >
                     Jepang
                   </a>
@@ -83,7 +83,7 @@ const Footer = ({ config }) => {
                   <a
                     href="#"
                     className="text-decoration-none"
-                    style={{ color: "wheat" }}
+                    style={{ color: "white" }}
                   >
                     Korea
                   </a>
@@ -92,7 +92,7 @@ const Footer = ({ config }) => {
                   <a
                     href="#"
                     className="text-decoration-none"
-                    style={{ color: "wheat" }}
+                    style={{ color: "white" }}
                   >
                     Spanyol
                   </a>
@@ -107,7 +107,7 @@ const Footer = ({ config }) => {
                   <a
                     href="#"
                     className="text-decoration-none"
-                    style={{ color: "wheat" }}
+                    style={{ color: "white" }}
                   >
                     Action
                   </a>
@@ -116,7 +116,7 @@ const Footer = ({ config }) => {
                   <a
                     href="#"
                     className="text-decoration-none"
-                    style={{ color: "wheat" }}
+                    style={{ color: "white" }}
                   >
                     Biography
                   </a>
@@ -125,7 +125,7 @@ const Footer = ({ config }) => {
                   <a
                     href="#"
                     className="text-decoration-none"
-                    style={{ color: "wheat" }}
+                    style={{ color: "white" }}
                   >
                     Comedy
                   </a>
@@ -134,7 +134,7 @@ const Footer = ({ config }) => {
                   <a
                     href="#"
                     className="text-decoration-none"
-                    style={{ color: "wheat" }}
+                    style={{ color: "white" }}
                   >
                     Documentary
                   </a>
@@ -155,7 +155,7 @@ const Footer = ({ config }) => {
             </Col>
           </Row>
           <hr className="my-5" />
-          <p className="text-center" style={{ color: "wheat" }}>
+          <p className="text-center" style={{ color: "white" }}>
             © Copyright 2024, All Rights Reserved by PlutoCinema
           </p>
         </Container>

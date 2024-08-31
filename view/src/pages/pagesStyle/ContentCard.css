@@ -1,0 +1,21 @@
+.content_image {
+  height: 150px;
+  width: 120px;
+}
+.content_container {
+  width: 120px;
+}
+.content_col {
+  width: auto;
+}
+
+@media (min-width: 992px) {
+  .content_image {
+    height: 250px;
+    width: 150px;
+  }
+  .content_container {
+    width: 150px;
+  }
+}
+

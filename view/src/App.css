@@ -47,7 +47,9 @@ textarea {
 .fs_secondary {
   font-size: 0.8rem;
 }
-
+a {
+  text-decoration: none !important;
+}
 .bg_secondary {
   background-color: #f0f0f0;
   color: black;

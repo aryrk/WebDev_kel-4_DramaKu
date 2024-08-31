@@ -43,7 +43,10 @@ const CustomNavbar = ({ config }) => {
           </Navbar.Brand>
           <Nav className="ms-auto d-lg-none">
             <Nav.Link href="#search">
-              <FontAwesomeIcon icon={faMagnifyingGlass} />
+              <FontAwesomeIcon
+                icon={faMagnifyingGlass}
+                className="text-wheat"
+              />
             </Nav.Link>
           </Nav>
 

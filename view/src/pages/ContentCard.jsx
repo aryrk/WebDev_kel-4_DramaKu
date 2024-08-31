@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
 
-import { Button, Col, Container, Row } from "react-bootstrap";
+import { Button, Col, Container, Row, Image } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 import { useGlobalState } from "../components/GlobalStateContext";
+import "./pagesStyle/ContentCard.css";
 
 function ContentCard() {
   const { setShowNavigation, setShowFooter } = useGlobalState();
@@ -132,56 +134,75 @@ function ContentCard() {
       image:
         "https://upload.wikimedia.org/wikipedia/id/d/d8/AntManAndTheWaspPoster2018.jpg",
     },
+    {
+      title: "The Flash (2023)",
+      genre: "Action, Adventure, Fantasy",
+      image:
+        "https://upload.wikimedia.org/wikipedia/en/e/ed/The_Flash_%28film%29_poster.jpg",
+    },
+    {
+      title: "The Batman (2022)",
+      genre: "Action, Crime, Drama",
+      image:
+        "https://m.media-amazon.com/images/M/MV5BOGE2NWUwMDItMjA4Yi00N2Y3LWJjMzEtMDJjZTMzZTdlZGE5XkEyXkFqcGdeQXVyODk4OTc3MTY@._V1_.jpg",
+    },
   ];
 
   return (
-    <Container style={{ marginTop: "40px" }}>
-      <Row xs={1} md={3} lg={5} className="g-4">
-        {cardData.map((card, idx) => (
-          <Col key={idx} className="d-flex justify-content-center">
-            <Button
-              variant="text"
-              size="sm"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                border: "none",
-                background: "transparent",
-                width: "250px", // Adjusted width
-              }}
+    <center>
+      <Container className="d-inline m-0 mt-5 p-0 w-100">
+        <Row className="m-0 p-0 mt-2 mb-5 g-4 justify-content-center">
+          {cardData.map((card, idx) => (
+            <Col
+              sm="auto"
+              key={idx}
+              className="d-flex justify-content-center content_col"
             >
-              <img
-                src={card.image}
-                width="250px" // Adjusted width
-                alt={card.title}
-                loading="lazy"
-                // className="img-fluid thumbnail"
+              <a
+                href="/detail"
+                variant="text"
+                size="sm"
+                className="content_container"
                 style={{
-                  borderRadius: "15px",
-                  height: "350px", // Adjusted height
-                  objectFit: "cover",
-                }}
-              />
-              <label
-                style={{
-                  marginTop: "8px",
-                  textAlign: "center",
-                  fontSize: "16px", // Adjusted font size
-                  color: "#f3deb2",
-                  width: "100%",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  border: "none",
+                  background: "transparent",
                 }}
               >
-                {card.title}
-              </label>
-            </Button>
-          </Col>
-        ))}
-      </Row>
-    </Container>
+                <Image
+                  src={card.image}
+                  alt={card.title}
+                  loading="lazy"
+                  className="content_image p-0 border-0"
+                  fluid
+                  thumbnail
+                  style={{
+                    borderRadius: "15px",
+                    objectFit: "cover",
+                  }}
+                />
+                <label
+                  style={{
+                    marginTop: "8px",
+                    textAlign: "center",
+                    fontSize: "16px",
+                    color: "#f3deb2",
+                    width: "100%",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {card.title}
+                </label>
+              </a>
+            </Col>
+          ))}
+        </Row>
+      </Container>
+    </center>
   );
 }
 

@@ -26,6 +26,18 @@ body {
   background-color: #141414;
   color: white;
 }
+input {
+  background-color: #282828 !important;
+  border-width: thin !important;
+  border-color: #141414 !important;
+  color: white !important;
+}
+textarea {
+  background-color: #282828 !important;
+  border-width: thin !important;
+  border-color: #141414 !important;
+  color: white !important;
+}
 .text-wheat {
   color: wheat !important;
 }
@@ -43,7 +55,9 @@ body {
 .img_cover {
   object-fit: cover;
 }
-
+.img_contain {
+  object-fit: contain;
+}
 .bg_pallete_1 {
   background-color: #141414;
   color: white;
@@ -62,6 +76,9 @@ body {
 .bg_pallete_4 {
   background-color: #9290c2;
   color: white;
+}
+.bg_pallete_5 {
+  background-color: #212121;
 }
 
 select {

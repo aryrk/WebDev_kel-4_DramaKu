@@ -2,7 +2,15 @@ import React from "react";
 import { useEffect } from "react";
 
 import $ from "jquery";
-import { Button, Card, Col, Container, Form, Image, Row } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Col,
+  Container,
+  Form,
+  Image,
+  Row,
+} from "react-bootstrap";
 
 import { Rating } from "@mui/material";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
@@ -438,13 +446,13 @@ function AddComment() {
     <div className="justify-content-start mt-4 fw-normal">
       <span className="d-flex fs_primary mb-2 ps-2">Add Yours!</span>
       <div className="justify-content-start">
-        <Form className="bg-dark p-4 pb-1 text-light rounded-3">
+        <Form className="bg_pallete_5 p-4 pb-1 rounded-3">
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={3} className="d-flex justify-content-start">
               Name
             </Form.Label>
             <Col>
-              <Form.Control type="text" />
+              <Form.Control type="text" placeholder="Enter your name" />
             </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
@@ -478,7 +486,7 @@ function AddComment() {
               Your thoughts
             </Form.Label>
             <Col>
-              <Form.Control as="textarea" />
+              <Form.Control as="textarea" placeholder="Enter your thoughts" />
             </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
@@ -508,9 +516,10 @@ function AddComment() {
 }
 
 function DetailPage() {
-  const { setShowNavigation } = useGlobalState();
+  const { setShowNavigation, setShowFooter } = useGlobalState();
   useEffect(() => {
     setShowNavigation(true);
+    setShowFooter(true);
   }, [setShowNavigation]);
   return (
     <center>

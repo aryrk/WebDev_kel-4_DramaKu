@@ -8,6 +8,7 @@ import {
   NavDropdown,
   Row,
   Col,
+  Image,
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./componentsStyle/CustomNavbar.css";
@@ -31,13 +32,13 @@ const CustomNavbar = ({ config }) => {
 
           {/* Brand and Search Icon for Mobile */}
           <Navbar.Brand className="mx-auto d-lg-none">
-            <img
-              alt=""
+            <Image
               src="src/assets/images/logo.png"
-              width="30"
-              height="30"
-              className="d-inline-block align-top"
-            />{" "}
+              width={30}
+              height={30}
+              loading="lazy"
+              className="img_contain d-inline-block align-top "
+            />
             {config.short_name}
           </Navbar.Brand>
           <Nav className="ms-auto d-lg-none">
@@ -53,13 +54,13 @@ const CustomNavbar = ({ config }) => {
                 <Col>
                   <Nav className="me-auto d-none d-lg-flex align-items-center">
                     <Navbar.Brand className="me-3">
-                      <img
-                        alt=""
+                      <Image
                         src="src/assets/images/logo.png"
-                        width="30"
-                        height="30"
-                        className="d-inline-block align-top"
-                      />{" "}
+                        width={30}
+                        height={30}
+                        loading="lazy"
+                        className="d-inline-block align-top img_contain"
+                      />
                       {config.short_name}
                     </Navbar.Brand>
                     <Nav.Link href="#indonesia" className="navbar-custom">
@@ -223,8 +224,8 @@ const CustomNavbar = ({ config }) => {
                 </NavDropdown.Item>
               </NavDropdown>
             </Nav>
-            <Button variant="primary" type="submit">
-              Submit
+            <Button className="bg_pallete_3 border-0 ms-2" type="submit">
+              Clear Filter
             </Button>
           </Navbar.Collapse>
         </Container>

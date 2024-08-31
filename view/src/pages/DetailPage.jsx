@@ -538,11 +538,18 @@ function AddComment() {
 }
 
 function BackgroundPoster(props) {
-  const { src } = props;
+  var { src, zIndex, imgHeight } = props;
+  if (zIndex === undefined) {
+    zIndex = "-1";
+  }
+  console.log(imgHeight);
+  if (imgHeight === undefined) {
+    imgHeight = "65vh";
+  }
   return (
     <div
       className="position-absolute top-0 start-0"
-      style={{ zIndex: "-1", filter: "blur(10px)", opacity: "0.1" }}
+      style={{ zIndex: { zIndex }, filter: "blur(10px)", opacity: "0.1" }}
     >
       <Image
         src={src}
@@ -550,7 +557,7 @@ function BackgroundPoster(props) {
         thumbnail
         loading="lazy"
         className="h-sm-100 img_cover border-0 rounded-4 p-0"
-        style={{ width: "100vw", height: "65vh" }}
+        style={{ width: "100vw", height: imgHeight }}
       />
     </div>
   );
@@ -660,4 +667,4 @@ function DetailPage() {
 }
 
 export default DetailPage;
-export { StarRating };
+export { StarRating, MovieInfo, Actor, Trailer, BackgroundPoster };

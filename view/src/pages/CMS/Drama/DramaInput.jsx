@@ -257,10 +257,13 @@ function DramaForm() {
 }
 
 const DramaInput = () => {
-  const { setShowSidebar, setActiveMenu } = useGlobalState();
+  const { setShowSidebar, setActiveMenu, setShowNavigation, setShowFooter } =
+    useGlobalState();
   useEffect(() => {
     setShowSidebar(true);
     setActiveMenu("Input New Drama");
+    setShowNavigation(false);
+    setShowFooter(false);
   }, [setShowSidebar]);
   return (
     <div className="inner-container w-sm-100 w-xl-90 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">

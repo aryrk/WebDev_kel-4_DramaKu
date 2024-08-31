@@ -32,6 +32,9 @@ input {
   border-color: #141414 !important;
   color: white !important;
 }
+.btn-close {
+  filter: invert(1);
+}
 textarea {
   background-color: #282828 !important;
   border-width: thin !important;

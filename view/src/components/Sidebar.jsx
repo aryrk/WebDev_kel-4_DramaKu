@@ -82,7 +82,7 @@ const Sidebar = ({ config }) => {
                 className={`ps-3 ${activeMenu === "Validate" ? "active" : ""}`}
                 onClick={() => handleMenuClick("Validate")}
               >
-                <a href="#">Validate</a>
+                <a href="/cms/drama/validate">Validate</a>
               </li>
               <li
                 className={`ps-3 ${

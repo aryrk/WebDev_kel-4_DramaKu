@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./pagesStyle/SearchPageResult.css";
 import { useGlobalState } from "../components/GlobalStateContext";
 
 const SearchResultPage = () => {
@@ -12,7 +11,7 @@ const SearchResultPage = () => {
   }, [setShowNavigation]);
   return (
     <>
-      <section className="py-5">
+      <section className="py-5 text-wheat">
         <div className="container">
           <div className="text-center mb-5">
             <h2 className="display-4 font-weight-bold">

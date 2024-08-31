@@ -26,6 +26,9 @@ body {
   background-color: #141414;
   color: white;
 }
+.text-wheat {
+  color: wheat !important;
+}
 .fs_primary {
   font-size: 1.1rem;
 }

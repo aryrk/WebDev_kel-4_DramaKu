@@ -14,6 +14,7 @@ import ContentCard from "./pages/ContentCard";
 import Navigation from "./components/Navigation";
 import DramaInput from "./pages/CMS/Drama/DramaInput";
 import SearchResultPage from "./pages/SearchResultPage";
+import Error404 from "./pages/Error404";
 import {
   GlobalStateProvider,
   useGlobalState,
@@ -42,6 +43,7 @@ function AppContent() {
           }`}
         >
           <Routes>
+            <Route path="*" element={<Error404 />} />
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

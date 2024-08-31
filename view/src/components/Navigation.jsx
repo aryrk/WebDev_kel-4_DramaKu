@@ -33,7 +33,7 @@ const CustomNavbar = ({ config }) => {
           {/* Brand and Search Icon for Mobile */}
           <Navbar.Brand className="mx-auto d-lg-none">
             <Image
-              src="src/assets/images/logo.png"
+              src={config.logo_png}
               width={30}
               height={30}
               loading="lazy"
@@ -58,7 +58,7 @@ const CustomNavbar = ({ config }) => {
                   <Nav className="me-auto d-none d-lg-flex align-items-center">
                     <Navbar.Brand className="me-3">
                       <Image
-                        src="src/assets/images/logo.png"
+                        src={config.logo_png}
                         width={30}
                         height={30}
                         loading="lazy"

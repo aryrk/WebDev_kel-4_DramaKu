@@ -1,0 +1,14 @@
+.error_fs {
+  font-size: 40vw;
+}
+.error_image {
+  width: 40vw;
+}
+@media (min-width: 576px) {
+  .error_fs {
+    font-size: 20vw;
+  }
+  .error_image {
+    width: 20vw;
+  }
+}

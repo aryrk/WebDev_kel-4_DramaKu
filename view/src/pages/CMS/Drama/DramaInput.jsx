@@ -8,9 +8,16 @@ import FilepondPluginImageResize from "filepond-plugin-image-resize";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginImageTransform from "filepond-plugin-image-transform";
 import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
-import { Button, Card, Col, Container, Form, Image, InputGroup, Row } from "react-bootstrap";
-
-
+import {
+  Button,
+  Card,
+  Col,
+  Container,
+  Form,
+  Image,
+  InputGroup,
+  Row,
+} from "react-bootstrap";
 
 import { useGlobalState } from "../../../components/GlobalStateContext";
 
@@ -102,7 +109,7 @@ function AddActor() {
           <Form.Control
             required
             type="text"
-            className="bg_pallete_1 text-light border-0"
+            className="bg-black text-light border-0"
           />
         </InputGroup>
       </Form.Group>
@@ -144,7 +151,7 @@ function DramaForm() {
         <Form.Control
           required
           type="text"
-          className="bg_pallete_1 text-light border-0"
+          className="bg-black text-light border-0"
         />
       </Form.Group>
       <Form.Group as={Col} md="5" lg="6" className="mt-3">
@@ -152,7 +159,7 @@ function DramaForm() {
         <Form.Control
           required
           type="text"
-          className="bg_pallete_1 text-light border-0"
+          className="bg-black text-light border-0"
         />
       </Form.Group>
       <Form.Group as={Col} md="4" xl="2" className="mt-3">
@@ -162,7 +169,7 @@ function DramaForm() {
           type="number"
           min={1900}
           step={1}
-          className="bg_pallete_1 text-light border-0"
+          className="bg-black text-light border-0"
         />
       </Form.Group>
       <Form.Group as={Col} md="4" className="mt-3">
@@ -170,7 +177,7 @@ function DramaForm() {
         <Form.Control
           required
           type="text"
-          className="bg_pallete_1 text-light border-0"
+          className="bg-black text-light border-0"
         />
       </Form.Group>
       <Form.Group as={Col} sm="100" className="mt-3">
@@ -178,7 +185,7 @@ function DramaForm() {
         <Form.Control
           required
           as="textarea"
-          className="bg_pallete_1 text-light border-0"
+          className="bg-black text-light border-0"
         />
       </Form.Group>
       <Form.Group as={Col} sm="100" className="mt-3">
@@ -186,7 +193,7 @@ function DramaForm() {
         <Form.Control
           required
           type="text"
-          className="bg_pallete_1 text-light border-0"
+          className="bg-black text-light border-0"
         />
       </Form.Group>
       <Form.Group as={Col} sm="100" className="mt-3">
@@ -194,7 +201,7 @@ function DramaForm() {
         <Select
           isMulti
           options={option}
-          className="bg_pallete_1 text-light border-0"
+          className="bg-black text-light border-0"
           classNamePrefix="select"
           styles={{
             control: (baseStyles, state) => ({
@@ -233,7 +240,7 @@ function DramaForm() {
         <Form.Control
           required
           type="text"
-          className="bg_pallete_1 text-light border-0"
+          className="bg-black text-light border-0"
         />
       </Form.Group>
       <Form.Group as={Col} md="6" className="mt-3">

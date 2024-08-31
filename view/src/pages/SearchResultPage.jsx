@@ -1,13 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Footer from "./Footer";
-import "./SearchPageResult.css";
-import Navigation from "./navbar/Navigation";
+import "./pagesStyle/SearchPageResult.css";
+import { useGlobalState } from "../components/GlobalStateContext";
 
 const SearchResultPage = () => {
+  const { setShowNavigation, setShowFooter } = useGlobalState();
+
+  useEffect(() => {
+    setShowNavigation(true);
+    setShowFooter(true);
+  }, [setShowNavigation]);
   return (
     <>
-      <Navigation />
       <section className="py-5">
         <div className="container">
           <div className="text-center mb-5">
@@ -158,7 +162,6 @@ const SearchResultPage = () => {
           </div>
         </div>
       </section>
-      <Footer />
     </>
   );
 };

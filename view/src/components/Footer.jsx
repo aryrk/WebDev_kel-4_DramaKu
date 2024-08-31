@@ -1,7 +1,14 @@
 import React, { useEffect } from "react";
 import { withConfig } from "../Config";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaTwitter, FaFacebookF, FaInstagram, FaGithub } from "react-icons/fa";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Container, Row, Col, Button, ListGroup, Form } from "react-bootstrap";
+import {
+  faFacebook,
+  faGithub,
+  faInstagram,
+  faTwitter,
+} from "@fortawesome/free-brands-svg-icons";
 
 const Footer = ({ config }) => {
   useEffect(() => {
@@ -28,28 +35,28 @@ const Footer = ({ config }) => {
                   className="p-0 me-2"
                   style={{ color: "wheat" }}
                 >
-                  <FaTwitter size={24} />
+                  <FontAwesomeIcon icon={faTwitter} size="lg" />
                 </Button>
                 <Button
                   variant="link"
                   className="p-0 me-2"
                   style={{ color: "wheat" }}
                 >
-                  <FaFacebookF size={24} />
+                  <FontAwesomeIcon icon={faFacebook} size="lg" />
                 </Button>
                 <Button
                   variant="link"
                   className="p-0 me-2"
                   style={{ color: "wheat" }}
                 >
-                  <FaInstagram size={24} />
+                  <FontAwesomeIcon icon={faInstagram} size="lg" />
                 </Button>
                 <Button
                   variant="link"
                   className="p-0"
                   style={{ color: "wheat" }}
                 >
-                  <FaGithub size={24} />
+                  <FontAwesomeIcon icon={faGithub} size="lg" />
                 </Button>
               </div>
             </Col>

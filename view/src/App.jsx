@@ -10,6 +10,7 @@ import Navigation from "./components/Navigation";
 import Users from "./pages/CMS/Users";
 import ContentCard from "./pages/ContentCard";
 import DramaInput from "./pages/CMS/Drama/DramaInput";
+import SearchResultPage from "./pages/SearchResultPage";
 
 import Footer from "./components/Footer";
 
@@ -46,6 +47,7 @@ function AppContent() {
             <Route path="/register" element={<Register />} />
             <Route path="/detail" element={<DetailPage />} />
             <Route path="/home" element={<ContentCard />} />
+            <Route path="/search" element={<SearchResultPage />} />
             <Route path="/cms/actors" element={<Actors />} />
             <Route path="/cms/comments" element={<Comments />} />
             <Route path="/cms/users" element={<Users />} />

@@ -1,16 +1,6 @@
 import React, { useEffect } from "react";
-import { useGlobalState } from "../../../components/GlobalStateContext";
-import {
-  Container,
-  Row,
-  Col,
-  Button,
-  Form,
-  InputGroup,
-  Card,
-  Image,
-} from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
+
+import Select from "react-select";
 import { FilePond, registerPlugin } from "react-filepond";
 import FilePondPluginImageCrop from "filepond-plugin-image-crop";
 import FilePondPluginImageEdit from "filepond-plugin-image-edit";
@@ -18,7 +8,13 @@ import FilepondPluginImageResize from "filepond-plugin-image-resize";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginImageTransform from "filepond-plugin-image-transform";
 import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
-import Select from "react-select";
+import { Button, Card, Col, Container, Form, Image, InputGroup, Row } from "react-bootstrap";
+
+
+
+import { useGlobalState } from "../../../components/GlobalStateContext";
+
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function PosterUpload() {
   registerPlugin(

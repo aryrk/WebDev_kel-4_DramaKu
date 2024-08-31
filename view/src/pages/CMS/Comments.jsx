@@ -121,10 +121,13 @@ function Footer() {
 }
 
 const Comments = () => {
-  const { setShowSidebar, setActiveMenu } = useGlobalState();
+  const { setShowSidebar, setActiveMenu, setShowNavigation, setShowFooter } =
+    useGlobalState();
   useEffect(() => {
     setShowSidebar(true);
     setActiveMenu("Comments");
+    setShowNavigation(false);
+    setShowFooter(false);
   }, [setShowSidebar]);
   return (
     <center>

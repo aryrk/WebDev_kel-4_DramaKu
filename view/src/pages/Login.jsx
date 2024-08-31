@@ -8,6 +8,7 @@ import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { withConfig } from "../Config";
+import { useGlobalState } from "../components/GlobalStateContext";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -145,8 +146,11 @@ function LoginBackground(props) {
 }
 
 const Login = ({ config }) => {
+  const { setShowNavigation, setShowFooter } = useGlobalState();
   useEffect(() => {
     document.title = `Login - ${config.short_name}`;
+    setShowNavigation(false);
+    setShowFooter(false);
   }, [config]);
   return (
     <div>

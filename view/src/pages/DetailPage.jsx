@@ -2,15 +2,7 @@ import React from "react";
 import { useEffect } from "react";
 
 import $ from "jquery";
-import {
-  Button,
-  Card,
-  Col,
-  Container,
-  Form,
-  Image,
-  Row,
-} from "react-bootstrap";
+import { Button, Card, Col, Container, Form, Image, Row } from "react-bootstrap";
 
 import { Rating } from "@mui/material";
 import { faStar } from "@fortawesome/free-solid-svg-icons";

@@ -1,6 +1,10 @@
 import React, { useEffect } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+
+
+
 import { useGlobalState } from "../components/GlobalStateContext";
+
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const SearchResultPage = () => {
   const { setShowNavigation, setShowFooter } = useGlobalState();

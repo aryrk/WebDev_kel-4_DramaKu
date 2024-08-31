@@ -1,6 +1,6 @@
 import React from "react";
 import $ from "jquery";
-import "./sidebar.css";
+import "./componentsStyle/sidebar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { useGlobalState } from "./GlobalStateContext";

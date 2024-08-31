@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
+
+import { Button, Col, Container, Row } from "react-bootstrap";
+
 import { useGlobalState } from "../components/GlobalStateContext";
 
 function ContentCard() {

@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { withConfig } from "../Config";
 import { LoginBackground } from "./Login";
+import { useGlobalState } from "../components/GlobalStateContext";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -82,8 +83,11 @@ function RegisterForm() {
 }
 
 const Register = ({ config }) => {
+  const { setShowNavigation, setShowFooter } = useGlobalState();
   useEffect(() => {
     document.title = `Register - ${config.short_name}`;
+    setShowNavigation(false);
+    setShowFooter(false);
   }, [config]);
   return (
     <div>

@@ -121,10 +121,13 @@ function UserTable() {
 }
 
 const Users = () => {
-  const { setActiveMenu, setShowSidebar } = useGlobalState();
+  const { setShowSidebar, setActiveMenu, setShowNavigation, setShowFooter } =
+    useGlobalState();
   useEffect(() => {
     setShowSidebar(true);
     setActiveMenu("Users");
+    setShowNavigation(false);
+    setShowFooter(false);
   }, [setShowSidebar]);
   return (
     <center>

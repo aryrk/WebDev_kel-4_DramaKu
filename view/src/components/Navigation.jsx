@@ -10,7 +10,7 @@ import {
   Col,
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./CustomNavbar.css";
+import "./componentsStyle/CustomNavbar.css";
 import { withConfig } from "../Config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";

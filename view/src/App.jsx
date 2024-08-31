@@ -1,45 +1,45 @@
 import React from "react";
+
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
 import Login from "./pages/Login";
+import Users from "./pages/CMS/Users";
 import Actors from "./pages/CMS/Actors";
 import Register from "./pages/Register";
+import Footer from "./components/Footer";
+import Sidebar from "./components/Sidebar";
 import Comments from "./pages/CMS/Comments";
 import DetailPage from "./pages/DetailPage";
-import Navigation from "./components/Navigation";
-import Users from "./pages/CMS/Users";
 import ContentCard from "./pages/ContentCard";
+import Navigation from "./components/Navigation";
 import DramaInput from "./pages/CMS/Drama/DramaInput";
 import SearchResultPage from "./pages/SearchResultPage";
-
-import Footer from "./components/Footer";
-
-import Sidebar from "./components/Sidebar";
 import {
   GlobalStateProvider,
   useGlobalState,
-} from "./components/GlobalStateContext"; // Import GlobalStateContext
+} from "./components/GlobalStateContext";
 
 import "./App.css";
 
 function AppContent() {
-  const { showFooter, showNavigation, showSidebar } = useGlobalState(); // Gunakan useGlobalState
-
+  const { showFooter, showNavigation, showSidebar } = useGlobalState();
   return (
     <div>
       {showNavigation && <Navigation />}
       <div
-        className={
-          showSidebar &&
-          "sidebar-wrapper wrapper d-flex align-items-stretch justify-content-center w-100 h-100"
-        }
+        className={`${
+          showSidebar == false
+            ? ""
+            : "sidebar-wrapper wrapper d-flex align-items-stretch justify-content-center w-100 h-100"
+        }`}
       >
         {showSidebar && <Sidebar />}
         <div
-          className={
-            showSidebar &&
-            "sidebar-content wrapper d-flex align-items-stretch justify-content-center w-100 h-100"
-          }
+          className={`${
+            showSidebar == false
+              ? ""
+              : "sidebar-content wrapper d-flex align-items-stretch justify-content-center w-100 h-100"
+          }`}
         >
           <Routes>
             <Route path="/" element={<Login />} />
@@ -63,8 +63,6 @@ function AppContent() {
 function App() {
   return (
     <GlobalStateProvider>
-      {" "}
-      {/* Ganti NavigationProvider dan SidebarProvider dengan GlobalStateProvider */}
       <Router>
         <AppContent />
       </Router>

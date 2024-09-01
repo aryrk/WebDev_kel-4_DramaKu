@@ -101,21 +101,21 @@ const Sidebar = ({ config }) => {
             }`}
             onClick={() => handleMenuClick("Countries")}
           >
-            <a href="#">Countries</a>
+            <a href="/cms/countries">Countries</a>
           </li>
           <li
             id="Awards"
             className={`ps-4 pe-4 ${activeMenu === "Awards" ? "active" : ""}`}
             onClick={() => handleMenuClick("Awards")}
           >
-            <a href="#">Awards</a>
+            <a href="/cms/awards">Awards</a>
           </li>
           <li
             id="Genres"
             className={`ps-4 pe-4 ${activeMenu === "Genres" ? "active" : ""}`}
             onClick={() => handleMenuClick("Genres")}
           >
-            <a href="#">Genres</a>
+            <a href="/cms/genres">Genres</a>
           </li>
           <li
             id="Actors"

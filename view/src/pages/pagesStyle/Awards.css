@@ -1,48 +1,48 @@
-/* Countries.css */
+/* awards.css */
 
 .table-responsive {
     margin-top: 20px;
   }
   
-  #countries {
+  #awards {
     border-collapse: collapse;
     width: 100%;
   }
   
-  #countries thead {
+  #awards thead {
     background-color: #525c91; /* Blue header background */
     color: #fff; /* White text color */
   }
   
-  #countries thead th {
+  #awards thead th {
     padding: 10px;
     text-align: left;
   }
   
-  #countries tbody tr:nth-child(even) {
+  #awards tbody tr:nth-child(even) {
     background-color: #141414; /* Light grey for even rows */
   }
   
-  #countries tbody tr:nth-child(odd) {
+  #awards tbody tr:nth-child(odd) {
     background-color: #212529; /* White for odd rows */
   }
   
-  #countries tbody tr:hover {
+  #awards tbody tr:hover {
     background-color: #4d5474; /* Slightly darker background on hover */
   }
   
-  #countries .actions {
+  #awards .actions {
     display: flex;
     gap: 10px;
   }
   
-  #countries .icon {
+  #awards .icon {
     cursor: pointer;
     color: #57639d; /* Blue icon color */
     font-size: 1.2rem;
   }
   
-  #countries .icon:hover {
+  #awards .icon:hover {
     color: #0056b3; /* Darker blue on hover */
   }
   

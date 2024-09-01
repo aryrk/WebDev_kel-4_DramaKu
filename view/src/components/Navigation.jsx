@@ -9,7 +9,7 @@ import {
   Image,
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./componentsStyle/Navbar.css";
+import "./componentsStyle/Navigation.css";
 import { withConfig } from "../Config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
@@ -119,19 +119,21 @@ const CustomNavbar = ({ config }) => {
                   Taiwan
                 </Nav.Link>
               </Nav>
-              <Form className="d-flex ms-auto my-2 my-lg-0">
-                <Form.Control
-                  type="text"
-                  placeholder="Search"
-                  aria-label="Search"
-                  className="me-2"
-                  style={{ maxWidth: "270px" }}
-                />
-                <Button variant="outline-light">
-                  <FontAwesomeIcon icon={faMagnifyingGlass} />
-                </Button>
-              </Form>
             </Nav>
+
+            {/* Form with justify-content-end */}
+            <Form className="d-flex ms-auto my-2 my-lg-0 justify-content-end">
+              <Form.Control
+                type="text"
+                placeholder="Search"
+                aria-label="Search"
+                className="me-2"
+                style={{ maxWidth: "280px" }}
+              />
+              <Button variant="outline-light">
+                <FontAwesomeIcon icon={faMagnifyingGlass} />
+              </Button>
+            </Form>
           </Navbar.Collapse>
         </Container>
       </Navbar>

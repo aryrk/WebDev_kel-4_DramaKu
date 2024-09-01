@@ -12,7 +12,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./componentsStyle/Navbar.css";
 import { withConfig } from "../Config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import $ from "jquery";
 
 const CustomNavbar = ({ config }) => {
   const [show, setShow] = useState(false);
@@ -21,26 +22,31 @@ const CustomNavbar = ({ config }) => {
     document.title = `Page 1 - ${config.short_name}`;
   }, [config]);
 
-  const handleToggle = () => setShow(!show);
+  const handleToggle = () => {
+    setShow(!show);
+    if ($("#bottom-navbar-nav").hasClass("show")) {
+      $("#bottom-navbar-nav").removeClass("show");
+    }
+  };
+
+  const handleToggleBottom = () => {
+    setShow(false);
+    $("#bottom-navbar-nav").toggleClass("show");
+  };
 
   return (
     <>
       {/* Navbar Atas */}
       <Navbar sticky="top" expand="lg" className="navbar-custom">
         <Container>
-          {/* Navbar Toggle for Desktop */}
-          <Navbar.Toggle
-            aria-controls="top-navbar-nav"
-            className="custom-toggler d-none d-lg-block"
-          />
-
           {/* Navbar Collapse for Mobile */}
+
           <div className="d-lg-none d-flex justify-content-between align-items-center w-100">
             {/* Toggle for Mobile */}
             <Button
               variant="link"
               onClick={handleToggle}
-              className="p-0 custom-toggler"
+              className="p-0 custom-toggler fs-5 ps-2"
               aria-controls="top-navbar-nav"
               aria-expanded={show}
             >
@@ -62,18 +68,12 @@ const CustomNavbar = ({ config }) => {
               <div>{config.short_name}</div>
             </Navbar.Brand>
 
-            {/* Search Button */}
             <Button
-              variant="link"
-              onClick={handleToggle}
-              className="p-0 custom-toggler"
-              aria-controls="top-navbar-nav"
-              aria-expanded={show}
+              aria-controls="bottom-navbar-nav"
+              onClick={handleToggleBottom}
+              className="custom-toggler d-lg-none bg-transparent border-0 p-0 fs-4 pe-2"
             >
-              <FontAwesomeIcon
-                icon={faMagnifyingGlass}
-                className="text-white"
-              />
+              <FontAwesomeIcon icon={faBars} />
             </Button>
           </div>
 
@@ -137,11 +137,7 @@ const CustomNavbar = ({ config }) => {
       </Navbar>
 
       {/* Navbar Bawah */}
-      <Navbar sticky="top" expand="lg" className="navbar-custom mt-2">
-        <Navbar.Toggle
-          aria-controls="bottom-navbar-nav"
-          className="custom-toggler d-lg-none"
-        />
+      <Navbar sticky="top" expand="lg" className="navbar-custom mt-2 p-0">
         {/* Navbar Toggle for Mobile */}
         <Container>
           <Navbar.Collapse id="bottom-navbar-nav" className="text-center">
@@ -217,7 +213,10 @@ const CustomNavbar = ({ config }) => {
                 </NavDropdown.Item>
               </NavDropdown>
             </Nav>
-            <Button className="bg_pallete_3 border-0 ms-2" type="submit">
+            <Button
+              className="bg_pallete_3 border-0 ms-2 mb-3 mb-md-0"
+              type="submit"
+            >
               Clear Filter
             </Button>
           </Navbar.Collapse>

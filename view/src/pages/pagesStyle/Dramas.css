@@ -1,0 +1,57 @@
+/* dramas.css */
+
+.table-responsive {
+    margin-top: 20px;
+  }
+  
+  #dramas {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  #dramas thead {
+    background-color: #525c91; /* Blue header background */
+    color: #fff; /* White text color */
+  }
+  
+  #dramas thead th {
+    padding: 10px;
+    text-align: left;
+  }
+  
+  #dramas tbody tr:nth-child(even) {
+    background-color: #141414; /* Light grey for even rows */
+  }
+  
+  #dramas tbody tr:nth-child(odd) {
+    background-color: #212529; /* White for odd rows */
+  }
+  
+  #dramas tbody tr:hover {
+    background-color: #4d5474; /* Slightly darker background on hover */
+  }
+  
+  #dramas .actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  #dramas .icon {
+    cursor: pointer;
+    color: #57639d; /* Blue icon color */
+    font-size: 1.2rem;
+  }
+  
+  #dramas .icon:hover {
+    color: #0056b3; /* Darker blue on hover */
+  }
+  
+  .table-container {
+    margin-top: 20px;
+  }
+  
+  
+  .tabel{
+    width: 75%;
+    margin: 5%;
+  }

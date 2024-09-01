@@ -6,8 +6,8 @@ import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import "datatables.net-dt/css/dataTables.dataTables.min.css";
 import "../pagesStyle/Genres.css";
 import { Container } from "react-bootstrap";
+import { useGlobalState } from "../../components/GlobalStateContext";
 
-// Langkah 1: Pisahkan data ke dalam array
 const genresData = [
   { id: 1, genre: "Action" },
   { id: 2, genre: "Romance" },
@@ -23,7 +23,15 @@ const genresData = [
 ];
 
 function CMSGenres() {
+  const { setShowSidebar, setActiveMenu, setShowNavigation, setShowFooter } =
+    useGlobalState();
+
   useEffect(() => {
+    setShowSidebar(true);
+    setActiveMenu("Genres");
+    setShowNavigation(false);
+    setShowFooter(false);
+
     // Initialize DataTable
     $("#genres").DataTable({
       pageLength: 10, // Jumlah baris per halaman
@@ -40,7 +48,7 @@ function CMSGenres() {
       // Cleanup DataTable saat komponen di-unmount
       $("#genres").DataTable().destroy();
     };
-  }, []);
+  }, [setShowSidebar, setActiveMenu, setShowNavigation, setShowFooter]);
 
   return (
     <Container className="tabel">

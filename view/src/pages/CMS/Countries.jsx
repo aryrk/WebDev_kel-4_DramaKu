@@ -6,6 +6,7 @@ import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import "datatables.net-dt/css/dataTables.dataTables.min.css";
 import "../pagesStyle/Countries.css";
 import { Container } from "react-bootstrap";
+import { useGlobalState } from "../../components/GlobalStateContext";
 
 // Langkah 1: Pisahkan data ke dalam array
 const countriesData = [
@@ -24,15 +25,22 @@ const countriesData = [
 ];
 
 function CMSCountries() {
+  const { setShowSidebar, setActiveMenu, setShowNavigation, setShowFooter } =
+    useGlobalState();
+
   useEffect(() => {
-    // Initialize DataTable
+    setShowSidebar(true);
+    setActiveMenu("Countries");
+    setShowNavigation(false);
+    setShowFooter(false);
+
     $("#countries").DataTable({
-      pageLength: 10, // Jumlah baris per halaman
-      lengthChange: true, // Izinkan opsi untuk mengubah jumlah baris per halaman
-      searching: true, // Aktifkan pencarian
-      ordering: true, // Aktifkan pengurutan kolom
-      info: true, // Tampilkan info tentang tabel
-      paging: true, // Aktifkan pagination
+      pageLength: 10,
+      lengthChange: true,
+      searching: true,
+      ordering: true,
+      info: true,
+      paging: true,
       lengthMenu: [10, 25, 50],
       autoWidth: false,
     });

@@ -19,6 +19,7 @@ import Validate from "./pages/CMS/Drama/Validate";
 import Countries from "./pages/CMS/Countries";
 import Awards from "./pages/CMS/Awards";
 import Genres from "./pages/CMS/Genres";
+import Drama from "./pages/CMS/Dramas";
 
 import {
   GlobalStateProvider,
@@ -63,6 +64,7 @@ function AppContent() {
             <Route path="/cms/countries" element={<Countries />} />
             <Route path="/cms/awards" element={<Awards />} />
             <Route path="/cms/genres" element={<Genres />} />
+            <Route path="/cms/dramas" element={<Drama />} />
           </Routes>
           {showFooter && <Footer />}
         </div>

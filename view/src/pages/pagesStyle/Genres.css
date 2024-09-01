@@ -1,0 +1,57 @@
+/* genres.css */
+
+.table-responsive {
+    margin-top: 20px;
+  }
+  
+  #genres {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  #genres thead {
+    background-color: #525c91; /* Blue header background */
+    color: #fff; /* White text color */
+  }
+  
+  #genres thead th {
+    padding: 10px;
+    text-align: left;
+  }
+  
+  #genres tbody tr:nth-child(even) {
+    background-color: #141414; /* Light grey for even rows */
+  }
+  
+  #genres tbody tr:nth-child(odd) {
+    background-color: #212529; /* White for odd rows */
+  }
+  
+  #genres tbody tr:hover {
+    background-color: #4d5474; /* Slightly darker background on hover */
+  }
+  
+  #genres .actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  #genres .icon {
+    cursor: pointer;
+    color: #57639d; /* Blue icon color */
+    font-size: 1.2rem;
+  }
+  
+  #genres .icon:hover {
+    color: #0056b3; /* Darker blue on hover */
+  }
+  
+  .table-container {
+    margin-top: 20px;
+  }
+  
+  
+  .tabel{
+    width: 75%;
+    margin: 5%;
+  }

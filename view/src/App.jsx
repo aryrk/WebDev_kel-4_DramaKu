@@ -18,6 +18,8 @@ import Error404 from "./pages/Error404";
 import Validate from "./pages/CMS/Drama/Validate";
 import Countries from "./pages/CMS/Countries";
 import Awards from "./pages/CMS/Awards";
+import Genres from "./pages/CMS/Genres";
+
 import {
   GlobalStateProvider,
   useGlobalState,
@@ -60,6 +62,7 @@ function AppContent() {
             <Route path="/cms/drama/validate" element={<Validate />} />
             <Route path="/cms/countries" element={<Countries />} />
             <Route path="/cms/awards" element={<Awards />} />
+            <Route path="/cms/genres" element={<Genres />} />
           </Routes>
           {showFooter && <Footer />}
         </div>

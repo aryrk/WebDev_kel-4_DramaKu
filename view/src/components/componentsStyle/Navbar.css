@@ -1,0 +1,54 @@
+/* Navigation.css */
+.navbar-custom {
+  background-color: #212121 !important;
+  color: white;
+  position: relative; /* Add this to the navbar */
+}
+
+.navbar-custom .navbar-brand {
+  color: white;
+  position: relative; /* Add this to the navbar brand */
+}
+
+.dropdown-toggle {
+  color: white;
+}
+
+.submit {
+  background-color: #525c91;
+}
+
+.search-icon {
+  color: white;
+}
+
+/* Remove margin from the second navbar */
+.navbar-custom.mt-2 {
+  margin: 0 !important;
+}
+
+.custom-toggler .navbar-toggler-icon {
+  background-image: url('data:image/svg+xml;charset=utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"%3E%3Cpath stroke="%23ffffff" stroke-width="2" d="M5 7h20M5 15h20M5 23h20"/%3E%3C/svg%3E');
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative; /* Ensure the brand stays centered */
+}
+
+@media (max-width: 991px) {
+  .navbar-brand {
+    flex-grow: 1;
+    justify-content: center;
+    position: relative; /* Ensure the brand stays centered on mobile */
+  }
+}
+
+.d-lg-none {
+  display: flex;
+  justify-content: center; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
+  position: relative; /* Align elements within this container */
+}

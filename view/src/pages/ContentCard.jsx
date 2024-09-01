@@ -189,12 +189,12 @@ function ContentCard() {
                     marginTop: "8px",
                     textAlign: "center",
                     fontSize: "16px",
-                    color: "#f3deb2",
                     width: "100%",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                   }}
+                  className="text-white"
                 >
                   {card.title}
                 </label>

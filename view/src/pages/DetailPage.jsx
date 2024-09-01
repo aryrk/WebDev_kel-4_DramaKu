@@ -111,7 +111,7 @@ function Actor(props) {
   return (
     <Card
       style={{ width: "8rem", display: "inline-block", verticalAlign: "top" }}
-      className="border-0 ps-0 ps-lg-1 bg-transparent text-wheat "
+      className="border-0 ps-0 ps-lg-1 bg-transparent text-white"
     >
       <center>
         <Card.Img
@@ -572,7 +572,7 @@ function DetailPage() {
   }, [setShowNavigation]);
   return (
     <center>
-      <div className="w-sm-100 w-xl-75 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4 text-wheat">
+      <div className="w-sm-100 w-xl-75 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
         <MovieInfo
           poster="https://d1csarkz8obe9u.cloudfront.net/posterpreviews/action-mistery-movie-poster-design-template-2ec690d65c22aa12e437d765dbf7e4af_screen.jpg?ts=1680854635"
           judul="The OUTSIDER"

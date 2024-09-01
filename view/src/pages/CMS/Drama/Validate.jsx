@@ -12,7 +12,7 @@ function MoviePreview() {
         imgHeight="54vh"
       />
 
-      <div className="w-sm-100 w-xl-90 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4 text-wheat">
+      <div className="w-sm-100 w-xl-90 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
         <MovieInfo
           poster="https://d1csarkz8obe9u.cloudfront.net/posterpreviews/action-mistery-movie-poster-design-template-2ec690d65c22aa12e437d765dbf7e4af_screen.jpg?ts=1680854635"
           judul="The OUTSIDER"
@@ -112,7 +112,7 @@ function MovieDetailModal(props) {
       onHide={handleClose}
       centered
     >
-      <Modal.Header closeButton className="bg-dark text-wheat">
+      <Modal.Header closeButton className="bg-dark text-white">
         <center>
           <Button className="bg_pallete_3 border-0 me-3" onClick={handleClose}>
             Approve
@@ -122,7 +122,7 @@ function MovieDetailModal(props) {
           </Button>
         </center>
       </Modal.Header>
-      <Modal.Body className="bg-dark text-wheat">
+      <Modal.Body className="bg-dark text-white">
         <MoviePreview />
       </Modal.Body>
     </Modal>

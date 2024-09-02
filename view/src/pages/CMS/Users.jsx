@@ -5,11 +5,12 @@ import $ from "jquery";
 import DataTable from "datatables.net-dt";
 import { Button, Col, Container, Form, Row, Table } from "react-bootstrap";
 
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faSave, faTimes, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faEdit } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { useGlobalState } from "../../components/GlobalStateContext";
+import { useEdit } from "../../components/cmsEdit";
 
 import "datatables.net";
 
@@ -65,8 +66,10 @@ function AddUser() {
 
 function User(props) {
   const { no, username, email } = props;
+  const { cancelEdit, edit } = useEdit();
+
   return (
-    <tr>
+    <tr id={no}>
       <td className="text-center">{no}</td>
       <td>{username}</td>
       <td>{email}</td>
@@ -76,12 +79,32 @@ function User(props) {
             Send first email
           </a>
           |
-          <Button variant="primary" className="ms-2 me-2">
+          <Button
+            variant="primary"
+            className="ms-2 me-2"
+            id={`editBtn${no}`}
+            onClick={() => edit(no)}
+          >
             <FontAwesomeIcon icon={faEdit} />
           </Button>
+          <Button
+            variant="success"
+            className="ms-2 me-2 d-none"
+            id={`editSaveBtn${no}`}
+          >
+            <FontAwesomeIcon icon={faSave} />
+          </Button>
           |
-          <Button variant="danger" className="ms-2">
+          <Button variant="danger" className="ms-2" id={`deleteBtn${no}`}>
             <FontAwesomeIcon icon={faTrash} />
+          </Button>
+          <Button
+            variant="danger"
+            className="ms-2 d-none"
+            id={`cancelBtn${no}`}
+            onClick={() => cancelEdit(no)}
+          >
+            <FontAwesomeIcon icon={faTimes} />
           </Button>
         </center>
       </td>

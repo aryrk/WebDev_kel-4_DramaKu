@@ -26,6 +26,7 @@ import {
 } from "./components/GlobalStateContext";
 
 import "./App.css";
+import { EditProvider } from "./components/cmsEdit";
 
 function AppContent() {
   const { showFooter, showNavigation, showSidebar } = useGlobalState();
@@ -73,11 +74,13 @@ function AppContent() {
 
 function App() {
   return (
-    <GlobalStateProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </GlobalStateProvider>
+    <EditProvider>
+      <GlobalStateProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </GlobalStateProvider>
+    </EditProvider>
   );
 }
 

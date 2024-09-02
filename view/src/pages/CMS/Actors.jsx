@@ -12,11 +12,12 @@ import { Button, Col, Container, Form, Row, Table } from "react-bootstrap";
 import FilePondPluginImageTransform from "filepond-plugin-image-transform";
 import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
 
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faSave, faTimes, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faEdit } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { useGlobalState } from "../../components/GlobalStateContext";
+import { useEdit } from "../../components/cmsEdit";
 
 import "datatables.net";
 
@@ -130,13 +131,17 @@ function AddActor() {
 
 function Actor(props) {
   const { no, country, actorName, birthDate, src } = props;
+  const { cancelEdit, edit } = useEdit();
+
   return (
-    <tr>
+    <tr id={no}>
       <td className="text-center">{no}</td>
-      <td>{country}</td>
-      <td>{actorName}</td>
-      <td className="text-center">{birthDate}</td>
-      <td>
+      <td name="country">{country}</td>
+      <td name="actorName">{actorName}</td>
+      <td className="text-center" name="birthDate">
+        {birthDate}
+      </td>
+      <td name="img">
         <center>
           <img
             src={src}
@@ -149,12 +154,32 @@ function Actor(props) {
       </td>
       <td className="align-middle">
         <center>
-          <Button variant="primary" className="mb-3 mb-sm-4">
+          <Button
+            variant="primary"
+            className="mb-3 mb-sm-4"
+            onClick={() => edit(no)}
+            id={`editBtn${no}`}
+          >
             <FontAwesomeIcon icon={faEdit} />
           </Button>
+          <Button
+            variant="success"
+            className="mb-3 mb-sm-4 d-none"
+            id={`editSaveBtn${no}`}
+          >
+            <FontAwesomeIcon icon={faSave} />
+          </Button>
           <br></br>
-          <Button variant="danger">
+          <Button variant="danger" id={`deleteBtn${no}`}>
             <FontAwesomeIcon icon={faTrash} />
+          </Button>
+          <Button
+            variant="warning"
+            id={`cancelBtn${no}`}
+            className="d-none"
+            onClick={() => cancelEdit(no)}
+          >
+            <FontAwesomeIcon icon={faTimes} />
           </Button>
         </center>
       </td>
@@ -212,21 +237,21 @@ function ActorTable() {
           src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQTqvrZ54xH0XPu-B70myUkhQlzedlEi9dyxH5kX_29G3tv6Wec"
         />
         <Actor
-          no="2"
+          no="3"
           country="USA"
           actorName="Paige Spara"
           birthDate="1991-02-16"
           src="https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQg3TO4ynEKIWdT9qIEVsaDfg3PPDyQGIb3DP7_-x8ey5mDwO8G"
         />
         <Actor
-          no="2"
+          no="4"
           country="USA"
           actorName="Fiona Gubelmann"
           birthDate="1981-02-16"
           src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQx7zjLO4JlM3wed_EpzRpv9Xu8OMSpGcMJNGeNc3KdnbQgPuoF"
         />
         <Actor
-          no="2"
+          no="5"
           country="USA"
           actorName="Richard Schiff"
           birthDate="1981-02-16"

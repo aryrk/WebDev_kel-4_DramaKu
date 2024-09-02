@@ -8,7 +8,6 @@ import "../pagesStyle/Countries.css";
 import { Container } from "react-bootstrap";
 import { useGlobalState } from "../../components/GlobalStateContext";
 
-// Langkah 1: Pisahkan data ke dalam array
 const countriesData = [
   { id: 1, name: "Indonesia" },
   { id: 2, name: "Korea" },
@@ -43,6 +42,16 @@ function CMSCountries() {
       paging: true,
       lengthMenu: [10, 25, 50],
       autoWidth: false,
+      columnDefs: [
+        {
+          width: "50px",
+          targets: 0,
+        },
+        {
+          width: "80px",
+          targets: 2,
+        },
+      ],
     });
 
     return () => {

@@ -83,13 +83,6 @@ const CustomNavbar = ({ config }) => {
           <Navbar.Collapse id="top-navbar-nav" className={show ? "show" : ""}>
             <Nav className="me-auto d-flex align-items-center">
               <Navbar.Brand className="me-3 d-none d-lg-flex align-items-center">
-                <Image
-                  src={config.logo_png}
-                  width={30}
-                  height={30}
-                  loading="lazy"
-                  className="d-inline-block align-top img_contain"
-                />
                 <a href="/home" className="text-light">
                   {config.short_name}
                 </a>
@@ -234,6 +227,12 @@ const CustomNavbar = ({ config }) => {
           </Navbar.Collapse>
         </Container>
       </Navbar>
+      <Image
+        src={config.logo_png}
+        loading="lazy"
+        className="mt-2 ms-2 ms-xxl-3 pt-1 position-absolute top-0 left-0 align-top img_contain d-none d-xl-block"
+        style={{ zIndex: "1000000000000000", width: "5vw", height: "80px" }}
+      />
     </>
   );
 };

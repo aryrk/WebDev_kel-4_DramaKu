@@ -142,7 +142,7 @@ const Footer = ({ config }) => {
               </ListGroup>
             </Col>
 
-            <Col xs={12} md={4}>
+            <Col xs={12} md={4} className="d-none">
               <h6 className="text-uppercase">Subscribe to Newsletter</h6>
               <Form>
                 <Form.Group controlId="formBasicEmail">

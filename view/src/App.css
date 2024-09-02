@@ -19,12 +19,20 @@
   text-decoration: none;
 }
 body {
-  font-family: "Inter";
+  /* font-family: "Inter";
   src: local("Inter"),
     url(https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap);
-  font-weight: 400;
+  font-weight: 400; */
+  font-family: "SUSE", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
   background-color: #141414;
   color: white;
+}
+.logo_font {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 700;
 }
 input {
   background-color: #282828 !important;
@@ -42,10 +50,10 @@ textarea {
   color: white !important;
 }
 .fs_primary {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
 }
 .fs_secondary {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 a {
   text-decoration: none !important;

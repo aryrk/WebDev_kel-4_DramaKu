@@ -83,7 +83,7 @@ const CustomNavbar = ({ config }) => {
           <Navbar.Collapse id="top-navbar-nav" className={show ? "show" : ""}>
             <Nav className="me-auto d-flex align-items-center">
               <Navbar.Brand className="me-3 d-none d-lg-flex align-items-center">
-                <a href="/home" className="text-light">
+                <a href="/home" className="text-light logo_font">
                   {config.short_name}
                 </a>
               </Navbar.Brand>

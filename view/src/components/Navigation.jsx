@@ -65,7 +65,9 @@ const CustomNavbar = ({ config }) => {
                 loading="lazy"
                 className="img_contain d-inline-block align-top"
               />
-              <div>{config.short_name}</div>
+              <a href="/home" className="text-light">
+                {config.short_name}
+              </a>
             </Navbar.Brand>
 
             <Button
@@ -88,7 +90,9 @@ const CustomNavbar = ({ config }) => {
                   loading="lazy"
                   className="d-inline-block align-top img_contain"
                 />
-                {config.short_name}
+                <a href="/home" className="text-light">
+                  {config.short_name}
+                </a>
               </Navbar.Brand>
               <Nav className="d-none d-lg-flex">
                 <Nav.Link href="#indonesia" className="navbar-custom">
@@ -130,7 +134,13 @@ const CustomNavbar = ({ config }) => {
                 className="me-2"
                 style={{ maxWidth: "280px" }}
               />
-              <Button variant="outline-light">
+              <Button
+                variant="outline-light"
+                // onclick href
+                onClick={() => {
+                  window.location.href = "/search";
+                }}
+              >
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
               </Button>
             </Form>

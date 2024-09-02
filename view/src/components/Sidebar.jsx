@@ -92,14 +92,6 @@ const Sidebar = ({ config }) => {
               >
                 <a href="/cms/drama/input">Input New Drama</a>
               </li>
-              <li
-                className={`ps-3 ${
-                  activeMenu === "Manage Drama" ? "active" : ""
-                }`}
-                onClick={() => handleMenuClick("Manage Drama")}
-              >
-                <a href="/cms/dramas">Manage Drama</a>
-              </li>
             </ul>
           </li>
           <li

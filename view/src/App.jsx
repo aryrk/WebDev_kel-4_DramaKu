@@ -15,11 +15,10 @@ import Navigation from "./components/Navigation";
 import DramaInput from "./pages/CMS/Drama/DramaInput";
 import SearchResultPage from "./pages/SearchResultPage";
 import Error404 from "./pages/Error404";
-import Validate from "./pages/CMS/Drama/Validate";
 import Countries from "./pages/CMS/Countries";
 import Awards from "./pages/CMS/Awards";
 import Genres from "./pages/CMS/Genres";
-import Drama from "./pages/CMS/Dramas";
+import Dramas from "./pages/CMS/Drama/Dramas";
 
 import {
   GlobalStateProvider,
@@ -60,11 +59,10 @@ function AppContent() {
             <Route path="/cms/comments" element={<Comments />} />
             <Route path="/cms/users" element={<Users />} />
             <Route path="/cms/drama/input" element={<DramaInput />} />
-            <Route path="/cms/drama/validate" element={<Validate />} />
+            <Route path="/cms/drama/validate" element={<Dramas />} />
             <Route path="/cms/countries" element={<Countries />} />
             <Route path="/cms/awards" element={<Awards />} />
             <Route path="/cms/genres" element={<Genres />} />
-            <Route path="/cms/dramas" element={<Drama />} />
           </Routes>
           {showFooter && <Footer />}
         </div>

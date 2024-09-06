@@ -1,5 +1,5 @@
 import React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import $ from "jquery";
 import {
@@ -19,6 +19,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useGlobalState } from "../components/GlobalStateContext";
 
 import "bootstrap/dist/css/bootstrap.min.css";
+
+import { useParams } from "react-router-dom";
 
 function MovieInfo(props) {
   const {
@@ -43,7 +45,7 @@ function MovieInfo(props) {
                   fluid
                   thumbnail
                   loading="lazy"
-                  style={{ width: "342px", height: "386px" }}
+                  style={{ width: "342px", height: "486px" }}
                   className="img_cover border-0 rounded-4 p-0"
                 />
               </center>
@@ -53,19 +55,9 @@ function MovieInfo(props) {
               className="text-start text-break mw-sm-100 mw-md-35 mw-xl-50 pt-3 pt-md-0"
             >
               <p className="mb-1 fs_primary fs-1 fs-lg-5">{judul}</p>
-              <p className="mb-1 fs_secondary">
-                Other titles:
-                {otherTitles.map((title, i) => (
-                  <span key={i}>
-                    {" "}
-                    {title}
-                    {i < title.length - 1 ? ", " : ""}
-                  </span>
-                ))}
-              </p>
+              <p className="mb-1 fs_secondary">Other titles: {otherTitles}</p>
               <p className="fs_secondary ">Year: {year}</p>
-              <p className="fs_secondary">{synopsis}</p>
-              <p className="fs_secondary mb-1">
+              <p className="fs_secondary mb-3">
                 {genres.map((genre, i) => (
                   <span key={i}>
                     {" "}
@@ -74,6 +66,7 @@ function MovieInfo(props) {
                   </span>
                 ))}
               </p>
+              <p className="fs_secondary">{synopsis}</p>
               <p className="fs_secondary mb-1">
                 Rating: {rating}{" "}
                 <Rating
@@ -217,49 +210,22 @@ function StarRating(props) {
 }
 
 var comments, commentCount, commentShown, commentHidden;
-
-$(document).ready(function () {
-  $(".text_overflow_js").each(function () {
-    var text = $(this).text();
-    var originalText = text;
-    if (text.length > 200) {
-      $(this).html(
-        text.substr(0, 200) +
-          '... <button class="btn fs_secondary p-0 m-0 link border-0" onclick="readMore(this,`' +
-          originalText +
-          '`)">Read more</button>'
-      );
-    }
-  });
-
-  comments = $(".comment");
-  commentCount = comments.length;
-  commentShown = 3;
-  commentHidden = commentCount - commentShown;
-  comments.slice(commentShown).addClass("d-none");
-  $("#load_more_comments_div").html(
-    '<button id="loadMore" class="btn bg-transparent border-0 p-0 m-0 link mt-2"  onclick="loadMoreComments()">Load more rating ...</button>'
-  );
-  if (commentHidden === 0) {
-    $("#loadMore").addClass("d-none");
-  }
-});
+var comment_data;
 
 window.readMore = function (btn, text) {
-  $(btn).parent().html(text);
+  $(btn).parent().html(comment_data[text]);
 };
 
 window.loadMoreComments = function () {
-  console.log("load more");
   commentShown += 3;
   commentHidden = commentCount - commentShown;
   comments.slice(0, commentShown).removeClass("d-none");
-  if (commentHidden === 0) {
+  if (commentHidden <= 0) {
     $("#loadMore").addClass("d-none");
   }
 };
 function Comment(props) {
-  const { profile_src, username, date, rating, comment } = props;
+  const { index, profile_src, username, date, rating, comment } = props;
 
   return (
     <Container className="p-0 justify-content-center align-middle mt-3 comment">
@@ -286,7 +252,10 @@ function Comment(props) {
                 </strong>
               </Col>
               <div className="w-100"></div>
-              <Col className="justify-content-start text-start pe-0 fs_secondary text_overflow_js">
+              <Col
+                className="justify-content-start text-start pe-0 fs_secondary text_overflow_js"
+                index={index}
+              >
                 {comment}
               </Col>
             </Row>
@@ -298,162 +267,71 @@ function Comment(props) {
 }
 
 function CommentSection() {
+  const { movieId } = useParams();
+  const [comment, setComment] = useState(null);
+
+  useEffect(() => {
+    fetch(`/api/movies/comments/${movieId}`)
+      .then((response) => response.json())
+      .then((data) => setComment(data))
+      .catch((error) => console.error("Error:", error));
+  }, [movieId]);
+
+  useEffect(() => {
+    if (comment) {
+      comment_data = {};
+      comment.forEach((c) => {
+        comment_data[c.id] = c.comments;
+      });
+
+      $(".text_overflow_js").each(function () {
+        var text = $(this).text();
+        var originalText = text;
+        var comment_key = $(this).attr("index");
+        if (text.length > 200) {
+          $(this).html(
+            text.substr(0, 200) +
+              '... <button class="btn fs_secondary p-0 m-0 link border-0" onclick="readMore(this,`' +
+              comment_key +
+              '`)">Read more</button>'
+          );
+        }
+      });
+
+      comments = $(".comment");
+      commentCount = comments.length;
+      commentShown = 3;
+      commentHidden = commentCount - commentShown;
+      comments.slice(commentShown).addClass("d-none");
+      $("#load_more_comments_div").html(
+        '<button id="loadMore" class="btn bg-transparent border-0 p-0 m-0 link mt-2"  onclick="loadMoreComments()">Load more rating ...</button>'
+      );
+      if (commentHidden === 0) {
+        $("#loadMore").addClass("d-none");
+      }
+    }
+  }, [comment]);
+
   return (
     <section>
-      <CommentHeader totalComments="10k" />
-      <Comment
-        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-        username="Nara"
-        date="4/4/2014"
-        rating="4"
-        comment="It is a wonderful drama! Love it so much!!! i need long comments
-                to see how it is being seen in the display. Lorem ipsum dolor
-                sit amet, consectetur adipiscing elit. Donec nec odio vitae
-                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
-                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
-                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
-                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
-                odio vitae nunc. Donec nec odio vitae"
-      />
-      <Comment
-        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-        username="Nara"
-        date="4/4/2014"
-        rating="4"
-        comment="It is a wonderful drama! Love it so much!!! i need long comments
-                to see how it is being seen in the display. Lorem ipsum dolor
-                sit amet, consectetur adipiscing elit. Donec nec odio vitae
-                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
-                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
-                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
-                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
-                odio vitae nunc. Donec nec odio vitae"
-      />
-      <Comment
-        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-        username="Nara"
-        date="4/4/2014"
-        rating="4"
-        comment="It is a wonderful drama! Love it so much!!! i need long comments
-                to see how it is being seen in the display. Lorem ipsum dolor
-                sit amet, consectetur adipiscing elit. Donec nec odio vitae
-                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
-                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
-                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
-                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
-                odio vitae nunc. Donec nec odio vitae"
-      />
-      <Comment
-        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-        username="Nara"
-        date="4/4/2014"
-        rating="4"
-        comment="It is a wonderful drama! Love it so much!!! i need long comments
-                to see how it is being seen in the display. Lorem ipsum dolor
-                sit amet, consectetur adipiscing elit. Donec nec odio vitae
-                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
-                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
-                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
-                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
-                odio vitae nunc. Donec nec odio vitae"
-      />
-      <Comment
-        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-        username="Nara"
-        date="4/4/2014"
-        rating="4"
-        comment="It is a wonderful drama! Love it so much!!! i need long comments
-                to see how it is being seen in the display. Lorem ipsum dolor
-                sit amet, consectetur adipiscing elit. Donec nec odio vitae
-                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
-                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
-                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
-                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
-                odio vitae nunc. Donec nec odio vitae"
-      />
-      <Comment
-        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-        username="Nara"
-        date="4/4/2014"
-        rating="4"
-        comment="It is a wonderful drama! Love it so much!!! i need long comments
-                to see how it is being seen in the display. Lorem ipsum dolor
-                sit amet, consectetur adipiscing elit. Donec nec odio vitae
-                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
-                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
-                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
-                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
-                odio vitae nunc. Donec nec odio vitae"
-      />
-      <Comment
-        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-        username="Nara"
-        date="4/4/2014"
-        rating="4"
-        comment="It is a wonderful drama! Love it so much!!! i need long comments
-                to see how it is being seen in the display. Lorem ipsum dolor
-                sit amet, consectetur adipiscing elit. Donec nec odio vitae
-                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
-                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
-                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
-                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
-                odio vitae nunc. Donec nec odio vitae"
-      />
-      <Comment
-        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-        username="Nara"
-        date="4/4/2014"
-        rating="4"
-        comment="It is a wonderful drama! Love it so much!!! i need long comments
-                to see how it is being seen in the display. Lorem ipsum dolor
-                sit amet, consectetur adipiscing elit. Donec nec odio vitae
-                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
-                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
-                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
-                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
-                odio vitae nunc. Donec nec odio vitae"
-      />
-      <Comment
-        profile_src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-        username="Nara"
-        date="4/4/2014"
-        rating="4"
-        comment="It is a wonderful drama! Love it so much!!! i need long comments
-                to see how it is being seen in the display. Lorem ipsum dolor
-                sit amet, consectetur adipiscing elit. Donec nec odio vitae
-                nunc. Donec nec odio vitae nunc. Lorem ipsum dolor sit amet,
-                consectetur adipiscing elit. Donec nec odio vitae nunc. Donec
-                nec odio vitae nunc. Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit. Donec nec odio vitae nunc. Donec nec odio vitae
-                nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Donec nec odio vitae nunc. Donec nec odio vitae nunc. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Donec nec
-                odio vitae nunc. Donec nec odio vitae"
-      />
+      <CommentHeader totalComments={comment ? comment.length : 0} />
+
+      {comment &&
+        comment.map((comment) => (
+          <Comment
+            key={comment.id}
+            index={comment.id}
+            profile_src={
+              comment.profile_picture != ""
+                ? comment.profile_picture
+                : "/images/empty_profile.jpg"
+            }
+            username={comment.username}
+            date={new Date(comment.comment_date).toLocaleDateString("id-ID")}
+            rating={comment.rate}
+            comment={comment.comments}
+          />
+        ))}
 
       <div
         id="load_more_comments_div"
@@ -542,7 +420,6 @@ function BackgroundPoster(props) {
   if (zIndex === undefined) {
     zIndex = "-1";
   }
-  console.log(imgHeight);
   if (imgHeight === undefined) {
     imgHeight = "65vh";
   }
@@ -570,100 +447,70 @@ function DetailPage() {
     setShowFooter(true);
     setShowSidebar(false);
   }, [setShowNavigation]);
+
+  const { movieId } = useParams();
+  const [movie, setMovie] = useState(null);
+
+  useEffect(() => {
+    fetch(`/api/movie-details/${movieId}`)
+      .then((response) => response.json())
+      .then((data) => setMovie(data))
+      .catch((error) => console.error("Error:", error));
+  }, [movieId]);
+
   return (
     <center>
-      <div className="w-sm-100 w-xl-75 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
-        <MovieInfo
-          poster="https://d1csarkz8obe9u.cloudfront.net/posterpreviews/action-mistery-movie-poster-design-template-2ec690d65c22aa12e437d765dbf7e4af_screen.jpg?ts=1680854635"
-          judul="The OUTSIDER"
-          otherTitles={["The OUTSIDER", "B"]}
-          year="2024"
-          synopsis="Synopsis sometimes unhelpful. I don't read it throughly. But what helps me is the henres. I need to see the genres and actors. That is what i want."
-          genres={["Gendre 1", "Gendre 2", "Gendre 3"]}
-          rating="3.5"
-          availability="Fansub bla bla"
-        />
-        <div
-          className="container-fluid mt-4 p-0"
-          style={{ overflow: "hidden" }}
-        >
-          <div className="row">
-            <div className="col-12 p-0">
-              <div
-                className="d-flex"
-                style={{ whiteSpace: "nowrap", overflowX: "scroll" }}
-              >
-                <div className="justify-content-start">
-                  <Actor
-                    src="https://m.media-amazon.com/images/M/MV5BMjA3NzcyMDcyMF5BMl5BanBnXkFtZTcwNjQwMTczMQ@@._V1_.jpg"
-                    name="Ben Mendelsohn"
-                  />
-                  <Actor
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz8Yx4CXaaAUDw_hLZSz7AojAoVahex0PKAg&s"
-                    name="Bill Camp"
-                  />
-                  <Actor
-                    src="https://m.media-amazon.com/images/M/MV5BYzk2ZTQwNTgtZTAxMy00ZTY3LTlkZTctMWE1NTNkNTk1MjA4XkEyXkFqcGdeQXVyMjQwMDg0Ng@@._V1_QL75_UY207_CR86,0,140,207_.jpg"
-                    name="Jeremy bobb"
-                  />
-                  <Actor
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSX3Ihna-KxO6oHbpPpANr5gFIqsjKnQ7W3kQ&s"
-                    name="mare winningham"
-                  />
-                  <Actor
-                    src="https://m.media-amazon.com/images/M/MV5BNDU1ODIxMzgyMF5BMl5BanBnXkFtZTYwMTU1NzE1._V1_FMjpg_UX1000_.jpg"
-                    name="paddy considine"
-                  />
-                  <Actor
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4Y0zsQI4X3znM-wlz57c8NOFjSkQPRbJ8Yw&s"
-                    name="yul vazquez"
-                  />
-                  <Actor
-                    src="https://m.media-amazon.com/images/M/MV5BMjM1NDk3MTQ1N15BMl5BanBnXkFtZTgwMDMwODEyMDE@._V1_.jpg"
-                    name="julianne nicholson"
-                  />
-                  <Actor
-                    src="https://m.media-amazon.com/images/M/MV5BZTVhOTg1ZWMtNDVlMC00M2YwLThiZjMtMTgxOWU1ZTk4ZjQ3XkEyXkFqcGdeQXVyNDM5MjI4OA@@._V1_FMjpg_UX1000_.jpg"
-                    name="marc menchaca"
-                  />
-                  <Actor
-                    src="https://m.media-amazon.com/images/M/MV5BMTcyMTI3NzI1Nl5BMl5BanBnXkFtZTgwNjQ3Njk2NjM@._V1_.jpg"
-                    name="cynthia erivo"
-                  />
-                  <Actor
-                    src="https://m.media-amazon.com/images/M/MV5BMjI2MzA0ODYyMV5BMl5BanBnXkFtZTgwNzU0NTEyNzE@._V1_.jpg"
-                    name="derek cecil"
-                  />
-                  <Actor
-                    src="https://m.media-amazon.com/images/M/MV5BMTQyOTEyNTE3M15BMl5BanBnXkFtZTcwNjYyODUzMQ@@._V1_FMjpg_UX1000_.jpg"
-                    name="hettienne park"
-                  />
-                  <Actor
-                    src="https://m.media-amazon.com/images/M/MV5BYTgzZWUyOTItZjMwNy00NjhiLWIzMGEtZjFjMDdlNDM3YTZhXkEyXkFqcGdeQXVyOTc3ODMwODk@._V1_.jpg"
-                    name="scarlett blum"
-                  />
-                  <Actor
-                    src="https://m.media-amazon.com/images/M/MV5BYzg2Mzc5NjEtYjY5My00YWFhLWFjZTYtYTM0MmZkZDE5YzZlXkEyXkFqcGdeQXVyNjk2Nzg2MTE@._V1_FMjpg_UX1000_.jpg"
-                    name="summer fontana"
-                  />
-                  <Actor
-                    src="https://m.media-amazon.com/images/M/MV5BMTMwOTQ0MDUyNF5BMl5BanBnXkFtZTcwNTQ1MzY1Mw@@._V1_.jpg"
-                    name="jason baterman"
-                  />
+      {movie ? (
+        <div className="w-sm-100 w-xl-75 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
+          <MovieInfo
+            poster={movie.poster}
+            judul={movie.title}
+            otherTitles={movie.alternative_titles}
+            year={movie.year}
+            synopsis={movie.synopsis}
+            genres={movie.genres.map((genre) => genre.name)}
+            rating={movie.rate}
+            availability={movie.availability}
+          />
+          <div
+            className="container-fluid mt-4 p-0"
+            style={{ overflow: "hidden" }}
+          >
+            <div className="row">
+              <div className="col-12 p-0">
+                <div
+                  className="d-flex"
+                  style={{ whiteSpace: "nowrap", overflowX: "scroll" }}
+                >
+                  <div className="justify-content-start">
+                    {movie.actors.map((actor) => (
+                      <Actor
+                        key={actor.id}
+                        src={
+                          actor.picture_profile != ""
+                            ? actor.picture_profile
+                            : "/images/empty_profile.jpg"
+                        }
+                        name={actor.name}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          <Trailer src={movie.trailer} />
+
+          <CommentSection />
+
+          <AddComment />
+
+          <BackgroundPoster src={movie.poster} />
         </div>
-
-        <Trailer src="https://youtu.be/eNDKWr3Xmjk" />
-
-        <CommentSection />
-
-        <AddComment />
-
-        <BackgroundPoster src="https://d1csarkz8obe9u.cloudfront.net/posterpreviews/action-mistery-movie-poster-design-template-2ec690d65c22aa12e437d765dbf7e4af_screen.jpg?ts=1680854635" />
-      </div>
+      ) : (
+        <p>Loading...</p>
+      )}
     </center>
   );
 }

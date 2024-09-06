@@ -53,7 +53,7 @@ function AppContent() {
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/detail" element={<DetailPage />} />
+            <Route path="/detail/:movieId" element={<DetailPage />} />
             <Route path="/home" element={<ContentCard />} />
             <Route path="/search" element={<SearchResultPage />} />
             <Route path="/cms/actors" element={<Actors />} />

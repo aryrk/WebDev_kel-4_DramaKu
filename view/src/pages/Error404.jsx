@@ -31,13 +31,13 @@ function Message(props) {
         <p className="fw-bold error_fs">{error}</p>
       </center>
       <Image
-        src="images/Deadpool Peekaboo noBubble.png"
+        src="/images/Deadpool Peekaboo noBubble.png"
         className="position-absolute bottom-0 end-0 error_image"
         loading="lazy"
         style={{ filter: "drop-shadow(rgba(0, 0, 0,0.5) 30px 50px 5px)" }}
       />
       <Image
-        src="images/Deadpool Peekaboo.png"
+        src="/images/Deadpool Peekaboo.png"
         loading="lazy"
         className="position-absolute bottom-0 end-0 error_image"
       />

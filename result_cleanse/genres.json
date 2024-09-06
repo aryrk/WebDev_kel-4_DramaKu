@@ -1,94 +1,94 @@
 [
     {
         "id": 1,
-        "name": "Musical"
-    },
-    {
-        "id": 2,
-        "name": "Comedy"
-    },
-    {
-        "id": 3,
-        "name": "Animation"
-    },
-    {
-        "id": 4,
-        "name": "Short"
-    },
-    {
-        "id": 5,
-        "name": "History"
-    },
-    {
-        "id": 6,
-        "name": "Sport"
-    },
-    {
-        "id": 7,
-        "name": "Sci-Fi"
-    },
-    {
-        "id": 8,
-        "name": "Crime"
-    },
-    {
-        "id": 9,
-        "name": "Fantasy"
-    },
-    {
-        "id": 10,
-        "name": "Action"
-    },
-    {
-        "id": 11,
-        "name": "N/A"
-    },
-    {
-        "id": 12,
         "name": "Drama"
     },
     {
-        "id": 13,
-        "name": "Thriller"
-    },
-    {
-        "id": 14,
-        "name": "Music"
-    },
-    {
-        "id": 15,
-        "name": "Biography"
-    },
-    {
-        "id": 16,
-        "name": "War"
-    },
-    {
-        "id": 17,
-        "name": "Adventure"
-    },
-    {
-        "id": 18,
-        "name": "Family"
-    },
-    {
-        "id": 19,
-        "name": "Romance"
-    },
-    {
-        "id": 20,
-        "name": "Western"
-    },
-    {
-        "id": 21,
+        "id": 2,
         "name": "Documentary"
     },
     {
-        "id": 22,
+        "id": 3,
+        "name": "Biography"
+    },
+    {
+        "id": 4,
+        "name": "War"
+    },
+    {
+        "id": 5,
+        "name": "Fantasy"
+    },
+    {
+        "id": 6,
+        "name": "N/A"
+    },
+    {
+        "id": 7,
+        "name": "Thriller"
+    },
+    {
+        "id": 8,
+        "name": "Family"
+    },
+    {
+        "id": 9,
+        "name": "Comedy"
+    },
+    {
+        "id": 10,
+        "name": "Music"
+    },
+    {
+        "id": 11,
+        "name": "Animation"
+    },
+    {
+        "id": 12,
+        "name": "Crime"
+    },
+    {
+        "id": 13,
+        "name": "Sci-Fi"
+    },
+    {
+        "id": 14,
+        "name": "History"
+    },
+    {
+        "id": 15,
+        "name": "Short"
+    },
+    {
+        "id": 16,
         "name": "Horror"
     },
     {
-        "id": 23,
+        "id": 17,
+        "name": "Action"
+    },
+    {
+        "id": 18,
+        "name": "Romance"
+    },
+    {
+        "id": 19,
+        "name": "Adventure"
+    },
+    {
+        "id": 20,
         "name": "Mystery"
+    },
+    {
+        "id": 21,
+        "name": "Western"
+    },
+    {
+        "id": 22,
+        "name": "Sport"
+    },
+    {
+        "id": 23,
+        "name": "Musical"
     }
 ]

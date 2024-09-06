@@ -60,6 +60,8 @@ def get_movie_data(movie_title):
         return None
 
 def get_actor_details(actor_name):
+    country = ['USA', 'UK', 'Canada', 'Australia', 'India', 'France', 'Germany', 'Italy', 'Spain', 'Japan', 'South Korea', 'China', 'Brazil', 'Mexico', 'Russia', 'South Africa', 'Nigeria', 'Egypt', 'Morocco', 'Kenya', 'Ghana', 'Ethiopia', 'Tanzania', 'Uganda', 'Zimbabwe', 'Zambia', 'Mozambique', 'Angola', 'Namibia', 'Botswana', 'Malawi', 'Lesotho', 'Swaziland', 'Burundi', 'Rwanda', 'Somalia', 'Sudan', 'South Sudan', 'Tunisia', 'Algeria', 'Libya', 'Mauritania', 'Mali', 'Niger', 'Chad', 'Cameroon', 'Central African Republic', 'Democratic Republic of the Congo', 'Republic of the Congo', 'Gabon', 'Equatorial Guinea', 'Cape Verde', 'Sao Tome and Principe', 'Guinea-Bissau', 'Sierra Leone', 'Liberia', 'Ivory Coast', 'Burkina Faso', 'Ghana', 'Togo', 'Benin', 'Nigeria', 'Cameroon', 'Chad', 'Sudan', 'Eritrea', 'Djibouti', 'Somalia', 'Ethiopia', 'Kenya', 'Uganda', 'Rwanda', 'Burundi', 'Tanzania', 'Zambia', 'Malawi', 'Mozambique', 'Zimbabwe', 'Botswana', 'Namibia', 'South Africa', 'Lesotho', 'Swaziland', 'Madagascar', 'Comoros', 'Mauritius', 'Seychelles', 'Angola', 'Gabon', 'Congo', 'Democratic Republic of the Congo', 'Central African Republic', 'Equatorial Guinea', 'Sao Tome and Principe', 'Egypt', 'Libya', 'Tunisia', 'Algeria', 'Morocco', 'Western Sahara', 'Mauritania', 'Senegal', 'Gambia', 'Guinea-Bissau', 'Guinea', 'Sierra Leone', 'Liberia', 'Ivory Coast', 'Burkina Faso', 'Ghana',]
+    
     tmdb_actor_search_url = 'https://api.themoviedb.org/3/search/person'
     params = {
         'api_key': tmdb_api_key,
@@ -72,6 +74,8 @@ def get_actor_details(actor_name):
         if actor_data['results']:
             actor_info = actor_data['results'][0]
             actor_details = {**actor_info, 'image_url': get_profile_image_url(actor_info.get('profile_path'))}
+            actor_details['birthday'] = f"{random.randint(1960, 2000)}-{random.randint(1, 12)}-{random.randint(1, 28)}"
+            actor_details['country'] = random.choice(country)
             print(f"Found details for actor: {actor_name}")
             return actor_details
     return {'name': actor_name, 'details': 'Details not found'}
@@ -248,7 +252,7 @@ def main():
     output_filename = 'result/all_popular_movies.json'
     all_movie_names = []
     page = 1
-    max_movie = 5
+    max_movie = 500
     movie_get = 0
 
     while movie_get < max_movie:

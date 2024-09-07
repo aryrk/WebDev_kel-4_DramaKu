@@ -123,27 +123,13 @@ CREATE TABLE movies_actors (
 """)
 
 cursor.execute("""
-CREATE TABLE comments (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  movie_id INT NOT NULL,
-  username VARCHAR(255) NOT NULL,
-  profile_picture VARCHAR(255),
-  rate FLOAT NOT NULL,
-  comments TEXT NOT NULL,
-  comment_date DATE NOT NULL,
-  status ENUM('pending', 'rejected', 'accepted') NOT NULL DEFAULT 'pending',
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at TIMESTAMP NULL,
-  FOREIGN KEY (movie_id) REFERENCES movies(id)
-)
-""")
-
-cursor.execute("""
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(255) NOT NULL,
+  profile_picture VARCHAR(255) NULL,
   email VARCHAR(255) NOT NULL,
+  email_validated TIMESTAMP NULL,
+  reset_password_token VARCHAR(255) NULL,
   password VARCHAR(255) NOT NULL,
   role ENUM('admin', 'writer') NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -152,12 +138,31 @@ CREATE TABLE users (
 )
 """)
 
+cursor.execute("""
+CREATE TABLE comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+    movie_id INT NOT NULL,
+  user_id INT NOT NULL,
+  rate FLOAT NOT NULL,
+  comments TEXT NOT NULL,
+  comment_date DATE NOT NULL,
+  status ENUM('pending', 'rejected', 'accepted') NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP NULL,
+  FOREIGN KEY (movie_id) REFERENCES movies(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+)
+""")
+
+
+
 def load_json_data(file_name):
     file_path = os.path.join(os.getcwd(), file_name)
     with open(file_path, 'r') as file:
         return json.load(file)
 
-countries_data = load_json_data('result_cleanse\countries.json')
+countries_data = load_json_data('result_cleanse\\countries.json')
 award_data = load_json_data('result_cleanse\\awards.json')
 genres_data = load_json_data('result_cleanse\\genres.json')
 actor_data = load_json_data('result_cleanse\\actors.json')
@@ -166,6 +171,7 @@ comments_data = load_json_data('result_cleanse\\comments.json')
 movie_actor_data = load_json_data('result_cleanse\\movies_actors.json')
 movie_award_data = load_json_data('result_cleanse\\movies_awards.json')
 movie_genre_data = load_json_data('result_cleanse\\movies_genres.json')
+users_data = load_json_data('result_cleanse\\users.json')
 
 for country in countries_data:
     print(country['name'])
@@ -205,18 +211,27 @@ for movie in movie_data:
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW(), %s)
     """, (movie['countries_id'], movie['poster'], movie['title'], movie['alternative_titles'], movie['year'], movie['synopsis'], movie['availability'], movie['views'], movie['trailer'], movie['status']))
 
+for user in users_data:
+    print(user['username'])
+    profile_picture = ""
+    if user['profile_picture'] != "N/A":
+        profile_picture = user['profile_picture']
+    cursor.execute("""
+        INSERT INTO users (username, profile_picture, email, password, role, created_at, updated_at, email_validated)
+        VALUES (%s, %s, %s, %s, %s, NOW(), NOW(), NOW())
+    """, (user['username'], profile_picture, user['email'], user['password'], user['role']))
+    
+
 for comment in comments_data:
-    print(comment['username'])
+    print(comment['movie_id'])
     rate = 0
     if comment['rate'] != None:
         rate = comment['rate']
-    profile_picture = ""
-    if comment['profile_picture'] != "N/A":
-        profile_picture = comment['profile_picture']
+    
     cursor.execute("""
-        INSERT INTO comments (movie_id, username, profile_picture, rate, comments, comment_date, created_at, updated_at, status)
-        VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW(), %s)
-    """, (comment['movie_id'], comment['username'], profile_picture,rate, comment['comments'], comment['comment_date'], comment['status']))
+        INSERT INTO comments (movie_id, user_id, rate, comments, comment_date, status, created_at, updated_at)
+        VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW())
+    """, (comment['movie_id'], comment['user_id'], rate, comment['comments'], comment['comment_date'], comment['status']))
 
 for movie_actor in movie_actor_data:
     print(movie_actor['movie_id'])

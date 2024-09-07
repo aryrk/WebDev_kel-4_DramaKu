@@ -1,107 +1,107 @@
 [
     {
         "id": 1,
-        "name": "Best Sound",
-        "year": 2015
-    },
-    {
-        "id": 2,
         "name": "Best Original Score",
-        "year": 2008
-    },
-    {
-        "id": 3,
-        "name": "Best Documentary Short",
-        "year": 2000
-    },
-    {
-        "id": 4,
-        "name": "Best Makeup and Hairstyling",
-        "year": 2013
-    },
-    {
-        "id": 5,
-        "name": "Best Cinematography",
-        "year": 2002
-    },
-    {
-        "id": 6,
-        "name": "Best Original Screenplay",
         "year": 2012
     },
     {
+        "id": 2,
+        "name": "Best Visual Effects",
+        "year": 2016
+    },
+    {
+        "id": 3,
+        "name": "Best Costume Design",
+        "year": 2012
+    },
+    {
+        "id": 4,
+        "name": "Best Animated Feature",
+        "year": 2020
+    },
+    {
+        "id": 5,
+        "name": "Best Adapted Screenplay",
+        "year": 2012
+    },
+    {
+        "id": 6,
+        "name": "Best Production Design",
+        "year": 2020
+    },
+    {
         "id": 7,
-        "name": "Best Animated Short",
-        "year": 2017
+        "name": "Best Documentary Short",
+        "year": 2012
     },
     {
         "id": 8,
-        "name": "Best Live Action Short",
-        "year": 2019
-    },
-    {
-        "id": 9,
-        "name": "Best Costume Design",
-        "year": 2000
-    },
-    {
-        "id": 10,
-        "name": "Best Original Song",
-        "year": 2014
-    },
-    {
-        "id": 11,
-        "name": "Best Production Design",
-        "year": 2017
-    },
-    {
-        "id": 12,
-        "name": "Best Director",
-        "year": 2003
-    },
-    {
-        "id": 13,
         "name": "Best Actor",
         "year": 2014
     },
     {
+        "id": 9,
+        "name": "Best International Feature",
+        "year": 2008
+    },
+    {
+        "id": 10,
+        "name": "Best Cinematography",
+        "year": 2015
+    },
+    {
+        "id": 11,
+        "name": "Best Sound",
+        "year": 2000
+    },
+    {
+        "id": 12,
+        "name": "Best Makeup and Hairstyling",
+        "year": 2013
+    },
+    {
+        "id": 13,
+        "name": "Best Animated Short",
+        "year": 2018
+    },
+    {
         "id": 14,
-        "name": "Best Animated Feature",
-        "year": 2002
+        "name": "Best Picture",
+        "year": 2018
     },
     {
         "id": 15,
-        "name": "Best Picture",
-        "year": 2014
+        "name": "Best Actress",
+        "year": 2000
     },
     {
         "id": 16,
         "name": "Best Film Editing",
-        "year": 2000
+        "year": 2011
     },
     {
         "id": 17,
-        "name": "Best Documentary Feature",
-        "year": 2007
+        "name": "Best Original Song",
+        "year": 2001
     },
     {
         "id": 18,
-        "name": "Best Adapted Screenplay",
-        "year": 2009
+        "name": "Best Original Screenplay",
+        "year": 2000
     },
     {
         "id": 19,
-        "name": "Best International Feature",
-        "year": 2007
+        "name": "Best Live Action Short",
+        "year": 2004
     },
     {
         "id": 20,
-        "name": "Best Visual Effects",
-        "year": 2010
+        "name": "Best Documentary Feature",
+        "year": 2013
     },
     {
         "id": 21,
-        "name": "Best Actress",
-        "year": 2010
+        "name": "Best Director",
+        "year": 2018
     }
 ]

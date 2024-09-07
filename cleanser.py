@@ -111,6 +111,12 @@ def find_movie_id(movie_data, movie_title):
             return movie['id']
     return None
 
+def find_user_id(user_data, username):
+    for user in user_data:
+        if user['username'] == username:
+            return user['id']
+    return None
+
 def array_to_string(array, delimiter):
     return delimiter.join(array)
 
@@ -270,7 +276,37 @@ def cleanse_actor(actor_data, country_data):
         
     return new_actors
 
-def cleane_comments(comments_data,movie_data):
+def cleanse_user(comment_data):
+    users = []
+    for comment in comment_data:
+        if 'Reviews' not in comment or comment['Reviews'] == 'No reviews found':
+            continue
+        for review in comment['Reviews']:
+            temp = {}
+            temp['username'] = review['author']
+            temp['profile_picture'] = f"https://image.tmdb.org/t/p/w92/{review['author_details']['avatar_path']}"
+            if temp['profile_picture'] == 'https://image.tmdb.org/t/p/w92/None':
+                temp['profile_picture'] = 'N/A'
+            temp['email'] = f"{review['author']}@gmail.com"
+            temp['password'] = hash('123456')
+            temp['role'] = 'writer'
+            users.append(temp)
+    users = list({user['username']:user for user in users}.values())
+    new_users = []
+    id = 0
+    for user in users:
+        id += 1
+        temp = {}
+        temp['id'] = id
+        temp['username'] = user['username']
+        temp['profile_picture'] = user['profile_picture']
+        temp['email'] = user['email']
+        temp['password'] = user['password']
+        temp['role'] = user['role']
+        new_users.append(temp)
+    return new_users
+
+def cleane_comments(user_data,comments_data,movie_data):
     comments = []
     id = 0
     
@@ -289,10 +325,7 @@ def cleane_comments(comments_data,movie_data):
             temp = {}
             temp['id'] = id
             temp['movie_id'] = movie_id
-            temp['username'] = review['author']
-            temp['profile_picture'] = f"https://image.tmdb.org/t/p/w92/{review['author_details']['avatar_path']}"
-            if temp['profile_picture'] == 'https://image.tmdb.org/t/p/w92/None':
-                temp['profile_picture'] = 'N/A'
+            temp['user_id'] = find_user_id(user_data, review['author'])
             print(type(review['author_details']['rating']))
             rating = 0
             if review['author_details']['rating'] != None or type(review['author_details']['rating']) == float:
@@ -335,7 +368,10 @@ def main():
     movies = cleanse_movie(movie_data, contries, actors, genre, awards)
     save_to_json(movies, 'result_cleanse/movies.json')
     
-    comments = cleane_comments(comment_data, movies)
+    users = cleanse_user(comment_data)
+    save_to_json(users, 'result_cleanse/users.json')
+    
+    comments = cleane_comments(users,comment_data, movies)
     save_to_json(comments, 'result_cleanse/comments.json')
     
     

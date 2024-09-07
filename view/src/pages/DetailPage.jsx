@@ -388,7 +388,7 @@ window.loadMoreComments = function (movieId) {
 
 function CommentSection() {
   const { movieId } = useParams();
-  const [comment, setComment] = useState(null);
+  const [comment, setComment] = useState([]);
 
   useEffect(() => {
     fetch(`/api/movies/comments/${movieId}?limit=3&offset=0`)
@@ -399,7 +399,6 @@ function CommentSection() {
       })
       .catch((error) => console.error("Error:", error));
   }, [movieId]);
-
   useEffect(() => {
     if (comment) {
       comment_data = {};
@@ -437,54 +436,99 @@ function CommentSection() {
     }
   }, [comment]);
 
+  const onNewComment = (newComment) => {
+    setComment((prevComments) => [newComment, ...prevComments]);
+    totalComments++;
+  };
+
   return (
     <>
       <section>
         <CommentHeader totalComments={abbreviateNumber(totalComments)} />
-
-        {comment &&
-          comment.map((comment) => (
-            <Comment
-              key={comment.id}
-              index={comment.id}
-              profile_src={
-                comment.profile_picture != ""
-                  ? comment.profile_picture
-                  : "/images/empty_profile.jpg"
-              }
-              username={comment.username}
-              date={new Date(comment.comment_date).toLocaleDateString("id-ID")}
-              rating={comment.rate}
-              comment={comment.comments}
-            />
-          ))}
-
-        {comment && comment.length === 0 && (
+        {comment.map((comment) => (
+          <Comment
+            key={comment.id}
+            index={comment.id}
+            profile_src={
+              comment.profile_picture !== ""
+                ? comment.profile_picture
+                : "/images/empty_profile.jpg"
+            }
+            username={comment.username}
+            date={new Date(comment.comment_date).toLocaleDateString("id-ID")}
+            rating={comment.rate}
+            comment={comment.comments}
+          />
+        ))}
+        {comment.length === 0 && (
           <div className="fs_secondary mt-3">Be the first to comment!</div>
         )}
       </section>
-      {comment && comment.length > 0 && (
+      {comment.length > 0 && (
         <div
           id="load_more_comments_div"
           className="d-flex justify-content-start"
         ></div>
       )}
+      <AddComment movieId={movieId} onNewComment={onNewComment} />
     </>
   );
 }
 
-function AddComment() {
+function AddComment({ movieId, onNewComment }) {
+  const [name, setName] = useState("");
+  const [rate, setRate] = useState(0);
+  const [thoughts, setThoughts] = useState("");
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    const newComment = {
+      username: name,
+      rate: rate,
+      comments: thoughts,
+      comment_date: new Date().toISOString(),
+      profile_picture: "",
+    };
+
+    fetch(`/api/movies/comments/${movieId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newComment),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        onNewComment(data.comment);
+        setName("");
+        setRate(0);
+        setThoughts("");
+      })
+      .catch((error) => console.error("Error:", error));
+  };
+
   return (
     <div className="justify-content-start mt-4 fw-normal">
       <span className="d-flex fs_primary mb-2 ps-2">Add Yours!</span>
       <div className="justify-content-start">
-        <Form className="bg_pallete_5 p-4 pb-1 rounded-3">
+        <Form
+          className="bg_pallete_5 p-4 pb-1 rounded-3"
+          onSubmit={handleSubmit}
+        >
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={3} className="d-flex justify-content-start">
               Name
             </Form.Label>
             <Col>
-              <Form.Control type="text" placeholder="Enter your name" />
+              <Form.Control
+                type="text"
+                placeholder="Enter your name"
+                value={name}
+                name="username"
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
             </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
@@ -494,8 +538,12 @@ function AddComment() {
             <Col className="d-flex justify-content-start pt-2">
               <Rating
                 style={{ backgroundColor: "transparent" }}
-                name="no-value"
-                defaultValue={0}
+                name="rate"
+                value={rate}
+                precision={0.1}
+                onChange={(event, newValue) => {
+                  setRate(newValue);
+                }}
                 icon={
                   <FontAwesomeIcon
                     icon={faStar}
@@ -518,27 +566,21 @@ function AddComment() {
               Your thoughts
             </Form.Label>
             <Col>
-              <Form.Control as="textarea" placeholder="Enter your thoughts" />
+              <Form.Control
+                as="textarea"
+                placeholder="Enter your thoughts"
+                value={thoughts}
+                name="comments"
+                onChange={(e) => setThoughts(e.target.value)}
+                required
+              />
             </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
-            <Form.Label
-              column
-              sm={3}
-              className="d-flex justify-content-start"
-            ></Form.Label>
             <Col className="d-flex justify-content-start">
-              You can only submit your comment once.
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label
-              column
-              sm={3}
-              className="d-flex justify-content-start"
-            ></Form.Label>
-            <Col className="d-flex justify-content-start">
-              <Button className="rounded-4">Submit</Button>
+              <Button className="rounded-4" type="submit">
+                Submit
+              </Button>
             </Col>
           </Form.Group>
         </Form>
@@ -641,8 +683,6 @@ function DetailPage() {
           <Trailer src={movie.trailer} />
 
           <CommentSection />
-
-          <AddComment />
 
           <BackgroundPoster src={movie.poster} />
         </div>

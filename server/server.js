@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const mysql = require("mysql2");
+app.use(express.json());
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -16,22 +17,6 @@ connection.connect((err) => {
   }
   console.log("Connected as id " + connection.threadId);
 });
-
-// app.get("/api/movies/comments/:id", (req, res) => {
-//   const movieId = req.params.id;
-
-//   const query = `
-//   SELECT c.*
-//   FROM comments c
-//   WHERE c.movie_id = ?
-// `;
-
-//   connection.query(query, [movieId], (err, results) => {
-//     if (err) return res.status(500).send(err);
-
-//     res.json(results);
-//   });
-// });
 
 app.get("/api/movies/comments/:id", (req, res) => {
   const movieId = req.params.id;
@@ -61,6 +46,33 @@ app.get("/api/movies/comments/:id", (req, res) => {
       }
     );
   });
+});
+
+app.post("/api/movies/comments/:movieId", (req, res) => {
+  const { username, rate, comments, profile_picture } = req.body;
+  const movieId = req.params.movieId;
+
+  const query =
+    "INSERT INTO comments (movie_id, username, rate, comments, comment_date, profile_picture) VALUES (?, ?, ?, ?, NOW(), ?)";
+  connection.query(
+    query,
+    [movieId, username, rate, comments, profile_picture],
+    (error, result) => {
+      if (error) {
+        return res.status(500).json({ error: "Database error" });
+      }
+      res.json({
+        comment: {
+          id: result.insertId,
+          username: username,
+          rate: rate,
+          comments: comments,
+          comment_date: new Date(),
+          profile_picture: profile_picture,
+        },
+      });
+    }
+  );
 });
 
 app.post("/api/movies/update-view-count/:id", (req, res) => {

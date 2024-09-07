@@ -24,7 +24,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useParams } from "react-router-dom";
 
 function MovieInfo(props) {
-  const {
+  var {
     poster,
     judul,
     otherTitles,
@@ -34,6 +34,14 @@ function MovieInfo(props) {
     rating,
     availability,
   } = props;
+
+  var synopsis_cut = false;
+
+  if (synopsis.length > 400) {
+    synopsis_cut = true;
+    synopsis = synopsis.substring(0, 400);
+  }
+
   return (
     <div>
       <center>
@@ -67,7 +75,17 @@ function MovieInfo(props) {
                   </span>
                 ))}
               </p>
-              <p className="fs_secondary">{synopsis}</p>
+              <p className="fs_secondary">
+                {synopsis}
+                {synopsis_cut ? (
+                  <a href="#full_plot" className="text-secondary">
+                    {" "}
+                    ...Read More
+                  </a>
+                ) : (
+                  <></>
+                )}
+              </p>
               <p className="fs_secondary mb-1">
                 Rating:{" "}
                 <div id="move_rating_inline" className="d-inline">
@@ -106,6 +124,24 @@ function MovieInfo(props) {
         </Container>
       </center>
     </div>
+  );
+}
+
+function Synopsis(props) {
+  var { synopsis } = props;
+
+  return (
+    <>
+      {synopsis.length > 400 ? (
+        <div className="text-start mt-2" id="full_plot">
+          <p className="fs-3">Movie Plot :</p>
+          <p className="fs_secondary">{synopsis}</p>
+          <hr />
+        </div>
+      ) : (
+        <></>
+      )}
+    </>
   );
 }
 
@@ -162,11 +198,17 @@ function Trailer(props) {
 }
 
 var current_filter = -1;
+var comment_shown = 3;
 
-window.filterComments = function (rating) {
+window.filterComments = function (movieId, rating) {
   current_filter = rating;
+  if (commentHidden > 0 && current_filter != -1) {
+    loadMoreComments(movieId);
+  }
   $(".comment").each(function () {
     if (current_filter === -1) {
+      comment_shown = commentShown;
+
       $(this).removeClass("d-none");
     } else {
       if (parseFloat($(this).attr("value")) === rating) {
@@ -176,10 +218,19 @@ window.filterComments = function (rating) {
       }
     }
   });
+
+  $("#filter-helper").removeClass("d-none");
+  $(".comment").each(function () {
+    if (!$(this).hasClass("d-none")) {
+      $("#filter-helper").addClass("d-none");
+      return false;
+    }
+  });
 };
 
 function CommentHeader(props) {
   const { totalComments } = props;
+  const { movieId } = useParams();
 
   return (
     <div className="mt-3 fs_sm_secondary">
@@ -203,7 +254,9 @@ function CommentHeader(props) {
                 <Col className="col-7 me-0 pe-0">
                   <select
                     className="form-select form-select-sm bg-secondary border-0"
-                    onChange={(e) => filterComments(parseFloat(e.target.value))}
+                    onChange={(e) =>
+                      filterComments(movieId, parseFloat(e.target.value))
+                    }
                   >
                     <option value="-1">All star</option>
                     <option value="5">5 ⭐⭐⭐⭐⭐</option>
@@ -219,6 +272,9 @@ function CommentHeader(props) {
           </Col>
         </Row>
       </Container>
+      <div className="fs_secondary mt-3 d-none" id="filter-helper">
+        No comment found!
+      </div>
     </div>
   );
 }
@@ -262,7 +318,6 @@ function abbreviateNumber(value) {
 
 function Comment(props) {
   const { index, profile_src, username, date, rating, comment } = props;
-
   return (
     <Container
       className="p-0 justify-content-center align-middle mt-3 comment"
@@ -390,6 +445,8 @@ window.loadMoreComments = function (movieId) {
           />
         );
 
+        newComment.attr("value", comment.rate);
+
         newComment.removeClass("d-none");
 
         $(".comment").parent().append(newComment);
@@ -410,11 +467,11 @@ window.loadMoreComments = function (movieId) {
       commentShown += data.comments.length;
       commentHidden = totalComments - commentShown;
 
+      comment_shown = commentShown;
+
       if (commentHidden <= 0) {
         $("#loadMore").addClass("d-none");
       }
-
-      filterComments(current_filter);
     })
     .catch((error) => console.error("Error:", error));
 };
@@ -740,8 +797,8 @@ function DetailPage() {
               </div>
             </div>
           </div>
-
           <Trailer src={movie.trailer} />
+          <Synopsis synopsis={movie.synopsis} />
 
           <CommentSection />
 

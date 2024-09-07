@@ -161,6 +161,7 @@ def create_movie_actor(movie_id, actors, actor_data):
 def cleanse_movie(movie_data, country_data, actor_data, genre_data, award_data):
     movies = []
     last_trailer = 'N/A'
+    last_poster = 'N/A'
     for movie in movie_data:
         if 'Response' in movie and movie['Response'] == 'False':
             continue
@@ -168,15 +169,14 @@ def cleanse_movie(movie_data, country_data, actor_data, genre_data, award_data):
         print(movie['Title'])
         temp = {}
         temp['countries_id'] = find_country_id(country_data,split_string(movie['Country'], ',')[0])
-        temp['poster'] = movie['Poster']
+        poster = movie['Poster']
+        if poster != 'N/A':
+            last_poster = poster
+        else:
+            poster = last_poster
+        temp['poster'] = poster
         temp['title'] = movie['Title']
         temp['alternative_titles'] = "-"
-        rate = 0
-        if 'imdbRating' in movie and movie['imdbRating'] != 'N/A':
-            rate = movie['imdbRating']
-            rate = float(rate)
-            rate = rate/2
-        temp['rate'] = rate
         temp['year'] = movie['Year']
         temp['synopsis'] = movie['Plot']
         temp['availability'] = array_to_string(movie['Availability'], ',')
@@ -207,12 +207,12 @@ def cleanse_movie(movie_data, country_data, actor_data, genre_data, award_data):
         temp['poster'] = movie['poster']
         temp['title'] = movie['title']
         temp['alternative_titles'] = movie['alternative_titles']
-        temp['rate'] = movie['rate']
         temp['year'] = movie['year']
         temp['synopsis'] = movie['synopsis']
         temp['availability'] = movie['availability']
         temp['views'] = movie['views']
         temp['trailer'] = movie['trailer']
+        temp['status'] = 'accepted'
         new_movies.append(temp)
         
         create_movie_gendre(id, movie['genre'], genre_data)
@@ -293,14 +293,17 @@ def cleane_comments(comments_data,movie_data):
             temp['profile_picture'] = f"https://image.tmdb.org/t/p/w92/{review['author_details']['avatar_path']}"
             if temp['profile_picture'] == 'https://image.tmdb.org/t/p/w92/None':
                 temp['profile_picture'] = 'N/A'
-            temp['rate'] = review['author_details']['rating']
+            print(type(review['author_details']['rating']))
+            rating = 0
+            if review['author_details']['rating'] != None or type(review['author_details']['rating']) == float:
+                rating = int(int(review['author_details']['rating'])/2)
+            temp['rate'] = rating
             temp['comments'] = review['content']
             temp['comment_date'] = review['created_at']
+            temp['status'] = 'accepted'
             
             comments.append(temp)
     return comments
-            
-            
         
 
 def main():

@@ -38,12 +38,12 @@ CREATE TABLE movies (
   poster VARCHAR(255) NOT NULL,
   title VARCHAR(255) NOT NULL,
   alternative_titles VARCHAR(255) NOT NULL,
-  rate FLOAT NOT NULL,
   year YEAR NOT NULL,
   synopsis TEXT NOT NULL,
   availability VARCHAR(255) NOT NULL,
   views INT NOT NULL,
   trailer VARCHAR(255) NOT NULL,
+  status ENUM('pending', 'rejected', 'accepted') NOT NULL DEFAULT 'pending',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP NULL,
@@ -131,6 +131,7 @@ CREATE TABLE comments (
   rate FLOAT NOT NULL,
   comments TEXT NOT NULL,
   comment_date DATE NOT NULL,
+  status ENUM('pending', 'rejected', 'accepted') NOT NULL DEFAULT 'pending',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP NULL,
@@ -200,9 +201,9 @@ for actor in actor_data:
 for movie in movie_data:
     print(movie['title'])
     cursor.execute("""
-        INSERT INTO movies (countries_id, poster, title, alternative_titles, rate, year, synopsis, availability, views, trailer, created_at, updated_at)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
-    """, (movie['countries_id'], movie['poster'], movie['title'], movie['alternative_titles'], movie['rate'], movie['year'], movie['synopsis'], movie['availability'], movie['views'], movie['trailer']))
+        INSERT INTO movies (countries_id, poster, title, alternative_titles, year, synopsis, availability, views, trailer, created_at, updated_at, status)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW(), %s)
+    """, (movie['countries_id'], movie['poster'], movie['title'], movie['alternative_titles'], movie['year'], movie['synopsis'], movie['availability'], movie['views'], movie['trailer'], movie['status']))
 
 for comment in comments_data:
     print(comment['username'])
@@ -213,9 +214,9 @@ for comment in comments_data:
     if comment['profile_picture'] != "N/A":
         profile_picture = comment['profile_picture']
     cursor.execute("""
-        INSERT INTO comments (movie_id, username, profile_picture, rate, comments, comment_date, created_at, updated_at)
-        VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW())
-    """, (comment['movie_id'], comment['username'], profile_picture,rate, comment['comments'], comment['comment_date']))
+        INSERT INTO comments (movie_id, username, profile_picture, rate, comments, comment_date, created_at, updated_at, status)
+        VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW(), %s)
+    """, (comment['movie_id'], comment['username'], profile_picture,rate, comment['comments'], comment['comment_date'], comment['status']))
 
 for movie_actor in movie_actor_data:
     print(movie_actor['movie_id'])

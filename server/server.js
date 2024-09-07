@@ -18,6 +18,16 @@ connection.connect((err) => {
   console.log("Connected as id " + connection.threadId);
 });
 
+app.get("/api/get-movies-poster/:limit", (req, res) => {
+  const limit = req.params.limit;
+  const query = `SELECT movies.poster FROM movies ORDER BY created_at DESC LIMIT ${limit}`;
+  connection.query(query, (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    res.json(results);
+  });
+});
+
 app.get("/api/movies/comments/:id", (req, res) => {
   const movieId = req.params.id;
   const limit = parseInt(req.query.limit) || 3;

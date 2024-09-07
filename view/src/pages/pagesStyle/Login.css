@@ -1,11 +1,4 @@
 @keyframes scrollText {
-    /* from {
-      transform: translateY(0%);
-    }
-    to {
-      transform: translateY(-10%);
-    } */
-
     0% {
         transform: translateY(0%);
     }

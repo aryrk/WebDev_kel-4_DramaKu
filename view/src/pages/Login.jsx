@@ -1,5 +1,5 @@
 import React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { Col, Form, Image, InputGroup, Row } from "react-bootstrap";
 
@@ -95,53 +95,74 @@ function LoginBackground(props) {
     "/samplePoster/venom.jpg",
   ];
 
-  var { posters } = props;
+  const [posters, setPosters] = useState([]);
 
-  if (posters === undefined) {
-    posters = [];
+  useEffect(() => {
+    const fetchPosters = async () => {
+      try {
+        const res = await fetch("/api/get-movies-poster/100");
+        const data = await res.json();
+        setPosters(data);
+      } catch (error) {
+        console.error("Error fetching posters:", error);
+      }
+    };
+
+    fetchPosters();
+  }, []);
+
+  let fixed_poster = [];
+
+  for (let i = 0; i < posters.length; i++) {
+    fixed_poster.push(posters[i].poster);
   }
 
-  if (posters.length < 100) {
+  if (fixed_poster.length < 100) {
     var samplePosterLength = SamplePoster.length;
     var index = 0;
-    for (let i = 0; i < 100 - posters.length; i++) {
-      posters.push(SamplePoster[index]);
+    for (let i = 0; i < 100 - fixed_poster.length; i++) {
+      fixed_poster.push(SamplePoster[index]);
       index++;
-      if (index >= samplePosterLength - 1) {
+      if (index >= samplePosterLength) {
         index = 0;
       }
     }
   }
 
-  posters.sort(() => Math.random() - 0.5);
+  fixed_poster.sort(() => Math.random() - 0.5);
 
   return (
-    <div style={{ overflow: "hidden", width: "100vw", height: "100vh" }}>
-      <center>
-        <div
-          className="position-relative"
-          style={{
-            width: "1100px",
-            overflow: "hidden",
-            transform:
-              "skew(10deg, 10deg) translateY(-130px) translateX(200px)",
-            opacity: "20%",
-            filter: "blur(10px)",
-          }}
-        >
-          <div
-            style={{
-              animation: "scrollText 140s infinite ease-in-out",
-            }}
-          >
-            {/* loop for posters */}
-            {posters.map((poster, index) => (
-              <CarouselImage key={index} src={poster} />
-            ))}
-          </div>
+    <>
+      {fixed_poster.length > 0 ? (
+        <div style={{ overflow: "hidden", width: "100vw", height: "100vh" }}>
+          <center>
+            <div
+              className="position-relative"
+              style={{
+                width: "1100px",
+                overflow: "hidden",
+                transform:
+                  "skew(10deg, 10deg) translateY(-170px) translateX(500px)",
+                opacity: "20%",
+                filter: "blur(10px)",
+              }}
+            >
+              <div
+                style={{
+                  animation: "scrollText 200s infinite",
+                }}
+              >
+                {fixed_poster.map((poster, index) => (
+                  <CarouselImage key={index} src={poster} />
+                ))}
+              </div>
+            </div>
+          </center>
         </div>
-      </center>
-    </div>
+      ) : (
+        <div></div>
+      )}
+    </>
   );
 }
 

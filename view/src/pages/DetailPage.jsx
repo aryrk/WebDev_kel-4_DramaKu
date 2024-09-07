@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 
 import $ from "jquery";
 import {
@@ -69,27 +69,36 @@ function MovieInfo(props) {
               </p>
               <p className="fs_secondary">{synopsis}</p>
               <p className="fs_secondary mb-1">
-                Rating: {rating}{" "}
-                <Rating
-                  name="half-rating-read"
-                  defaultValue={rating}
-                  precision={0.1}
-                  readOnly
-                  icon={
-                    <FontAwesomeIcon
-                      icon={faStar}
-                      color="#ffc107"
-                      className="fs_secondary"
-                    />
-                  }
-                  emptyIcon={
-                    <FontAwesomeIcon
-                      icon={faStar}
-                      color="#e4e5e9"
-                      className="fs_secondary"
-                    />
-                  }
-                />
+                Rating:{" "}
+                <div id="move_rating_inline" className="d-inline">
+                  {rating.toString()}
+                </div>{" "}
+                <div
+                  id="movie_rating"
+                  className="d-inline"
+                  value={rating.toString()}
+                >
+                  <Rating
+                    name="half-rating-read"
+                    defaultValue={parseFloat(rating)}
+                    precision={0.1}
+                    readOnly
+                    icon={
+                      <FontAwesomeIcon
+                        icon={faStar}
+                        color="#ffc107"
+                        className="fs_secondary"
+                      />
+                    }
+                    emptyIcon={
+                      <FontAwesomeIcon
+                        icon={faStar}
+                        color="#e4e5e9"
+                        className="fs_secondary"
+                      />
+                    }
+                  />
+                </div>
               </p>
               <p className="fs_secondary mb-1">Availability: {availability}</p>
             </Col>
@@ -152,6 +161,23 @@ function Trailer(props) {
   );
 }
 
+var current_filter = -1;
+
+window.filterComments = function (rating) {
+  current_filter = rating;
+  $(".comment").each(function () {
+    if (current_filter === -1) {
+      $(this).removeClass("d-none");
+    } else {
+      if (parseFloat($(this).attr("value")) === rating) {
+        $(this).removeClass("d-none");
+      } else {
+        $(this).addClass("d-none");
+      }
+    }
+  });
+};
+
 function CommentHeader(props) {
   const { totalComments } = props;
 
@@ -175,12 +201,17 @@ function CommentHeader(props) {
               <Row>
                 <Col className="col-sm-5 col-md-auto">Filtered by:</Col>
                 <Col className="col-7 me-0 pe-0">
-                  <select className="form-select form-select-sm bg-secondary border-0">
-                    <option value="5">⭐⭐⭐⭐⭐</option>
-                    <option value="5">⭐⭐⭐⭐</option>
-                    <option value="5">⭐⭐⭐</option>
-                    <option value="5">⭐⭐</option>
-                    <option value="5">⭐</option>
+                  <select
+                    className="form-select form-select-sm bg-secondary border-0"
+                    onChange={(e) => filterComments(parseFloat(e.target.value))}
+                  >
+                    <option value="-1">All star</option>
+                    <option value="5">5 ⭐⭐⭐⭐⭐</option>
+                    <option value="4">4 ⭐⭐⭐⭐</option>
+                    <option value="3">3 ⭐⭐⭐</option>
+                    <option value="2">2 ⭐⭐</option>
+                    <option value="1">1 ⭐</option>
+                    <option value="0">0</option>
                   </select>
                 </Col>
               </Row>
@@ -233,7 +264,10 @@ function Comment(props) {
   const { index, profile_src, username, date, rating, comment } = props;
 
   return (
-    <Container className="p-0 justify-content-center align-middle mt-3 comment">
+    <Container
+      className="p-0 justify-content-center align-middle mt-3 comment"
+      value={rating}
+    >
       <Row>
         <Col sm="2" md="1" className="p-0 col-2">
           <Image
@@ -331,11 +365,9 @@ window.loadMoreComments = function (movieId) {
               : "/images/empty_profile.jpg"
           );
 
-        // Kosongkan elemen rating_section terlebih dahulu
         newComment.find(".rating_section").empty();
 
-        // Gunakan ReactDOM.render untuk menampilkan komponen React
-        ReactDOM.render(
+        ReactDOM.createRoot($("#movie_rating")[0]).render(
           <Rating
             name="half-rating-read"
             defaultValue={comment.rate}
@@ -355,8 +387,7 @@ window.loadMoreComments = function (movieId) {
                 className="fs_secondary"
               />
             }
-          />,
-          newComment.find(".rating_section")[0] // Pastikan elemen pertama yang diambil
+          />
         );
 
         newComment.removeClass("d-none");
@@ -382,6 +413,8 @@ window.loadMoreComments = function (movieId) {
       if (commentHidden <= 0) {
         $("#loadMore").addClass("d-none");
       }
+
+      filterComments(current_filter);
     })
     .catch((error) => console.error("Error:", error));
 };
@@ -438,7 +471,36 @@ function CommentSection() {
 
   const onNewComment = (newComment) => {
     setComment((prevComments) => [newComment, ...prevComments]);
+
+    var currentRating = parseFloat($("#movie_rating").attr("value"));
+    var newRating =
+      (currentRating * totalComments + newComment.rate) / (totalComments + 1);
     totalComments++;
+
+    $("#move_rating_inline").text(newRating.toFixed(1));
+    $("#movie_rating").empty();
+    ReactDOM.createRoot($("#movie_rating")[0]).render(
+      <Rating
+        name="half-rating-read"
+        defaultValue={newRating}
+        precision={0.1}
+        readOnly
+        icon={
+          <FontAwesomeIcon
+            icon={faStar}
+            color="#ffc107"
+            className="fs_secondary"
+          />
+        }
+        emptyIcon={
+          <FontAwesomeIcon
+            icon={faStar}
+            color="#e4e5e9"
+            className="fs_secondary"
+          />
+        }
+      />
+    );
   };
 
   return (
@@ -540,7 +602,6 @@ function AddComment({ movieId, onNewComment }) {
                 style={{ backgroundColor: "transparent" }}
                 name="rate"
                 value={rate}
-                precision={0.1}
                 onChange={(event, newValue) => {
                   setRate(newValue);
                 }}
@@ -649,7 +710,7 @@ function DetailPage() {
             year={movie.year}
             synopsis={movie.synopsis}
             genres={movie.genres.map((genre) => genre.name)}
-            rating={movie.rate}
+            rating={movie.rating.toFixed(1)}
             availability={movie.availability}
           />
           <div

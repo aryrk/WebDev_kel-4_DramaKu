@@ -149,7 +149,7 @@ function LoginBackground(props) {
             >
               <div
                 style={{
-                  animation: "scrollText 200s infinite",
+                  animation: "scrollText 300s infinite linear",
                 }}
               >
                 {fixed_poster.map((poster, index) => (

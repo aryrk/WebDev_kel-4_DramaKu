@@ -37,7 +37,7 @@ app.get("/api/movies/comments/:id", (req, res) => {
   const dataQuery = `
   SELECT c.*
   FROM comments c
-  WHERE c.movie_id = ?
+  WHERE c.movie_id = ? and c.status = 'accepted'
   LIMIT ? OFFSET ?
   `;
 
@@ -91,7 +91,7 @@ app.post("/api/movies/update-view-count/:id", (req, res) => {
   const query = `
   UPDATE movies
   SET views = views + 1
-  WHERE id = ?
+  WHERE id = ? and status = 'accepted'
 `;
 
   connection.query(query, [movieId], (err, results) => {
@@ -104,25 +104,38 @@ app.post("/api/movies/update-view-count/:id", (req, res) => {
 app.get("/api/movie-details/:id", (req, res) => {
   const movieId = req.params.id;
 
+  //   const movieQuery = `
+  // SELECT m.*, c.name AS country_name, AVG(cm.rate) AS rating
+  // FROM movies m
+  // JOIN countries c ON m.countries_id = c.id
+  // LEFT JOIN comments cm ON m.id = cm.movie_id
+  // WHERE m.id = ?
+  // `;
+
+  // fix movieQuery, its not working if there is no comment
   const movieQuery = `
-  SELECT m.*, c.name AS country_name
-  FROM movies m
-  JOIN countries c ON m.countries_id = c.id
-  WHERE m.id = ?
+SELECT m.*, c.name AS country_name, IFNULL(AVG(cm.rate), 0) AS rating
+FROM movies m
+JOIN countries c ON m.countries_id = c.id
+LEFT JOIN comments cm ON m.id = cm.movie_id
+WHERE m.id = ? and m.status = 'accepted'
+GROUP BY m.id
 `;
 
   const genresQuery = `
   SELECT g.*
   FROM genres g
   JOIN movies_genres mg ON g.id = mg.genre_id
-  WHERE mg.movie_id = ?
+  JOIN movies m ON mg.movie_id = m.id
+  WHERE mg.movie_id = ? AND m.status = 'accepted'
 `;
 
   const actorsQuery = `
   SELECT a.*
   FROM actors a
   JOIN movies_actors ma ON a.id = ma.actor_id
-  WHERE ma.movie_id = ?
+  JOIN movies m ON ma.movie_id = m.id
+  WHERE ma.movie_id = ? AND m.status = 'accepted'
 `;
 
   connection.query(movieQuery, [movieId], (err, movieResults) => {

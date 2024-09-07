@@ -367,7 +367,7 @@ window.loadMoreComments = function (movieId) {
 
         newComment.find(".rating_section").empty();
 
-        ReactDOM.createRoot($("#movie_rating")[0]).render(
+        ReactDOM.createRoot(newComment.find(".rating_section")[0]).render(
           <Rating
             name="half-rating-read"
             defaultValue={comment.rate}
@@ -562,7 +562,7 @@ function AddComment({ movieId, onNewComment }) {
     })
       .then((response) => response.json())
       .then((data) => {
-        onNewComment(data.comment);
+        // onNewComment(data.comment);
         setName("");
         setRate(0);
         setThoughts("");

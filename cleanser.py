@@ -191,6 +191,9 @@ def cleanse_movie(movie_data, country_data, actor_data, genre_data, award_data):
 
         movies.append(temp)
         
+    picket_actors = random.sample(actor_data, 15)
+    
+    
     movies = list({movie['title']:movie for movie in movies}.values())
     new_movies = []
     id = 0
@@ -211,8 +214,15 @@ def cleanse_movie(movie_data, country_data, actor_data, genre_data, award_data):
         new_movies.append(temp)
         
         create_movie_gendre(id, movie['genre'], genre_data)
-        create_movie_award(id, movie['awards'], award_data)
-        create_movie_actor(id, movie['actors'], actor_data)
+        # create_movie_award(id, movie['awards'], award_data)
+        if movie['awards'] != 'N/A' or movie['awards'] != 'N' or movie['awards'] != 'A' or movie['awards'] != '/':
+            print(movie['awards'])
+            create_movie_award(id, movie['awards'], award_data)
+        # create_movie_actor(id, movie['actors'], actor_data)
+        for actor in picket_actors:
+            create_movie_actor(id, actor['name'], actor_data)
+        
+        
     return new_movies
         
         
@@ -281,6 +291,7 @@ def cleane_comments(comments_data,movie_data):
             comments.append(temp)
     return comments
             
+            
         
 
 def main():
@@ -290,6 +301,7 @@ def main():
     
     if os.path.exists('result_cleanse'):
         os.system('rm -rf result_cleanse')
+    os.mkdir('result_cleanse')
     
     
     movie_data = load_json(movie_file)

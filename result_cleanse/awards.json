@@ -1,107 +1,107 @@
 [
     {
         "id": 1,
-        "name": "Best Director",
-        "year": 2013
-    },
-    {
-        "id": 2,
-        "name": "Best Makeup and Hairstyling",
-        "year": 2008
-    },
-    {
-        "id": 3,
-        "name": "Best Documentary Short",
-        "year": 2020
-    },
-    {
-        "id": 4,
-        "name": "Best Sound",
-        "year": 2004
-    },
-    {
-        "id": 5,
-        "name": "Best Documentary Feature",
-        "year": 2011
-    },
-    {
-        "id": 6,
-        "name": "Best Adapted Screenplay",
-        "year": 2016
-    },
-    {
-        "id": 7,
         "name": "Best Animated Feature",
         "year": 2011
     },
     {
+        "id": 2,
+        "name": "Best Original Score",
+        "year": 2013
+    },
+    {
+        "id": 3,
+        "name": "Best Sound",
+        "year": 2008
+    },
+    {
+        "id": 4,
+        "name": "Best Documentary Feature",
+        "year": 2016
+    },
+    {
+        "id": 5,
+        "name": "Best Live Action Short",
+        "year": 2016
+    },
+    {
+        "id": 6,
+        "name": "Best Film Editing",
+        "year": 2013
+    },
+    {
+        "id": 7,
+        "name": "Best Actress",
+        "year": 2020
+    },
+    {
         "id": 8,
-        "name": "Best Cinematography",
-        "year": 2012
+        "name": "Best Makeup and Hairstyling",
+        "year": 2004
     },
     {
         "id": 9,
-        "name": "Best Production Design",
-        "year": 2007
+        "name": "Best Visual Effects",
+        "year": 2012
     },
     {
         "id": 10,
-        "name": "Best Live Action Short",
-        "year": 2007
+        "name": "Best Original Screenplay",
+        "year": 2012
     },
     {
         "id": 11,
-        "name": "Best Film Editing",
-        "year": 2004
+        "name": "Best Costume Design",
+        "year": 2010
     },
     {
         "id": 12,
         "name": "Best Animated Short",
-        "year": 2013
+        "year": 2008
     },
     {
         "id": 13,
-        "name": "Best International Feature",
+        "name": "Best Documentary Short",
         "year": 2020
     },
     {
         "id": 14,
         "name": "Best Original Song",
-        "year": 2015
+        "year": 2002
     },
     {
         "id": 15,
-        "name": "Best Picture",
-        "year": 2013
+        "name": "Best Director",
+        "year": 2000
     },
     {
         "id": 16,
-        "name": "Best Original Score",
-        "year": 2005
-    },
-    {
-        "id": 17,
-        "name": "Best Original Screenplay",
-        "year": 2001
-    },
-    {
-        "id": 18,
-        "name": "Best Visual Effects",
-        "year": 2009
-    },
-    {
-        "id": 19,
-        "name": "Best Actress",
-        "year": 2014
-    },
-    {
-        "id": 20,
         "name": "Best Actor",
         "year": 2004
     },
     {
+        "id": 17,
+        "name": "Best Picture",
+        "year": 2013
+    },
+    {
+        "id": 18,
+        "name": "Best International Feature",
+        "year": 2010
+    },
+    {
+        "id": 19,
+        "name": "Best Adapted Screenplay",
+        "year": 2003
+    },
+    {
+        "id": 20,
+        "name": "Best Production Design",
+        "year": 2009
+    },
+    {
         "id": 21,
-        "name": "Best Costume Design",
-        "year": 2014
+        "name": "Best Cinematography",
+        "year": 2016
     }
 ]

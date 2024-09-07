@@ -1,19 +1,19 @@
 [
     {
         "id": 1,
-        "name": "Drama"
+        "name": "Romance"
     },
     {
         "id": 2,
-        "name": "Documentary"
+        "name": "Action"
     },
     {
         "id": 3,
-        "name": "Biography"
+        "name": "Sport"
     },
     {
         "id": 4,
-        "name": "War"
+        "name": "History"
     },
     {
         "id": 5,
@@ -21,11 +21,11 @@
     },
     {
         "id": 6,
-        "name": "N/A"
+        "name": "Western"
     },
     {
         "id": 7,
-        "name": "Thriller"
+        "name": "Drama"
     },
     {
         "id": 8,
@@ -33,47 +33,47 @@
     },
     {
         "id": 9,
-        "name": "Comedy"
-    },
-    {
-        "id": 10,
-        "name": "Music"
-    },
-    {
-        "id": 11,
         "name": "Animation"
     },
     {
-        "id": 12,
-        "name": "Crime"
+        "id": 10,
+        "name": "Documentary"
     },
     {
-        "id": 13,
-        "name": "Sci-Fi"
-    },
-    {
-        "id": 14,
-        "name": "History"
-    },
-    {
-        "id": 15,
-        "name": "Short"
-    },
-    {
-        "id": 16,
+        "id": 11,
         "name": "Horror"
     },
     {
+        "id": 12,
+        "name": "Biography"
+    },
+    {
+        "id": 13,
+        "name": "Adventure"
+    },
+    {
+        "id": 14,
+        "name": "Thriller"
+    },
+    {
+        "id": 15,
+        "name": "Comedy"
+    },
+    {
+        "id": 16,
+        "name": "Short"
+    },
+    {
         "id": 17,
-        "name": "Action"
+        "name": "War"
     },
     {
         "id": 18,
-        "name": "Romance"
+        "name": "Musical"
     },
     {
         "id": 19,
-        "name": "Adventure"
+        "name": "Music"
     },
     {
         "id": 20,
@@ -81,14 +81,14 @@
     },
     {
         "id": 21,
-        "name": "Western"
+        "name": "Sci-Fi"
     },
     {
         "id": 22,
-        "name": "Sport"
+        "name": "Crime"
     },
     {
         "id": 23,
-        "name": "Musical"
+        "name": "N/A"
     }
 ]

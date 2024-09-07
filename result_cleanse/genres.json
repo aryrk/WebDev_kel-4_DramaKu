@@ -1,83 +1,83 @@
 [
     {
         "id": 1,
-        "name": "Romance"
-    },
-    {
-        "id": 2,
-        "name": "Action"
-    },
-    {
-        "id": 3,
-        "name": "Sport"
-    },
-    {
-        "id": 4,
-        "name": "History"
-    },
-    {
-        "id": 5,
-        "name": "Fantasy"
-    },
-    {
-        "id": 6,
-        "name": "Western"
-    },
-    {
-        "id": 7,
-        "name": "Drama"
-    },
-    {
-        "id": 8,
-        "name": "Family"
-    },
-    {
-        "id": 9,
-        "name": "Animation"
-    },
-    {
-        "id": 10,
-        "name": "Documentary"
-    },
-    {
-        "id": 11,
         "name": "Horror"
     },
     {
-        "id": 12,
-        "name": "Biography"
+        "id": 2,
+        "name": "Fantasy"
     },
     {
-        "id": 13,
-        "name": "Adventure"
+        "id": 3,
+        "name": "Animation"
     },
     {
-        "id": 14,
-        "name": "Thriller"
+        "id": 4,
+        "name": "Romance"
     },
     {
-        "id": 15,
-        "name": "Comedy"
-    },
-    {
-        "id": 16,
-        "name": "Short"
-    },
-    {
-        "id": 17,
-        "name": "War"
-    },
-    {
-        "id": 18,
+        "id": 5,
         "name": "Musical"
     },
     {
-        "id": 19,
+        "id": 6,
+        "name": "War"
+    },
+    {
+        "id": 7,
+        "name": "Short"
+    },
+    {
+        "id": 8,
+        "name": "Sport"
+    },
+    {
+        "id": 9,
+        "name": "Documentary"
+    },
+    {
+        "id": 10,
+        "name": "Drama"
+    },
+    {
+        "id": 11,
+        "name": "Family"
+    },
+    {
+        "id": 12,
+        "name": "Comedy"
+    },
+    {
+        "id": 13,
+        "name": "History"
+    },
+    {
+        "id": 14,
+        "name": "Mystery"
+    },
+    {
+        "id": 15,
         "name": "Music"
     },
     {
+        "id": 16,
+        "name": "Thriller"
+    },
+    {
+        "id": 17,
+        "name": "Action"
+    },
+    {
+        "id": 18,
+        "name": "Adventure"
+    },
+    {
+        "id": 19,
+        "name": "Biography"
+    },
+    {
         "id": 20,
-        "name": "Mystery"
+        "name": "Crime"
     },
     {
         "id": 21,
@@ -85,10 +85,10 @@
     },
     {
         "id": 22,
-        "name": "Crime"
+        "name": "N/A"
     },
     {
         "id": 23,
-        "name": "N/A"
+        "name": "Western"
     }
 ]

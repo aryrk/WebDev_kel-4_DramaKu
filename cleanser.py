@@ -131,6 +131,8 @@ def create_movie_gendre(movie_id, gendres, genre_data):
 def create_movie_award(movie_id, awards, award_data):
     current_data = load_json('result_cleanse/movies_awards.json')
     for award in awards:
+        if award == 'N/A' or award == 'N' or award == 'A' or award == '/':
+            continue
         award_id = find_award_id(award_data, award)
         if award_id is not None:
             temp = {}
@@ -214,13 +216,20 @@ def cleanse_movie(movie_data, country_data, actor_data, genre_data, award_data):
         new_movies.append(temp)
         
         create_movie_gendre(id, movie['genre'], genre_data)
-        # create_movie_award(id, movie['awards'], award_data)
+        
         if movie['awards'] != 'N/A' or movie['awards'] != 'N' or movie['awards'] != 'A' or movie['awards'] != '/':
             print(movie['awards'])
             create_movie_award(id, movie['awards'], award_data)
-        # create_movie_actor(id, movie['actors'], actor_data)
+            
+        new_pick_actors = []
+        for actor in split_string(movie['actors'], ','):
+            new_pick_actors.append(actor)
+        new_pick_actors = list(set(new_pick_actors))
         for actor in picket_actors:
-            create_movie_actor(id, actor['name'], actor_data)
+            new_pick_actors.append(actor['name'])
+        
+        for actor in new_pick_actors:
+            create_movie_actor(id, actor, actor_data)
         
         
     return new_movies

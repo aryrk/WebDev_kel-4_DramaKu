@@ -1,5 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
+import ReactDOM from "react-dom";
 
 import $ from "jquery";
 import {
@@ -209,21 +210,25 @@ function StarRating(props) {
   );
 }
 
-var comments, commentCount, commentShown, commentHidden;
-var comment_data;
-
-window.readMore = function (btn, text) {
-  $(btn).parent().html(comment_data[text]);
-};
-
-window.loadMoreComments = function () {
-  commentShown += 3;
-  commentHidden = commentCount - commentShown;
-  comments.slice(0, commentShown).removeClass("d-none");
-  if (commentHidden <= 0) {
-    $("#loadMore").addClass("d-none");
+function abbreviateNumber(value) {
+  if (value < 1000) {
+    return value.toString();
   }
-};
+
+  const suffixes = ["", "K", "M", "B", "T"];
+  const suffixNum = Math.floor(("" + value).length / 3);
+
+  let shortValue = parseFloat(
+    (suffixNum != 0 ? value / Math.pow(1000, suffixNum) : value).toPrecision(2)
+  );
+
+  if (shortValue % 1 != 0) {
+    shortValue = shortValue.toFixed(1);
+  }
+
+  return shortValue + suffixes[suffixNum];
+}
+
 function Comment(props) {
   const { index, profile_src, username, date, rating, comment } = props;
 
@@ -236,7 +241,7 @@ function Comment(props) {
             loading="lazy"
             thumbnail
             src={profile_src}
-            className="rounded-circle border-0 img_cover p-2 bg-transparent"
+            className="rounded-circle border-0 img_cover p-2 bg-transparent img_section"
             style={{ width: "60px", height: "60px" }}
           />
         </Col>
@@ -245,15 +250,40 @@ function Comment(props) {
             <Row>
               <Col className="d-grid justify-content-start pe-0 fs_secondary text-start">
                 <strong>
-                  <span className="text-break">{username}</span>{" "}
+                  <span className="text-break username_section">
+                    {username}
+                  </span>{" "}
                   <span className="d-inline-block">
-                    · {date} · <StarRating rating={rating} />
+                    · <div className="d-inline-block date_section">{date}</div>{" "}
+                    ·{" "}
+                    <div className="d-inline-block rating_section">
+                      <Rating
+                        name="half-rating-read"
+                        defaultValue={rating}
+                        precision={0.1}
+                        readOnly
+                        icon={
+                          <FontAwesomeIcon
+                            icon={faStar}
+                            color="#ffc107"
+                            className="fs_secondary"
+                          />
+                        }
+                        emptyIcon={
+                          <FontAwesomeIcon
+                            icon={faStar}
+                            color="#e4e5e9"
+                            className="fs_secondary"
+                          />
+                        }
+                      />
+                    </div>
                   </span>
                 </strong>
               </Col>
               <div className="w-100"></div>
               <Col
-                className="justify-content-start text-start pe-0 fs_secondary text_overflow_js"
+                className="justify-content-start text-start pe-0 fs_secondary text_overflow_js comment_section"
                 index={index}
               >
                 {comment}
@@ -266,14 +296,107 @@ function Comment(props) {
   );
 }
 
+var comments, commentCount, commentShown, commentHidden;
+var comment_data;
+var totalComments = 0;
+
+window.readMore = function (btn, text) {
+  $(btn).parent().html(comment_data[text]);
+};
+
+window.loadMoreComments = function (movieId) {
+  const limit = 3;
+  const offset = commentShown;
+
+  fetch(`/api/movies/comments/${movieId}?limit=${limit}&offset=${offset}`)
+    .then((response) => response.json())
+    .then((data) => {
+      totalComments = data.total;
+
+      data.comments.forEach((comment) => {
+        comment_data[comment.id] = comment.comments;
+
+        var newComment = $(".comment").first().clone();
+        newComment.find(".username_section").text(comment.username);
+        newComment
+          .find(".date_section")
+          .text(new Date(comment.comment_date).toLocaleDateString("id-ID"));
+        newComment.find(".comment_section").text(comment.comments);
+        newComment
+          .find(".img_section")
+          .attr(
+            "src",
+            comment.profile_picture != ""
+              ? comment.profile_picture
+              : "/images/empty_profile.jpg"
+          );
+
+        // Kosongkan elemen rating_section terlebih dahulu
+        newComment.find(".rating_section").empty();
+
+        // Gunakan ReactDOM.render untuk menampilkan komponen React
+        ReactDOM.render(
+          <Rating
+            name="half-rating-read"
+            defaultValue={comment.rate}
+            precision={0.1}
+            readOnly
+            icon={
+              <FontAwesomeIcon
+                icon={faStar}
+                color="#ffc107"
+                className="fs_secondary"
+              />
+            }
+            emptyIcon={
+              <FontAwesomeIcon
+                icon={faStar}
+                color="#e4e5e9"
+                className="fs_secondary"
+              />
+            }
+          />,
+          newComment.find(".rating_section")[0] // Pastikan elemen pertama yang diambil
+        );
+
+        newComment.removeClass("d-none");
+
+        $(".comment").parent().append(newComment);
+
+        var text = newComment.find(".text_overflow_js").text();
+        if (text.length > 200) {
+          newComment
+            .find(".text_overflow_js")
+            .html(
+              text.substr(0, 200) +
+                '... <button class="btn fs_secondary p-0 m-0 link border-0" onclick="readMore(this,`' +
+                comment.id +
+                '`)">Read more</button>'
+            );
+        }
+      });
+
+      commentShown += data.comments.length;
+      commentHidden = totalComments - commentShown;
+
+      if (commentHidden <= 0) {
+        $("#loadMore").addClass("d-none");
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+};
+
 function CommentSection() {
   const { movieId } = useParams();
   const [comment, setComment] = useState(null);
 
   useEffect(() => {
-    fetch(`/api/movies/comments/${movieId}`)
+    fetch(`/api/movies/comments/${movieId}?limit=3&offset=0`)
       .then((response) => response.json())
-      .then((data) => setComment(data))
+      .then((data) => {
+        setComment(data.comments);
+        totalComments = data.total;
+      })
       .catch((error) => console.error("Error:", error));
   }, [movieId]);
 
@@ -301,10 +424,12 @@ function CommentSection() {
       comments = $(".comment");
       commentCount = comments.length;
       commentShown = 3;
-      commentHidden = commentCount - commentShown;
+      commentHidden = totalComments - commentShown;
       comments.slice(commentShown).addClass("d-none");
       $("#load_more_comments_div").html(
-        '<button id="loadMore" class="btn bg-transparent border-0 p-0 m-0 link mt-2"  onclick="loadMoreComments()">Load more rating ...</button>'
+        '<button id="loadMore" class="btn bg-transparent border-0 p-0 m-0 link mt-2"  onclick="loadMoreComments(`' +
+          movieId +
+          '`)">Load more rating ...</button>'
       );
       if (commentHidden === 0) {
         $("#loadMore").addClass("d-none");
@@ -313,31 +438,38 @@ function CommentSection() {
   }, [comment]);
 
   return (
-    <section>
-      <CommentHeader totalComments={comment ? comment.length : 0} />
+    <>
+      <section>
+        <CommentHeader totalComments={abbreviateNumber(totalComments)} />
 
-      {comment &&
-        comment.map((comment) => (
-          <Comment
-            key={comment.id}
-            index={comment.id}
-            profile_src={
-              comment.profile_picture != ""
-                ? comment.profile_picture
-                : "/images/empty_profile.jpg"
-            }
-            username={comment.username}
-            date={new Date(comment.comment_date).toLocaleDateString("id-ID")}
-            rating={comment.rate}
-            comment={comment.comments}
-          />
-        ))}
+        {comment &&
+          comment.map((comment) => (
+            <Comment
+              key={comment.id}
+              index={comment.id}
+              profile_src={
+                comment.profile_picture != ""
+                  ? comment.profile_picture
+                  : "/images/empty_profile.jpg"
+              }
+              username={comment.username}
+              date={new Date(comment.comment_date).toLocaleDateString("id-ID")}
+              rating={comment.rate}
+              comment={comment.comments}
+            />
+          ))}
 
-      <div
-        id="load_more_comments_div"
-        className="d-flex justify-content-start"
-      ></div>
-    </section>
+        {comment && comment.length === 0 && (
+          <div className="fs_secondary mt-3">Be the first to comment!</div>
+        )}
+      </section>
+      {comment && comment.length > 0 && (
+        <div
+          id="load_more_comments_div"
+          className="d-flex justify-content-start"
+        ></div>
+      )}
+    </>
   );
 }
 
@@ -426,7 +558,7 @@ function BackgroundPoster(props) {
   return (
     <div
       className="position-absolute top-0 start-0"
-      style={{ zIndex: { zIndex }, filter: "blur(10px)", opacity: "0.1" }}
+      style={{ zIndex: zIndex, filter: "blur(10px)", opacity: "0.18" }}
     >
       <Image
         src={src}
@@ -454,13 +586,19 @@ function DetailPage() {
   useEffect(() => {
     fetch(`/api/movie-details/${movieId}`)
       .then((response) => response.json())
-      .then((data) => setMovie(data))
+      .then((data) => {
+        setMovie(data);
+
+        fetch(`/api/movies/update-view-count/${movieId}`, {
+          method: "POST",
+        });
+      })
       .catch((error) => console.error("Error:", error));
   }, [movieId]);
 
   return (
     <center>
-      {movie ? (
+      {movie && movie.id ? (
         <div className="w-sm-100 w-xl-75 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
           <MovieInfo
             poster={movie.poster}
@@ -508,6 +646,8 @@ function DetailPage() {
 
           <BackgroundPoster src={movie.poster} />
         </div>
+      ) : movie ? (
+        window.location.replace("/404")
       ) : (
         <p>Loading...</p>
       )}

@@ -17,19 +17,65 @@ connection.connect((err) => {
   console.log("Connected as id " + connection.threadId);
 });
 
+// app.get("/api/movies/comments/:id", (req, res) => {
+//   const movieId = req.params.id;
+
+//   const query = `
+//   SELECT c.*
+//   FROM comments c
+//   WHERE c.movie_id = ?
+// `;
+
+//   connection.query(query, [movieId], (err, results) => {
+//     if (err) return res.status(500).send(err);
+
+//     res.json(results);
+//   });
+// });
+
 app.get("/api/movies/comments/:id", (req, res) => {
   const movieId = req.params.id;
+  const limit = parseInt(req.query.limit) || 3;
+  const offset = parseInt(req.query.offset) || 0;
 
-  const query = `
+  const countQuery = `SELECT COUNT(*) as total FROM comments WHERE movie_id = ?`;
+  const dataQuery = `
   SELECT c.*
   FROM comments c
   WHERE c.movie_id = ?
+  LIMIT ? OFFSET ?
+  `;
+
+  connection.query(countQuery, [movieId], (err, countResult) => {
+    if (err) return res.status(500).send(err);
+
+    const totalComments = countResult[0].total;
+
+    connection.query(
+      dataQuery,
+      [movieId, limit, offset],
+      (err, dataResults) => {
+        if (err) return res.status(500).send(err);
+
+        res.json({ comments: dataResults, total: totalComments });
+      }
+    );
+  });
+});
+
+app.post("/api/movies/update-view-count/:id", (req, res) => {
+  const movieId = req.params.id;
+
+  const query = `
+  UPDATE movies
+  SET views = views + 1
+  WHERE id = ?
 `;
 
   connection.query(query, [movieId], (err, results) => {
     if (err) return res.status(500).send(err);
 
-    res.json(results);
+    res.json({ message: "Success" });
   });
 });
 
@@ -57,21 +103,17 @@ app.get("/api/movie-details/:id", (req, res) => {
   WHERE ma.movie_id = ?
 `;
 
-  // Ambil data film
   connection.query(movieQuery, [movieId], (err, movieResults) => {
     if (err) return res.status(500).send(err);
 
-    const movie = movieResults[0]; // Ambil film pertama (asumsi hanya satu film)
+    const movie = movieResults[0];
 
-    // Ambil data genres
     connection.query(genresQuery, [movieId], (err, genresResults) => {
       if (err) return res.status(500).send(err);
 
-      // Ambil data actors
       connection.query(actorsQuery, [movieId], (err, actorsResults) => {
         if (err) return res.status(500).send(err);
 
-        // Gabungkan hasil
         res.json({
           ...movie,
           genres: genresResults,

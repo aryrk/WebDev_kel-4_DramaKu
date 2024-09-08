@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 const mysql = require("mysql2");
+const cors = require("cors");
+app.use(cors());
 app.use(express.json());
 
 const connection = mysql.createConnection({
@@ -156,6 +158,61 @@ GROUP BY m.id
         });
       });
     });
+  });
+});
+
+app.get("/api/cms/comments", (req, res) => {
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = parseInt(req.query.offset) || 0;
+
+  const countQuery = "SELECT COUNT(*) as total FROM comments";
+  const dataQuery = `
+    SELECT c.*, u.username, m.title
+    FROM comments c
+    JOIN users u ON c.user_id = u.id
+    JOIN movies m ON c.movie_id = m.id
+    ORDER BY c.comment_date DESC , c.status ASC
+    LIMIT ? OFFSET ?
+  `;
+
+  connection.query(countQuery, (err, countResult) => {
+    if (err) return res.status(500).send(err);
+
+    const totalComments = countResult[0].total;
+
+    connection.query(dataQuery, [limit, offset], (err, dataResults) => {
+      if (err) return res.status(500).send(err);
+
+      res.json({ comments: dataResults, total: totalComments });
+    });
+  });
+});
+
+app.post("/api/cms/comments/approve", (req, res) => {
+  const { ids } = req.body;
+
+  const query = `UPDATE comments SET status = 'accepted' WHERE id IN (${ids.join(
+    ","
+  )})`;
+
+  connection.query(query, (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    res.json({ success: true });
+  });
+});
+
+app.post("/api/cms/comments/reject", (req, res) => {
+  const { ids } = req.body;
+
+  const query = `UPDATE comments SET status = 'rejected' WHERE id IN (${ids.join(
+    ","
+  )})`;
+
+  connection.query(query, (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    res.json({ success: true });
   });
 });
 

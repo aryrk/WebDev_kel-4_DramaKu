@@ -33,7 +33,7 @@ app.get("/api/movies/comments/:id", (req, res) => {
   const limit = parseInt(req.query.limit) || 3;
   const offset = parseInt(req.query.offset) || 0;
 
-  const countQuery = `SELECT COUNT(*) as total FROM comments WHERE movie_id = ?`;
+  const countQuery = `SELECT COUNT(*) as total FROM comments WHERE movie_id = ? and status = 'accepted'`;
   const dataQuery = `
   SELECT c.*, u.username, u.profile_picture
   FROM comments c

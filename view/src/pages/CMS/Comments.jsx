@@ -45,7 +45,7 @@ function CommentsTable() {
       const table = $("#comments").DataTable({
         columnDefs: [
           { width: "50px", targets: 0 },
-          { width: "100px", targets: 1 },
+          { width: "150px", targets: 1 },
           { width: "110px", targets: 2 },
           { width: "500px", targets: 4 },
           { width: "80px", targets: 5 },
@@ -66,7 +66,15 @@ function CommentsTable() {
               }
             },
           },
-          { data: "username" },
+          {
+            data: "username",
+            render: function (data) {
+              if (data) {
+                return data;
+              }
+              return "<span class='text-danger'>[deleted user]</span>";
+            },
+          },
           {
             data: "rate",
             render: function (data) {

@@ -418,7 +418,11 @@ window.loadMoreComments = function (movieId, limit = 3) {
         comment_data[comment.id] = comment.comments;
 
         var newComment = $(".comment").first().clone();
-        newComment.find(".username_section").text(comment.username);
+        var username = comment.username;
+        if (comment.username === null) {
+          username = "Deleted User";
+        }
+        newComment.find(".username_section").text(username);
         newComment
           .find(".date_section")
           .text(new Date(comment.comment_date).toLocaleDateString("id-ID"));
@@ -427,7 +431,7 @@ window.loadMoreComments = function (movieId, limit = 3) {
           .find(".img_section")
           .attr(
             "src",
-            comment.profile_picture != ""
+            comment.profile_picture != "" && comment.profile_picture != null
               ? comment.profile_picture
               : "/images/empty_profile.jpg"
           );
@@ -583,11 +587,12 @@ function CommentSection() {
                 key={comment.id}
                 index={comment.id}
                 profile_src={
-                  comment.profile_picture !== ""
+                  comment.profile_picture !== "" &&
+                  comment.profile_picture !== null
                     ? comment.profile_picture
                     : "/images/empty_profile.jpg"
                 }
-                username={comment.username}
+                username={(comment.username || "Deleted User").toString()}
                 date={new Date(comment.comment_date).toLocaleDateString(
                   "id-ID"
                 )}

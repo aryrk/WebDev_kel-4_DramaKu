@@ -15,9 +15,18 @@ export const EditProvider = ({ children }) => {
         const input = td.getElementsByTagName("input")[0];
         input.remove();
       } else {
-        td.innerHTML = td.getElementsByTagName("input")[0].getAttribute("old");
+        if (name === "undefined") {
+          continue;
+        } else {
+          td.innerHTML = td
+            .getElementsByTagName("input")[0]
+            .getAttribute("old");
+        }
       }
     }
+
+    tr.getElementsByTagName("input")[0].remove();
+
     const editBtn = document.getElementById(`editBtn${id}`);
     const editSaveBtn = document.getElementById(`editSaveBtn${id}`);
     const deleteBtn = document.getElementById(`deleteBtn${id}`);
@@ -46,14 +55,28 @@ export const EditProvider = ({ children }) => {
           td.innerHTML +
           `<input type="file" name="${name}"
           form="editForm"
-          onChange={(event, newValue) => {
-                  set${name}(newValue);
-                }}
+          required
           class="form-control">`;
       } else {
-        td.innerHTML = `<input type="text" value="${value}" name="${name}" old="${value}" class="form-control">`;
+        if (name === "undefined") {
+          continue;
+        } else {
+          td.innerHTML = `<input type="text" required
+          value="${value}" name="${name}" old="${value}" class="form-control"
+          form="editForm"
+          >`;
+        }
       }
     }
+
+    const input = document.createElement("input");
+    input.setAttribute("type", "text");
+    input.setAttribute("name", "id");
+    input.setAttribute("value", id);
+    input.setAttribute("readOnly", true);
+    input.setAttribute("hidden", true);
+    input.setAttribute("form", "editForm");
+    tr.appendChild(input);
 
     const editBtn = document.getElementById(`editBtn${id}`);
     const editSaveBtn = document.getElementById(`editSaveBtn${id}`);

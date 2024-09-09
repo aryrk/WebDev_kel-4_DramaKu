@@ -574,34 +574,42 @@ function CommentSection() {
 
   return (
     <>
-      <section>
-        <CommentHeader totalComments={abbreviateNumber(totalComments)} />
-        {comment.map((comment) => (
-          <Comment
-            key={comment.id}
-            index={comment.id}
-            profile_src={
-              comment.profile_picture !== ""
-                ? comment.profile_picture
-                : "/images/empty_profile.jpg"
-            }
-            username={comment.username}
-            date={new Date(comment.comment_date).toLocaleDateString("id-ID")}
-            rating={comment.rate}
-            comment={comment.comments}
-          />
-        ))}
-        {comment.length === 0 && (
-          <div className="fs_secondary mt-3">Be the first to comment!</div>
-        )}
-      </section>
-      {comment.length > 0 && (
-        <div
-          id="load_more_comments_div"
-          className="d-flex justify-content-start"
-        ></div>
+      {comment ? (
+        <>
+          <section>
+            <CommentHeader totalComments={abbreviateNumber(totalComments)} />
+            {comment.map((comment) => (
+              <Comment
+                key={comment.id}
+                index={comment.id}
+                profile_src={
+                  comment.profile_picture !== ""
+                    ? comment.profile_picture
+                    : "/images/empty_profile.jpg"
+                }
+                username={comment.username}
+                date={new Date(comment.comment_date).toLocaleDateString(
+                  "id-ID"
+                )}
+                rating={comment.rate}
+                comment={comment.comments}
+              />
+            ))}
+            {comment.length === 0 && (
+              <div className="fs_secondary mt-3">Be the first to comment!</div>
+            )}
+          </section>
+          {comment.length > 0 && (
+            <div
+              id="load_more_comments_div"
+              className="d-flex justify-content-start"
+            ></div>
+          )}
+          <AddComment movieId={movieId} onNewComment={onNewComment} />
+        </>
+      ) : (
+        <p>Loading comments...</p>
       )}
-      <AddComment movieId={movieId} onNewComment={onNewComment} />
     </>
   );
 }

@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Col, Container, Row, Image, Button } from "react-bootstrap";
+import { Col, Container, Row, Image } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import { useGlobalState } from "../components/GlobalStateContext";
+import Pagination from "../components/Pagination"; // Import the Pagination component
 import "./pagesStyle/ContentCard.css";
 
 function ContentCard() {
   const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
 
-  // Pagination state
   const [movies, setMovies] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalMovies, setTotalMovies] = useState(0); // To track total number of movies
-  const limit = 10; // Number of movies per page
+  const [totalMovies, setTotalMovies] = useState(0);
+  const limit = 32;
 
   useEffect(() => {
     setShowNavigation(true);
@@ -20,22 +20,19 @@ function ContentCard() {
     setShowSidebar(false);
   }, [setShowNavigation]);
 
-  // Fetch movies with limit and offset
   useEffect(() => {
     const offset = (currentPage - 1) * limit;
-
     fetch(`/api/all-movies?limit=${limit}&offset=${offset}`)
       .then((response) => response.json())
       .then((data) => {
-        setMovies(data.movies); // Assuming the API response contains { movies: [], total: number }
-        setTotalMovies(data.total); // Update total movie count
+        setMovies(data.movies);
+        setTotalMovies(data.total);
       })
       .catch((error) => {
         console.error("Error:", error);
       });
   }, [currentPage]);
 
-  // Calculate total pages
   const totalPages = Math.ceil(totalMovies / limit);
 
   return (
@@ -92,30 +89,12 @@ function ContentCard() {
               </Col>
             ))}
           </Row>
-          {/* Pagination controls */}
-          <Row>
-            <Col className="d-flex justify-content-center">
-              <Button
-                variant="primary"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </Button>
-              <span className="mx-3 my-auto">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                variant="primary"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </Button>
-            </Col>
-          </Row>
+          {/* Pagination Component */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </Container>
       ) : (
         <h1>Loading...</h1>

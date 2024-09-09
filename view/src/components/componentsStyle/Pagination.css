@@ -1,0 +1,80 @@
+.pagination\:container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    margin-bottom: 5%;
+    flex-wrap: wrap; /* Allow pagination to wrap on smaller screens */
+  }
+  
+  .arrow\:text {
+    display: none; /* Hide "Previous" and "Next" text on smaller screens */
+    vertical-align: middle;
+    font-size: 13px;
+  }
+  
+  .pagination\:number {
+    --size: 32px;
+    --margin: 6px;
+    margin: 0 var(--margin);
+    border-radius: 6px;
+    background: #202020;
+    min-width: var(--size);
+    height: var(--size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0 6px;
+    transition: background 0.2s ease-in-out;
+  }
+  
+  .pagination\:active {
+    background: lighten(#202020, 10%);
+  }
+  
+  .pagination\:number:hover {
+    background: lighten(#202020, 5%);
+  }
+  
+  .hide {
+    display: none;
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .pagination\:container {
+      flex-direction: row; /* Stack pagination buttons in a row */
+      flex-wrap: wrap; /* Allow them to wrap if necessary */
+    }
+  
+    .pagination\:number {
+      --size: 28px;
+      --margin: 4px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .pagination\:container {
+      justify-content: space-between; /* Spread out pagination buttons on smaller screens */
+      padding: 8px;
+    }
+  
+    .pagination\:number {
+      --size: 24px;
+      --margin: 2px;
+      padding: 0 4px;
+    }
+  
+    .arrow\:text {
+      display: none; /* Hide "Previous" and "Next" text on mobile screens */
+    }
+  }
+  
+  /* For very small screens */
+  @media (max-width: 320px) {
+    .pagination\:number {
+      --size: 20px;
+    }
+  }
+  

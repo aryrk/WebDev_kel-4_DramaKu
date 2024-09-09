@@ -20,6 +20,17 @@ connection.connect((err) => {
   console.log("Connected as id " + connection.threadId);
 });
 
+app.get("/api/all-movies", (req, res) => {
+  const query =
+    'SELECT m.id, m.poster, m.title FROM movies m WHERE m.status = "accepted"';
+
+  connection.query(query, (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    res.json(results);
+  });
+});
+
 app.get("/api/get-movies-poster/:limit", (req, res) => {
   const limit = req.params.limit;
   const query = `SELECT movies.poster FROM movies ORDER BY created_at DESC LIMIT ${limit}`;

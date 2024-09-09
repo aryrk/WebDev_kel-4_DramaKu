@@ -1,7 +1,6 @@
-import React, { useEffect } from "react";
-
+import React, { useEffect, useState } from "react";
 import { useGlobalState } from "../components/GlobalStateContext";
-
+import { useLocation } from "react-router-dom"; // To get query params
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row, Col, Image } from "react-bootstrap";
 
@@ -56,79 +55,57 @@ function MovieCard(props) {
 
 const SearchResultPage = () => {
   const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
+  const [movies, setMovies] = useState([]);
+  const location = useLocation();
 
   useEffect(() => {
     setShowNavigation(true);
     setShowFooter(true);
     setShowSidebar(false);
   }, [setShowNavigation]);
+
+  // Extract search query from URL
+  const searchParams = new URLSearchParams(location.search);
+  const searchTerm = searchParams.get("search");
+
+  useEffect(() => {
+    if (searchTerm) {
+      fetch(`/api/movie-search?search=${searchTerm}`).then((response) => {
+        response.json().then((data) => {
+          setMovies(data);
+        });
+      });
+    }
+  }, [searchTerm]);
+
   return (
     <>
-      <section className="pt-3 pt-md-4 text-white">
-        <center>
+      {movies.length > 0 ? (
+        <section className="pt-3 pt-md-4 text-white">
           <Container className="p-0 m-0 w-100 text-start">
             <div className="text-center mb-4 mb-md-5">
               <p className="fs-7 fs-md-5 font-weight-bold">
-                Searched/Tagged with "outsider"
+                Results for "{searchTerm}"
               </p>
             </div>
-
             <Row className="m-0">
-              <MovieCard
-                src="https://d1csarkz8obe9u.cloudfront.net/posterpreviews/action-mistery-movie-poster-design-template-2ec690d65c22aa12e437d765dbf7e4af_screen.jpg?ts=1680854635"
-                title="The Outsider"
-                year="2022"
-                genre={["Action", "Crime", "Drama"]}
-                cast={["Jared Leto", "Tadanobu Asano", "Kippei Shîna"]}
-                views="78"
-              />
-
-              <MovieCard
-                src="https://m.media-amazon.com/images/M/MV5BMjAxMjUxMjAzOF5BMl5BanBnXkFtZTgwNjQzOTc4NDM@._V1_.jpg"
-                title="The Outsider"
-                year="2022"
-                genre={["Action", "Crime", "Drama"]}
-                cast={["Jared Leto", "Tadanobu Asano", "Kippei Shîna"]}
-                views="78"
-              />
-
-              <MovieCard
-                src="https://m.media-amazon.com/images/M/MV5BMTIzMjczMjg3M15BMl5BanBnXkFtZTcwODkxMDk0MQ@@._V1_FMjpg_UX1000_.jpg"
-                title="The Outsider"
-                year="2022"
-                genre={["Action", "Crime", "Drama"]}
-                cast={["Jared Leto", "Tadanobu Asano", "Kippei Shîna"]}
-                views="78"
-              />
-
-              <MovieCard
-                src="https://m.media-amazon.com/images/M/MV5BY2E4Njk4N2UtZWFhOS00NzczLWFmNDgtMzdhMjFlNTZjMmVhL2ltYWdlL2ltYWdlXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_QL75_UX190_CR0,4,190,281_.jpg"
-                title="The Outsider"
-                year="2022"
-                genre={["Action", "Crime", "Drama"]}
-                cast={["Jared Leto", "Tadanobu Asano", "Kippei Shîna"]}
-                views="78"
-              />
-              <MovieCard
-                src="https://m.media-amazon.com/images/M/MV5BMTQwNDMxMDc2NF5BMl5BanBnXkFtZTgwNzk5MTI5MDE@._V1_QL75_UX190_CR0,2,190,281_.jpg"
-                title="The Outsider"
-                year="2022"
-                genre={["Action", "Crime", "Drama"]}
-                cast={["Jared Leto", "Tadanobu Asano", "Kippei Shîna"]}
-                views="78"
-              />
-              <MovieCard
-                src="https://i.mydramalist.com/0wxjQ4_4f.jpg"
-                title="The Outsider"
-                year="2022"
-                genre={["Action", "Crime", "Drama"]}
-                cast={["Jared Leto", "Tadanobu Asano", "Kippei Shîna"]}
-                views="78"
-              />
+              {movies.map((movie) => (
+                <MovieCard
+                  key={movie.id}
+                  src={movie.poster}
+                  title={movie.title}
+                  year={movie.year}
+                  genre={movie.genres}
+                  cast={movie.cast}
+                  views={movie.views}
+                />
+              ))}
             </Row>
           </Container>
-        </center>
-      </section>
+        </section>
+      ) : (
+        <p>Loading...</p>
+      )}
     </>
   );
 };

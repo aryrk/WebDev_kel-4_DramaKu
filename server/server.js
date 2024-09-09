@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 const mysql = require("mysql2");
+const cors = require("cors");
+app.use(cors());
 app.use(express.json());
 
 const connection = mysql.createConnection({
@@ -33,7 +35,7 @@ app.get("/api/movies/comments/:id", (req, res) => {
   const limit = parseInt(req.query.limit) || 3;
   const offset = parseInt(req.query.offset) || 0;
 
-  const countQuery = `SELECT COUNT(*) as total FROM comments WHERE movie_id = ?`;
+  const countQuery = `SELECT COUNT(*) as total FROM comments WHERE movie_id = ? and status = 'accepted'`;
   const dataQuery = `
   SELECT c.*, u.username, u.profile_picture
   FROM comments c
@@ -59,33 +61,31 @@ app.get("/api/movies/comments/:id", (req, res) => {
   });
 });
 
-// !need fix after auth
-// app.post("/api/movies/comments/:movieId", (req, res) => {
-//   const { username, rate, comments, profile_picture } = req.body;
-//   const movieId = req.params.movieId;
+app.post("/api/movies/comments/:movieId", (req, res) => {
+  const { userId, rate, comments } = req.body;
+  const movieId = req.params.movieId;
 
-//   const query =
-//     "INSERT INTO comments (movie_id, username, rate, comments, comment_date, profile_picture) VALUES (?, ?, ?, ?, NOW(), ?)";
-//   connection.query(
-//     query,
-//     [movieId, username, rate, comments, profile_picture],
-//     (error, result) => {
-//       if (error) {
-//         return res.status(500).json({ error: "Database error" });
-//       }
-//       res.json({
-//         comment: {
-//           id: result.insertId,
-//           username: username,
-//           rate: rate,
-//           comments: comments,
-//           comment_date: new Date(),
-//           profile_picture: profile_picture,
-//         },
-//       });
-//     }
-//   );
-// });
+  const query =
+    "INSERT INTO comments (movie_id, user_id, rate, comments, comment_date) VALUES (?, ?, ?, ?, NOW())";
+  connection.query(
+    query,
+    [movieId, userId, rate, comments],
+    (error, result) => {
+      if (error) {
+        return res.status(500).json({ error: "Database error" });
+      }
+      res.json({
+        comment: {
+          id: result.insertId,
+          userId: userId,
+          rate: rate,
+          comments: comments,
+          comment_date: new Date(),
+        },
+      });
+    }
+  );
+});
 
 app.post("/api/movies/update-view-count/:id", (req, res) => {
   const movieId = req.params.id;
@@ -185,6 +185,98 @@ GROUP BY m.id
         });
       });
     });
+  });
+});
+
+app.get("/api/cms/comments", (req, res) => {
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = parseInt(req.query.offset) || 0;
+  const search = req.query.search ? `%${req.query.search}%` : "%%";
+  const orderColumnIndex = parseInt(req.query.order) || 0;
+  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
+
+  const orderColumns = [
+    "c.id", // 0
+    "u.username", // 1
+    "c.rate", // 2
+    "m.title", // 3
+    "c.comments", // 4
+    "c.status", // 5
+  ];
+
+  const orderColumn = orderColumns[orderColumnIndex] || "c.comment_date";
+
+  console.log(search, orderColumn, orderDir);
+
+  const countQuery = `
+    SELECT COUNT(*) as total 
+    FROM comments c
+    JOIN users u ON c.user_id = u.id
+    JOIN movies m ON c.movie_id = m.id
+    WHERE u.username LIKE ? OR m.title LIKE ? OR c.comments LIKE ?
+  `;
+
+  const dataQuery = `
+  SELECT c.*, u.username, m.title
+  FROM comments c
+  JOIN users u ON c.user_id = u.id
+  JOIN movies m ON c.movie_id = m.id
+  WHERE u.username LIKE ? OR m.title LIKE ? OR c.comments LIKE ?
+  ORDER BY 
+  ${orderColumn} ${orderDir},
+      CASE 
+          WHEN c.status = 'pending' THEN 1 
+          ELSE 2 
+      END
+  LIMIT ? OFFSET ?
+`;
+
+  connection.query(countQuery, [search, search, search], (err, countResult) => {
+    if (err) return res.status(500).send(err);
+
+    const totalComments = countResult[0].total;
+
+    connection.query(
+      dataQuery,
+      [search, search, search, limit, offset],
+      (err, dataResults) => {
+        if (err) return res.status(500).send(err);
+
+        res.json({
+          comments: dataResults,
+          recordsTotal: totalComments,
+          recordsFiltered: totalComments,
+        });
+      }
+    );
+  });
+});
+
+app.post("/api/cms/comments/approve", (req, res) => {
+  const { ids } = req.body;
+
+  const query = `UPDATE comments SET status = 'accepted' WHERE id IN (${ids.join(
+    ","
+  )})`;
+
+  connection.query(query, (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    res.json({ success: true });
+  });
+});
+
+app.post("/api/cms/comments/reject", (req, res) => {
+  const { ids } = req.body;
+
+  const query = `UPDATE comments SET status = 'rejected' WHERE id IN (${ids.join(
+    ","
+  )})`;
+
+  connection.query(query, (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    res.json({ success: true });
   });
 });
 

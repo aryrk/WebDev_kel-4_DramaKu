@@ -27,6 +27,7 @@ import {
 
 import "./App.css";
 import { EditProvider } from "./components/cmsEdit";
+import { SwalProvider } from "./components/SweetAlert";
 
 function AppContent() {
   const { showFooter, showNavigation, showSidebar } = useGlobalState();
@@ -74,13 +75,15 @@ function AppContent() {
 
 function App() {
   return (
-    <EditProvider>
-      <GlobalStateProvider>
-        <Router>
-          <AppContent />
-        </Router>
-      </GlobalStateProvider>
-    </EditProvider>
+    <SwalProvider>
+      <EditProvider>
+        <GlobalStateProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </GlobalStateProvider>
+      </EditProvider>
+    </SwalProvider>
   );
 }
 

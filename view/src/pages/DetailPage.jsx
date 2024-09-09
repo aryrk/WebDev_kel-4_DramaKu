@@ -22,6 +22,7 @@ import { useGlobalState } from "../components/GlobalStateContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import { useParams } from "react-router-dom";
+import { useSwal } from "../components/SweetAlert";
 
 function MovieInfo(props) {
   var {
@@ -203,8 +204,17 @@ var comment_shown = 3;
 window.filterComments = function (movieId, rating) {
   current_filter = rating;
   if (commentHidden > 0 && current_filter != -1) {
-    loadMoreComments(movieId);
+    loadMoreComments(movieId, 0);
   }
+  console.log(commentHidden);
+
+  if (commentHidden > 0) {
+    setTimeout(() => {
+      filterComments(movieId, rating);
+    }, 1000);
+    return;
+  }
+
   $(".comment").each(function () {
     if (current_filter === -1) {
       comment_shown = commentShown;
@@ -393,10 +403,12 @@ window.readMore = function (btn, text) {
   $(btn).parent().html(comment_data[text]);
 };
 
-window.loadMoreComments = function (movieId) {
-  const limit = 3;
+window.loadMoreComments = function (movieId, limit = 3) {
   const offset = commentShown;
 
+  if (limit === 0) {
+    limit = commentHidden;
+  }
   fetch(`/api/movies/comments/${movieId}?limit=${limit}&offset=${offset}`)
     .then((response) => response.json())
     .then((data) => {
@@ -595,7 +607,10 @@ function CommentSection() {
 }
 
 function AddComment({ movieId, onNewComment }) {
-  const [name, setName] = useState("");
+  const { notification } = useSwal();
+
+  // ! fix after auth
+  const userId = "1";
   const [rate, setRate] = useState(0);
   const [thoughts, setThoughts] = useState("");
 
@@ -603,11 +618,10 @@ function AddComment({ movieId, onNewComment }) {
     event.preventDefault();
 
     const newComment = {
-      username: name,
+      userId: userId,
       rate: rate,
       comments: thoughts,
       comment_date: new Date().toISOString(),
-      profile_picture: "",
     };
 
     fetch(`/api/movies/comments/${movieId}`, {
@@ -620,7 +634,6 @@ function AddComment({ movieId, onNewComment }) {
       .then((response) => response.json())
       .then((data) => {
         // onNewComment(data.comment);
-        setName("");
         setRate(0);
         setThoughts("");
       })
@@ -637,7 +650,7 @@ function AddComment({ movieId, onNewComment }) {
         >
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={3} className="d-flex justify-content-start">
-              Name
+              Username
             </Form.Label>
             <Col>
               <Form.Control
@@ -645,8 +658,8 @@ function AddComment({ movieId, onNewComment }) {
                 placeholder="Enter your name"
                 value={name}
                 name="username"
-                onChange={(e) => setName(e.target.value)}
-                required
+                readOnly
+                disabled
               />
             </Col>
           </Form.Group>
@@ -696,7 +709,16 @@ function AddComment({ movieId, onNewComment }) {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Col className="d-flex justify-content-start">
-              <Button className="rounded-4" type="submit">
+              <Button
+                className="rounded-4"
+                type="submit"
+                onClick={() =>
+                  notification(
+                    "success",
+                    "Comment added!\nAwaiting admin approval"
+                  )
+                }
+              >
                 Submit
               </Button>
             </Col>

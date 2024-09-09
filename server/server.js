@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const mysql = require("mysql2");
 const cors = require("cors");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 app.use(cors());
 app.use(express.json());
 
@@ -73,12 +75,20 @@ app.get("/api/movies/comments/:id", (req, res) => {
   const limit = parseInt(req.query.limit) || 3;
   const offset = parseInt(req.query.offset) || 0;
 
-  const countQuery = `SELECT COUNT(*) as total FROM comments WHERE movie_id = ? and status = 'accepted'`;
+  // const countQuery = `SELECT COUNT(*) as total FROM comments WHERE movie_id = ? and status = 'accepted'`;
+  // join users and user.deleted_at is null
+  const countQuery = `
+  SELECT COUNT(*) as total
+  FROM comments c
+  LEFT JOIN users u ON c.user_id = u.id AND u.deleted_at IS NULL
+  WHERE c.movie_id = ? and c.status = 'accepted' and c.deleted_at IS NULL
+  `;
+
   const dataQuery = `
   SELECT c.*, u.username, u.profile_picture
   FROM comments c
-  JOIN users u ON c.user_id = u.id
-  WHERE c.movie_id = ? and c.status = 'accepted' and c.deleted_at IS NULL and u.deleted_at IS NULL
+  LEFT JOIN users u ON c.user_id = u.id AND u.deleted_at IS NULL
+  WHERE c.movie_id = ? and c.status = 'accepted' and c.deleted_at IS NULL
   LIMIT ? OFFSET ?
   `;
 
@@ -251,7 +261,7 @@ app.get("/api/cms/comments", (req, res) => {
   const countQuery = `
     SELECT COUNT(*) as total 
     FROM comments c
-    LEFT JOIN users u ON c.user_id = u.id
+    LEFT JOIN users u ON c.user_id = u.id AND u.deleted_at IS NULL
     JOIN movies m ON c.movie_id = m.id
     WHERE (u.username LIKE ? OR c.rate LIKE ? OR m.title LIKE ? OR c.comments LIKE ? or c.status LIKE ?) AND c.deleted_at IS NULL AND m.deleted_at IS NULL
   `;
@@ -259,7 +269,7 @@ app.get("/api/cms/comments", (req, res) => {
   const dataQuery = `
   SELECT c.*, u.username, m.title
   FROM comments c
-  LEFT JOIN users u ON c.user_id = u.id
+  LEFT JOIN users u ON c.user_id = u.id AND u.deleted_at IS NULL
   JOIN movies m ON c.movie_id = m.id
   WHERE (u.username LIKE ? OR c.rate LIKE ? OR m.title LIKE ? OR c.comments LIKE ? or c.status LIKE ?) AND c.deleted_at IS NULL AND m.deleted_at IS NULL
   ORDER BY 
@@ -368,6 +378,45 @@ app.delete("/api/cms/users/:id", (req, res) => {
 
   connection.query(query, [userId], (err, results) => {
     if (err) return res.status(500).send(err);
+
+    res.json({ success: true });
+  });
+});
+
+app.post("/api/cms/users", (req, res) => {
+  const { username, email, role } = req.body;
+
+  console.log(username, email, role);
+
+  const default_password = bcrypt.hashSync("12345", saltRounds);
+
+  const query = `INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)`;
+
+  connection.query(
+    query,
+    [username, email, default_password, role],
+    (err, results) => {
+      if (err)
+        return res
+          .status(500)
+          .json({ error: "Database error: Failed to create user" });
+
+      res.json({ success: true });
+    }
+  );
+});
+
+app.put("/api/cms/users/:id", (req, res) => {
+  const userId = req.params.id;
+  const { username, email } = req.body;
+
+  const query = `UPDATE users SET username = ?, email = ? WHERE id = ?`;
+
+  connection.query(query, [username, email, userId], (err, results) => {
+    if (err)
+      return res
+        .status(500)
+        .json({ error: "Database error: Failed to update user" });
 
     res.json({ success: true });
   });

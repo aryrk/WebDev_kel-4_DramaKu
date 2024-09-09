@@ -16,10 +16,54 @@ import { useEdit } from "../../components/cmsEdit";
 import "datatables.net";
 
 import "datatables.net-dt/css/dataTables.dataTables.min.css";
+import { useSwal } from "../../components/SweetAlert";
 
 function AddUser() {
+  const { notification } = useSwal();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("writer");
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const newUser = {
+      username: username,
+      email: email,
+      role: role,
+    };
+
+    fetch("/api/cms/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newUser),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          notification("success", "User added successfully!");
+          setUsername("");
+          setEmail("");
+          setRole("writter");
+
+          $("#username").val("");
+          $("#email").val("");
+
+          fetchUsers();
+        } else {
+          notification("error", "Failed to add user!");
+        }
+      })
+      .catch((error) => {
+        console.error("Error adding user:", error);
+      });
+  };
   return (
-    <Form className="bg-dark rounded-3 p-3 d-flex justify-content-start text-start mb-4">
+    <Form
+      className="bg-dark rounded-3 p-3 d-flex justify-content-start text-start mb-4"
+      onSubmit={handleSubmit}
+    >
       <Container className="w-100 w-md-100 w-lg-75 m-auto m-md-0">
         <Row>
           <Col>
@@ -32,7 +76,14 @@ function AddUser() {
                 Username
               </Form.Label>
               <Col sm="9" md="8" lg="9">
-                <Form.Control className="bg-black border-0 text-light" />
+                <Form.Control
+                  className="bg-black border-0 text-light"
+                  name="username"
+                  id="username"
+                  placeholder="username"
+                  onChange={(event) => setUsername(event.target.value)}
+                  required
+                />
               </Col>
             </Form.Group>
 
@@ -47,8 +98,32 @@ function AddUser() {
               <Col sm="9" md="8" lg="9">
                 <Form.Control
                   placeholder="email"
+                  name="email"
+                  id="email"
                   className="bg-black border-0 text-light"
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
                 />
+              </Col>
+            </Form.Group>
+            <Form.Group
+              as={Row}
+              className="mb-3"
+              controlId="formPlaintextPassword"
+            >
+              <Form.Label column sm="3" md="4" lg="3">
+                Role
+              </Form.Label>
+              <Col sm="9" md="8" lg="9">
+                {/* select */}
+                <Form.Select
+                  className="bg-black border-0 text-light"
+                  name="role"
+                  onChange={(event) => setRole(event.target.value)}
+                >
+                  <option value="writer">Writer</option>
+                  <option value="admin">Admin</option>
+                </Form.Select>
               </Col>
             </Form.Group>
           </Col>
@@ -65,27 +140,31 @@ function AddUser() {
   );
 }
 
-// handle delete user function
-const handleDeleteUser = async (id) => {
-  try {
-    const response = await fetch(`/api/cms/users/${id}`, {
-      method: "DELETE",
-    });
-    const data = await response.json();
-    if (data.success) {
-      notification("success", "User deleted successfully!");
-      fetchUsers();
-    } else {
-      notification("error", "Failed to delete user!");
-    }
-  } catch (error) {}
-};
-
 function UserTable() {
   const [users, setUsers] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
   const [tableInitialized, setTableInitialized] = useState(false);
   const { cancelEdit, edit, last_edit } = useEdit();
+  const { notification } = useSwal();
+
+  const handleDeleteUser = async (id) => {
+    console.log("Deleting user with id:", id);
+    try {
+      const response = await fetch(`/api/cms/users/${id}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      if (data.success) {
+        $(`#${id}`).css("text-decoration", "line-through");
+        $(`#editBtn${id}`).addClass("d-none");
+        $(`#deleteBtn${id}`).addClass("d-none");
+
+        notification("success", "User deleted successfully!");
+      } else {
+        notification("error", "Failed to delete user!");
+      }
+    } catch (error) {}
+  };
 
   const fetchUsers = async (page = 1) => {
     try {
@@ -112,7 +191,8 @@ function UserTable() {
       const table = $("#actors").DataTable({
         columnDefs: [
           { width: "60px", targets: 0 },
-          { width: "330px", targets: 3 },
+          { width: "60px", targets: 3 },
+          { width: "330px", targets: 4 },
         ],
         scrollY: "45vh",
         data: users,
@@ -128,9 +208,23 @@ function UserTable() {
           },
           {
             data: "username",
+            render: function (data) {
+              return `<span name="username">${data}</span>`;
+            },
           },
           {
             data: "email",
+            render: function (data) {
+              return `<span name="email">${data}</span>`;
+            },
+          },
+          {
+            data: "role",
+            render: function (data) {
+              return `<span name="undefined" class="badge ${
+                data === "admin" ? "bg-danger" : "bg-primary"
+              }">${data}</span>`;
+            },
           },
           {
             render: function (data, type, row) {
@@ -153,6 +247,7 @@ function UserTable() {
                     className="ms-2 me-2 d-none"
                     id={`editSaveBtn${no}`}
                     form="editForm"
+                    type="submit"
                   >
                     <FontAwesomeIcon icon={faSave} />
                   </Button>
@@ -207,14 +302,11 @@ function UserTable() {
           },
         },
         drawCallback: function () {
-          // loop for each row, add id on each row
-          // <tr id={no}>
           const table = $("#actors").DataTable();
           table.rows().every(function (rowIdx, tableLoop, rowLoop) {
             const row = this.node();
             row.id = table.row(row).data().id;
 
-            // add Onlick on edit button
             const editBtn = document.getElementById(`editBtn${row.id}`);
             editBtn.onclick = () => {
               edit(row.id);
@@ -224,6 +316,19 @@ function UserTable() {
             CancelBtn.onclick = () => {
               cancelEdit(row.id);
             };
+
+            const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
+            deleteBtn.onclick = () => {
+              handleDeleteUser(row.id);
+            };
+
+            const tds = row.getElementsByTagName("td");
+            for (let i = 1; i < tds.length - 1; i++) {
+              const td = tds[i];
+              const innerElement = td.firstChild;
+              const name = innerElement.getAttribute("name");
+              td.setAttribute("name", name);
+            }
           });
         },
       });
@@ -235,15 +340,77 @@ function UserTable() {
       table.draw();
     }
   }, [users, tableInitialized]);
+
+  const handleEdit = async () => {
+    const form = document.getElementById("editForm");
+    const formData = new FormData(form);
+    const id = formData.get("id");
+    const username = formData.get("username");
+    const email = formData.get("email");
+
+    const user = {
+      username: username,
+      email: email,
+    };
+
+    try {
+      const response = await fetch(`/api/cms/users/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(user),
+      });
+      const data = await response.json();
+      if (data.success) {
+        notification("success", "User updated successfully!");
+        // fetchUsers();
+        $(`#cancelBtn${id}`).click();
+
+        const tr = document.getElementById(id);
+        const tds = tr.getElementsByTagName("td");
+
+        for (let i = 1; i < tds.length - 1; i++) {
+          try {
+            const td = tds[i];
+            console.log(td);
+            const name = td.getAttribute("name");
+            console.log(name);
+            if (name === "username") {
+              td.innerText = username;
+            } else if (name === "email") {
+              td.innerText = email;
+            }
+          } catch (e) {
+            console.log(e);
+          }
+        }
+
+        
+      } else {
+        notification("error", "Failed to update user!");
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
+  };
+
   return (
     <>
-      <form id="editForm"></form>
+      <form
+        id="editForm"
+        onSubmit={(event) => {
+          event.preventDefault();
+          handleEdit();
+        }}
+      ></form>
       <Table responsive striped hover variant="dark" id="actors">
         <thead>
           <tr>
             <th className="text-center">#</th>
             <th>Username</th>
             <th>Email</th>
+            <th>Role</th>
             <th className="text-center">Actions</th>
           </tr>
         </thead>

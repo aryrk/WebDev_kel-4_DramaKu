@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Container,
   Navbar,
@@ -17,6 +18,8 @@ import $ from "jquery";
 
 const CustomNavbar = ({ config }) => {
   const [show, setShow] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate(); // Initialize navigation
 
   useEffect(() => {
     document.title = `Page 1 - ${config.short_name}`;
@@ -34,15 +37,20 @@ const CustomNavbar = ({ config }) => {
     $("#bottom-navbar-nav").toggleClass("show");
   };
 
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      navigate(`/search?search=${encodeURIComponent(searchTerm)}`);
+    }
+  };
+
   return (
     <>
-      {/* Navbar Atas */}
+      {/* Top Navbar */}
       <Navbar sticky="top" expand="lg" className="navbar-custom">
         <Container>
-          {/* Navbar Collapse for Mobile */}
-
+          {/* Mobile Navbar Toggle */}
           <div className="d-lg-none d-flex justify-content-between align-items-center w-100">
-            {/* Toggle for Mobile */}
+            {/* Search Icon for Mobile */}
             <Button
               variant="link"
               onClick={handleToggle}
@@ -70,6 +78,7 @@ const CustomNavbar = ({ config }) => {
               </a>
             </Navbar.Brand>
 
+            {/* Toggle Bottom Navbar */}
             <Button
               aria-controls="bottom-navbar-nav"
               onClick={handleToggleBottom}
@@ -79,7 +88,7 @@ const CustomNavbar = ({ config }) => {
             </Button>
           </div>
 
-          {/* Navbar Collapse */}
+          {/* Desktop Navbar */}
           <Navbar.Collapse id="top-navbar-nav" className={show ? "show" : ""}>
             <Nav className="me-auto d-flex align-items-center">
               <Navbar.Brand className="me-3 d-none d-lg-flex align-items-center">
@@ -87,38 +96,32 @@ const CustomNavbar = ({ config }) => {
                   {config.short_name}
                 </a>
               </Navbar.Brand>
+
+              {/* Navigation Links */}
               <Nav className="d-none d-lg-flex">
-                <Nav.Link href="#indonesia" className="navbar-custom">
-                  Indonesia
-                </Nav.Link>
-                <Nav.Link href="#japan" className="navbar-custom">
-                  Japan
-                </Nav.Link>
-                <Nav.Link href="#korea" className="navbar-custom">
-                  Korea
-                </Nav.Link>
-                <Nav.Link href="#spanyol" className="navbar-custom">
-                  Spanyol
-                </Nav.Link>
-                <Nav.Link href="#inggris" className="navbar-custom">
-                  Inggris
-                </Nav.Link>
-                <Nav.Link href="#amerika" className="navbar-custom">
-                  Amerika
-                </Nav.Link>
-                <Nav.Link href="#thailand" className="navbar-custom">
-                  Thailand
-                </Nav.Link>
-                <Nav.Link href="#filiphina" className="navbar-custom">
-                  Filiphina
-                </Nav.Link>
-                <Nav.Link href="#taiwan" className="navbar-custom">
-                  Taiwan
-                </Nav.Link>
+                {[
+                  "Indonesia",
+                  "Japan",
+                  "Korea",
+                  "Spanyol",
+                  "Inggris",
+                  "Amerika",
+                  "Thailand",
+                  "Filiphina",
+                  "Taiwan",
+                ].map((country) => (
+                  <Nav.Link
+                    key={country}
+                    href={`#${country.toLowerCase()}`}
+                    className="navbar-custom"
+                  >
+                    {country}
+                  </Nav.Link>
+                ))}
               </Nav>
             </Nav>
 
-            {/* Form with justify-content-end */}
+            {/* Search Form */}
             <Form className="d-flex ms-auto my-2 my-lg-0 justify-content-end">
               <Form.Control
                 type="text"
@@ -126,14 +129,10 @@ const CustomNavbar = ({ config }) => {
                 aria-label="Search"
                 className="me-2"
                 style={{ maxWidth: "280px" }}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <Button
-                variant="outline-light"
-                // onclick href
-                onClick={() => {
-                  window.location.href = "/search";
-                }}
-              >
+              <Button variant="outline-light" onClick={handleSearch}>
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
               </Button>
             </Form>
@@ -141,45 +140,62 @@ const CustomNavbar = ({ config }) => {
         </Container>
       </Navbar>
 
-      {/* Navbar Bawah */}
+      {/* Bottom Navbar */}
       <Navbar sticky="top" expand="lg" className="navbar-custom mt-2 p-0">
-        {/* Navbar Toggle for Mobile */}
         <Container>
           <Navbar.Collapse id="bottom-navbar-nav" className="text-center">
             <Nav className="justify-content-center">
               <NavDropdown title="Countries" id="countries-dropdown">
-                <NavDropdown.Item href="#indonesia">Indonesia</NavDropdown.Item>
-                <NavDropdown.Item href="#japan">Japan</NavDropdown.Item>
-                <NavDropdown.Item href="#korea">Korea</NavDropdown.Item>
-                <NavDropdown.Item href="#spanyol">Spanyol</NavDropdown.Item>
-                <NavDropdown.Item href="#inggris">Inggris</NavDropdown.Item>
-                <NavDropdown.Item href="#amerika">Amerika</NavDropdown.Item>
-                <NavDropdown.Item href="#thailand">Thailand</NavDropdown.Item>
-                <NavDropdown.Item href="#filiphina">Filiphina</NavDropdown.Item>
-                <NavDropdown.Item href="#taiwan">Taiwan</NavDropdown.Item>
+                {[
+                  "Indonesia",
+                  "Japan",
+                  "Korea",
+                  "Spanyol",
+                  "Inggris",
+                  "Amerika",
+                  "Thailand",
+                  "Filiphina",
+                  "Taiwan",
+                ].map((country) => (
+                  <NavDropdown.Item
+                    key={country}
+                    href={`#${country.toLowerCase()}`}
+                  >
+                    {country}
+                  </NavDropdown.Item>
+                ))}
               </NavDropdown>
 
               <NavDropdown title="Year" id="year-dropdown" className="me-2">
-                <NavDropdown.Item href="#2024">2024</NavDropdown.Item>
-                <NavDropdown.Item href="#2023">2023</NavDropdown.Item>
-                <NavDropdown.Item href="#2022">2022</NavDropdown.Item>
-                <NavDropdown.Item href="#2021">2021</NavDropdown.Item>
-                <NavDropdown.Item href="#2020">2020</NavDropdown.Item>
+                {["2024", "2023", "2022", "2021", "2020"].map((year) => (
+                  <NavDropdown.Item key={year} href={`#${year}`}>
+                    {year}
+                  </NavDropdown.Item>
+                ))}
               </NavDropdown>
 
               <NavDropdown title="Genre" id="genre-dropdown" className="me-2">
-                <NavDropdown.Item href="#action">Action</NavDropdown.Item>
-                <NavDropdown.Item href="#biography">Biography</NavDropdown.Item>
-                <NavDropdown.Item href="#comedy">Comedy</NavDropdown.Item>
-                <NavDropdown.Item href="#documentary">
-                  Documentary
-                </NavDropdown.Item>
-                <NavDropdown.Item href="#family">Family</NavDropdown.Item>
+                {["Action", "Biography", "Comedy", "Documentary", "Family"].map(
+                  (genre) => (
+                    <NavDropdown.Item
+                      key={genre}
+                      href={`#${genre.toLowerCase()}`}
+                    >
+                      {genre}
+                    </NavDropdown.Item>
+                  )
+                )}
               </NavDropdown>
 
               <NavDropdown title="Status" id="status-dropdown" className="me-2">
-                <NavDropdown.Item href="#completed">Completed</NavDropdown.Item>
-                <NavDropdown.Item href="#ongoing">On-Going</NavDropdown.Item>
+                {["Completed", "On-Going"].map((status) => (
+                  <NavDropdown.Item
+                    key={status}
+                    href={`#${status.toLowerCase()}`}
+                  >
+                    {status}
+                  </NavDropdown.Item>
+                ))}
               </NavDropdown>
 
               <NavDropdown
@@ -191,21 +207,20 @@ const CustomNavbar = ({ config }) => {
               </NavDropdown>
 
               <NavDropdown title="Award" id="award-dropdown" className="me-2">
-                <NavDropdown.Item href="#oscar-winning">
-                  Oscar-Winning
-                </NavDropdown.Item>
-                <NavDropdown.Item href="#emmy-award-winning">
-                  Emmy Award-Winning
-                </NavDropdown.Item>
-                <NavDropdown.Item href="#golden-globe-winning">
-                  Golden Globe-Winning
-                </NavDropdown.Item>
-                <NavDropdown.Item href="#best-picture-winning">
-                  Best Picture-Winning
-                </NavDropdown.Item>
-                <NavDropdown.Item href="#best-director-winning">
-                  Best Director-Winning
-                </NavDropdown.Item>
+                {[
+                  "Oscar-Winning",
+                  "Emmy Award-Winning",
+                  "Golden Globe-Winning",
+                  "Best Picture-Winning",
+                  "Best Director-Winning",
+                ].map((award) => (
+                  <NavDropdown.Item
+                    key={award}
+                    href={`#${award.toLowerCase()}`}
+                  >
+                    {award}
+                  </NavDropdown.Item>
+                ))}
               </NavDropdown>
 
               <NavDropdown
@@ -218,6 +233,7 @@ const CustomNavbar = ({ config }) => {
                 </NavDropdown.Item>
               </NavDropdown>
             </Nav>
+
             <Button
               className="bg_pallete_3 border-0 ms-2 mb-3 mb-md-0"
               type="submit"
@@ -227,6 +243,8 @@ const CustomNavbar = ({ config }) => {
           </Navbar.Collapse>
         </Container>
       </Navbar>
+
+      {/* Optional Floating Logo */}
       <Image
         src={config.logo_png}
         loading="lazy"

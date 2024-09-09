@@ -20,6 +20,44 @@ connection.connect((err) => {
   console.log("Connected as id " + connection.threadId);
 });
 
+app.get("/api/all-movies", (req, res) => {
+  // Get limit and offset from query parameters (default: limit = 10, offset = 0)
+  const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 movies per page
+  const offset = parseInt(req.query.offset, 10) || 0; // Default to start from the first record
+
+  // SQL query to fetch movies with pagination
+  const query = `
+    SELECT m.id, m.poster, m.title 
+    FROM movies m 
+    WHERE m.status = "accepted"
+    LIMIT ? OFFSET ?
+  `;
+
+  // Execute the query with limit and offset values
+  connection.query(query, [limit, offset], (err, results) => {
+    if (err) {
+      return res.status(500).send(err); // Handle the error
+    }
+
+    // Also fetch the total number of accepted movies for pagination calculation
+    const countQuery = `SELECT COUNT(*) as total FROM movies WHERE status = "accepted"`;
+
+    connection.query(countQuery, (err, countResult) => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+
+      const totalMovies = countResult[0].total;
+
+      // Send both the movies and the total number of movies
+      res.json({
+        movies: results, // List of movies for the current page
+        total: totalMovies, // Total number of accepted movies
+      });
+    });
+  });
+});
+
 app.get("/api/get-movies-poster/:limit", (req, res) => {
   const limit = req.params.limit;
   const query = `SELECT movies.poster FROM movies ORDER BY created_at DESC LIMIT ${limit}`;
@@ -100,6 +138,33 @@ app.post("/api/movies/update-view-count/:id", (req, res) => {
     if (err) return res.status(500).send(err);
 
     res.json({ message: "Success" });
+  });
+});
+
+app.get("/api/movie-search", (req, res) => {
+  const search = req.query.search;
+
+  const query = `
+    SELECT m.*, GROUP_CONCAT(DISTINCT g.name) AS genres, GROUP_CONCAT(DISTINCT a.name) AS cast
+    FROM movies m
+    LEFT JOIN movies_genres mg ON mg.movie_id = m.id
+    LEFT JOIN genres g ON g.id = mg.genre_id
+    LEFT JOIN movies_actors ma ON ma.movie_id = m.id
+    LEFT JOIN actors a ON a.id = ma.actor_id
+    WHERE m.title LIKE ? AND m.status = 'accepted'
+    GROUP BY m.id
+  `;
+
+  connection.query(query, [`%${search}%`], (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    res.json(
+      results.map((movie) => ({
+        ...movie,
+        genres: movie.genres ? movie.genres.split(",") : [],
+        cast: movie.cast ? movie.cast.split(",") : [],
+      }))
+    );
   });
 });
 

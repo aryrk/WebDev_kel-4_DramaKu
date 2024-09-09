@@ -37,9 +37,11 @@ const CustomNavbar = ({ config }) => {
     $("#bottom-navbar-nav").toggleClass("show");
   };
 
-  const handleSearch = () => {
+  const handleSearch = (event) => {
+    event.preventDefault(); // Prevent form submission
     if (searchTerm.trim()) {
-      navigate(`/search?search=${encodeURIComponent(searchTerm)}`);
+      // Navigate to the search results page and pass the search term
+      navigate(`/search?query=${encodeURIComponent(searchTerm)}`);
     }
   };
 
@@ -122,7 +124,10 @@ const CustomNavbar = ({ config }) => {
             </Nav>
 
             {/* Search Form */}
-            <Form className="d-flex ms-auto my-2 my-lg-0 justify-content-end">
+            <Form
+              className="d-flex ms-auto my-2 my-lg-0 justify-content-end"
+              onSubmit={handleSearch}
+            >
               <Form.Control
                 type="text"
                 placeholder="Search"
@@ -130,9 +135,13 @@ const CustomNavbar = ({ config }) => {
                 className="me-2"
                 style={{ maxWidth: "280px" }}
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  // submit search on enter
+                  handleSearch(e);
+                }}
               />
-              <Button variant="outline-light" onClick={handleSearch}>
+              <Button variant="outline-light" type="submit">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
               </Button>
             </Form>

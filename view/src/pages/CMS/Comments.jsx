@@ -4,6 +4,7 @@ import DataTable from "datatables.net-dt";
 import { Button, Table } from "react-bootstrap";
 import "datatables.net-dt/css/dataTables.dataTables.min.css";
 import { useSwal } from "../../components/SweetAlert";
+import { useGlobalState } from "../../components/GlobalStateContext";
 
 let selectedComments = [];
 window.update_selected_commennt = function (checkbox, id) {
@@ -180,10 +181,10 @@ function Footer() {
 
   const handleApprove = async () => {
     try {
-      const response = await fetch("/api/cms/comments/approve", {
+      const response = await fetch("/api/cms/comments/action", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: selectedComments }),
+        body: JSON.stringify({ ids: selectedComments, action: "accepted" }),
       });
       const data = await response.json();
       if (data.success) {
@@ -198,10 +199,10 @@ function Footer() {
 
   const handleReject = async () => {
     try {
-      const response = await fetch("/api/cms/comments/reject", {
+      const response = await fetch("/api/cms/comments/action", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: selectedComments }),
+        body: JSON.stringify({ ids: selectedComments, action: "rejected" }),
       });
       const data = await response.json();
       if (data.success) {
@@ -242,6 +243,14 @@ function Footer() {
 }
 
 const Comments = () => {
+  const { setShowSidebar, setActiveMenu, setShowNavigation, setShowFooter } =
+    useGlobalState();
+  useEffect(() => {
+    setShowSidebar(true);
+    setActiveMenu("Comments");
+    setShowNavigation(false);
+    setShowFooter(false);
+  }, [setShowSidebar]);
   return (
     <center className="w-100">
       <div className="inner-container w-sm-100 w-xl-90 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">

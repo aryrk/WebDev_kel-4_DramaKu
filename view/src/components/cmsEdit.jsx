@@ -44,7 +44,12 @@ export const EditProvider = ({ children }) => {
       if (name === "img") {
         td.innerHTML =
           td.innerHTML +
-          `<input type="file" name="${name}" class="form-control">`;
+          `<input type="file" name="${name}"
+          form="editForm"
+          onChange={(event, newValue) => {
+                  set${name}(newValue);
+                }}
+          class="form-control">`;
       } else {
         td.innerHTML = `<input type="text" value="${value}" name="${name}" old="${value}" class="form-control">`;
       }

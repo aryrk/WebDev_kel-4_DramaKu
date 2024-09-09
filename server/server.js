@@ -40,7 +40,7 @@ app.get("/api/movies/comments/:id", (req, res) => {
   SELECT c.*, u.username, u.profile_picture
   FROM comments c
   JOIN users u ON c.user_id = u.id
-  WHERE c.movie_id = ? and c.status = 'accepted'
+  WHERE c.movie_id = ? and c.status = 'accepted' and c.deleted_at IS NULL and u.deleted_at IS NULL
   LIMIT ? OFFSET ?
   `;
 
@@ -93,7 +93,7 @@ app.post("/api/movies/update-view-count/:id", (req, res) => {
   const query = `
   UPDATE movies
   SET views = views + 1
-  WHERE id = ? and status = 'accepted'
+  WHERE id = ? and status = 'accepted' and deleted_at IS NULL
 `;
 
   connection.query(query, [movieId], (err, results) => {
@@ -120,7 +120,7 @@ SELECT m.*, c.name AS country_name, IFNULL(AVG(cm.rate), 0) AS rating
 FROM movies m
 JOIN countries c ON m.countries_id = c.id
 LEFT JOIN comments cm ON m.id = cm.movie_id
-WHERE m.id = ? and m.status = 'accepted'
+WHERE m.id = ? and m.status = 'accepted' and m.deleted_at IS NULL and c.deleted_at IS NULL 
 GROUP BY m.id
 `;
 
@@ -129,7 +129,7 @@ GROUP BY m.id
   FROM genres g
   JOIN movies_genres mg ON g.id = mg.genre_id
   JOIN movies m ON mg.movie_id = m.id
-  WHERE mg.movie_id = ? AND m.status = 'accepted'
+  WHERE mg.movie_id = ? AND m.status = 'accepted' AND m.deleted_at IS NULL AND g.deleted_at IS NULL
 `;
 
   const actorsQuery = `
@@ -137,7 +137,7 @@ GROUP BY m.id
   FROM actors a
   JOIN movies_actors ma ON a.id = ma.actor_id
   JOIN movies m ON ma.movie_id = m.id
-  WHERE ma.movie_id = ? AND m.status = 'accepted'
+  WHERE ma.movie_id = ? AND m.status = 'accepted' AND m.deleted_at IS NULL AND a.deleted_at IS NULL
 `;
 
   connection.query(movieQuery, [movieId], (err, movieResults) => {
@@ -160,6 +160,8 @@ GROUP BY m.id
     });
   });
 });
+
+// ! ===============================================  CMS ===============================================
 
 app.get("/api/cms/comments", (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
@@ -184,17 +186,17 @@ app.get("/api/cms/comments", (req, res) => {
   const countQuery = `
     SELECT COUNT(*) as total 
     FROM comments c
-    JOIN users u ON c.user_id = u.id
+    LEFT JOIN users u ON c.user_id = u.id
     JOIN movies m ON c.movie_id = m.id
-    WHERE u.username LIKE ? OR m.title LIKE ? OR c.comments LIKE ?
+    WHERE (u.username LIKE ? OR c.rate LIKE ? OR m.title LIKE ? OR c.comments LIKE ? or c.status LIKE ?) AND c.deleted_at IS NULL AND m.deleted_at IS NULL
   `;
 
   const dataQuery = `
   SELECT c.*, u.username, m.title
   FROM comments c
-  JOIN users u ON c.user_id = u.id
+  LEFT JOIN users u ON c.user_id = u.id
   JOIN movies m ON c.movie_id = m.id
-  WHERE u.username LIKE ? OR m.title LIKE ? OR c.comments LIKE ?
+  WHERE (u.username LIKE ? OR c.rate LIKE ? OR m.title LIKE ? OR c.comments LIKE ? or c.status LIKE ?) AND c.deleted_at IS NULL AND m.deleted_at IS NULL
   ORDER BY 
   ${orderColumn} ${orderDir},
       CASE 
@@ -204,54 +206,109 @@ app.get("/api/cms/comments", (req, res) => {
   LIMIT ? OFFSET ?
 `;
 
-  connection.query(countQuery, [search, search, search], (err, countResult) => {
+  connection.query(
+    countQuery,
+    [search, search, search, search, search],
+    (err, countResult) => {
+      if (err) return res.status(500).send(err);
+
+      const totalComments = countResult[0].total;
+
+      connection.query(
+        dataQuery,
+        [search, search, search, search, search, limit, offset],
+        (err, dataResults) => {
+          if (err) return res.status(500).send(err);
+
+          res.json({
+            comments: dataResults,
+            recordsTotal: totalComments,
+            recordsFiltered: totalComments,
+          });
+        }
+      );
+    }
+  );
+});
+
+app.post("/api/cms/comments/action", (req, res) => {
+  const { ids, action } = req.body;
+
+  const query = `UPDATE comments SET status = ? WHERE id IN (${ids.join(
+    ","
+  )}) AND deleted_at IS NULL`;
+
+  connection.query(query, [action], (err, results) => {
     if (err) return res.status(500).send(err);
 
-    const totalComments = countResult[0].total;
+    res.json({ success: true });
+  });
+});
+
+app.get("/api/cms/users", (req, res) => {
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = parseInt(req.query.offset) || 0;
+  const search = req.query.search ? `%${req.query.search}%` : "%%";
+  const orderColumnIndex = parseInt(req.query.order) || 0;
+  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
+
+  const orderColumns = [
+    "id", // 0
+    "username", // 1
+    "email", // 2
+    "role", // 3
+  ];
+
+  const orderColumn = orderColumns[orderColumnIndex] || "id";
+
+  const countQuery = `
+    SELECT COUNT(*) as total 
+    FROM users
+    WHERE (username LIKE ? OR email LIKE ?) AND deleted_at IS NULL
+  `;
+
+  const dataQuery = `
+  SELECT *
+  FROM users
+  WHERE (username LIKE ? OR email LIKE ?) AND deleted_at IS NULL
+  ORDER BY ${orderColumn} ${orderDir}
+  LIMIT ? OFFSET ?
+`;
+
+  connection.query(countQuery, [search, search], (err, countResult) => {
+    if (err) return res.status(500).send(err);
+
+    const totalUsers = countResult[0].total;
 
     connection.query(
       dataQuery,
-      [search, search, search, limit, offset],
+      [search, search, limit, offset],
       (err, dataResults) => {
         if (err) return res.status(500).send(err);
 
         res.json({
-          comments: dataResults,
-          recordsTotal: totalComments,
-          recordsFiltered: totalComments,
+          users: dataResults,
+          recordsTotal: totalUsers,
+          recordsFiltered: totalUsers,
         });
       }
     );
   });
 });
 
-app.post("/api/cms/comments/approve", (req, res) => {
-  const { ids } = req.body;
+app.delete("/api/cms/users/:id", (req, res) => {
+  const userId = req.params.id;
 
-  const query = `UPDATE comments SET status = 'accepted' WHERE id IN (${ids.join(
-    ","
-  )})`;
+  const query = `UPDATE users SET deleted_at = NOW() WHERE id = ?`;
 
-  connection.query(query, (err, results) => {
+  connection.query(query, [userId], (err, results) => {
     if (err) return res.status(500).send(err);
 
     res.json({ success: true });
   });
 });
 
-app.post("/api/cms/comments/reject", (req, res) => {
-  const { ids } = req.body;
-
-  const query = `UPDATE comments SET status = 'rejected' WHERE id IN (${ids.join(
-    ","
-  )})`;
-
-  connection.query(query, (err, results) => {
-    if (err) return res.status(500).send(err);
-
-    res.json({ success: true });
-  });
-});
+// ! ===============================================  CMS ===============================================
 
 app.listen(5000, () => {
   console.log("Server is running on http://localhost:5000");

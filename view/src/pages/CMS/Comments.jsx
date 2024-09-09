@@ -169,7 +169,7 @@ window.update_selected_comment = function (type, text) {
       .removeClass("bg-success")
       .addClass(`bg-${type}`);
 
-    $(`#comment-${id}`).prop("checked", false);
+    $(`#comment-${id}`).remove();
 
     selectedComments = selectedComments.filter((item) => item !== id);
   });

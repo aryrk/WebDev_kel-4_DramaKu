@@ -21,13 +21,40 @@ connection.connect((err) => {
 });
 
 app.get("/api/all-movies", (req, res) => {
-  const query =
-    'SELECT m.id, m.poster, m.title FROM movies m WHERE m.status = "accepted"';
+  // Get limit and offset from query parameters (default: limit = 10, offset = 0)
+  const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 movies per page
+  const offset = parseInt(req.query.offset, 10) || 0; // Default to start from the first record
 
-  connection.query(query, (err, results) => {
-    if (err) return res.status(500).send(err);
+  // SQL query to fetch movies with pagination
+  const query = `
+    SELECT m.id, m.poster, m.title 
+    FROM movies m 
+    WHERE m.status = "accepted"
+    LIMIT ? OFFSET ?
+  `;
 
-    res.json(results);
+  // Execute the query with limit and offset values
+  connection.query(query, [limit, offset], (err, results) => {
+    if (err) {
+      return res.status(500).send(err); // Handle the error
+    }
+
+    // Also fetch the total number of accepted movies for pagination calculation
+    const countQuery = `SELECT COUNT(*) as total FROM movies WHERE status = "accepted"`;
+
+    connection.query(countQuery, (err, countResult) => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+
+      const totalMovies = countResult[0].total;
+
+      // Send both the movies and the total number of movies
+      res.json({
+        movies: results, // List of movies for the current page
+        total: totalMovies, // Total number of accepted movies
+      });
+    });
   });
 });
 

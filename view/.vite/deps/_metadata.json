@@ -1,0 +1,166 @@
+{
+  "hash": "5cc703ab",
+  "configHash": "5262af3e",
+  "lockfileHash": "65a55a12",
+  "browserHash": "ec28e968",
+  "optimized": {
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "c60d2468",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "2c180cfc",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.js",
+      "file": "react-router-dom.js",
+      "fileHash": "90d43cdb",
+      "needsInterop": false
+    },
+    "react-bootstrap": {
+      "src": "../../node_modules/react-bootstrap/esm/index.js",
+      "file": "react-bootstrap.js",
+      "fileHash": "4fa3e2e9",
+      "needsInterop": false
+    },
+    "@fortawesome/free-solid-svg-icons": {
+      "src": "../../node_modules/@fortawesome/free-solid-svg-icons/index.mjs",
+      "file": "@fortawesome_free-solid-svg-icons.js",
+      "fileHash": "d34349c6",
+      "needsInterop": false
+    },
+    "@fortawesome/free-brands-svg-icons": {
+      "src": "../../node_modules/@fortawesome/free-brands-svg-icons/index.mjs",
+      "file": "@fortawesome_free-brands-svg-icons.js",
+      "fileHash": "e78ef8ef",
+      "needsInterop": false
+    },
+    "@fortawesome/react-fontawesome": {
+      "src": "../../node_modules/@fortawesome/react-fontawesome/index.es.js",
+      "file": "@fortawesome_react-fontawesome.js",
+      "fileHash": "eec77d2c",
+      "needsInterop": false
+    },
+    "sweetalert2": {
+      "src": "../../node_modules/sweetalert2/dist/sweetalert2.esm.all.js",
+      "file": "sweetalert2.js",
+      "fileHash": "cb8470cb",
+      "needsInterop": false
+    },
+    "react-select": {
+      "src": "../../node_modules/react-select/dist/react-select.esm.js",
+      "file": "react-select.js",
+      "fileHash": "ab708cb3",
+      "needsInterop": false
+    },
+    "react-filepond": {
+      "src": "../../node_modules/react-filepond/dist/react-filepond.esm.js",
+      "file": "react-filepond.js",
+      "fileHash": "06e95744",
+      "needsInterop": false
+    },
+    "filepond-plugin-image-crop": {
+      "src": "../../node_modules/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.esm.js",
+      "file": "filepond-plugin-image-crop.js",
+      "fileHash": "0bedb429",
+      "needsInterop": false
+    },
+    "filepond-plugin-image-edit": {
+      "src": "../../node_modules/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.esm.js",
+      "file": "filepond-plugin-image-edit.js",
+      "fileHash": "399a93d0",
+      "needsInterop": false
+    },
+    "filepond-plugin-image-resize": {
+      "src": "../../node_modules/filepond-plugin-image-resize/dist/filepond-plugin-image-resize.esm.js",
+      "file": "filepond-plugin-image-resize.js",
+      "fileHash": "80dc177d",
+      "needsInterop": false
+    },
+    "filepond-plugin-image-preview": {
+      "src": "../../node_modules/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.esm.js",
+      "file": "filepond-plugin-image-preview.js",
+      "fileHash": "9abbf7ca",
+      "needsInterop": false
+    },
+    "filepond-plugin-image-transform": {
+      "src": "../../node_modules/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.esm.js",
+      "file": "filepond-plugin-image-transform.js",
+      "fileHash": "1859ca13",
+      "needsInterop": false
+    },
+    "filepond-plugin-image-exif-orientation": {
+      "src": "../../node_modules/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.esm.js",
+      "file": "filepond-plugin-image-exif-orientation.js",
+      "fileHash": "8a36793e",
+      "needsInterop": false
+    },
+    "jquery": {
+      "src": "../../node_modules/jquery/dist/jquery.js",
+      "file": "jquery.js",
+      "fileHash": "7980fd4c",
+      "needsInterop": true
+    },
+    "datatables.net-dt": {
+      "src": "../../node_modules/datatables.net-dt/js/dataTables.dataTables.mjs",
+      "file": "datatables__net-dt.js",
+      "fileHash": "5ed311bc",
+      "needsInterop": false
+    },
+    "@fortawesome/free-regular-svg-icons": {
+      "src": "../../node_modules/@fortawesome/free-regular-svg-icons/index.mjs",
+      "file": "@fortawesome_free-regular-svg-icons.js",
+      "fileHash": "e4e89bc2",
+      "needsInterop": false
+    },
+    "datatables.net": {
+      "src": "../../node_modules/datatables.net/js/dataTables.mjs",
+      "file": "datatables__net.js",
+      "fileHash": "0788196f",
+      "needsInterop": false
+    },
+    "@mui/material": {
+      "src": "../../node_modules/@mui/material/index.js",
+      "file": "@mui_material.js",
+      "fileHash": "fd117370",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-QELCLOIU": {
+      "file": "chunk-QELCLOIU.js"
+    },
+    "chunk-N3XLPDHN": {
+      "file": "chunk-N3XLPDHN.js"
+    },
+    "chunk-ZWZXK6IG": {
+      "file": "chunk-ZWZXK6IG.js"
+    },
+    "chunk-E4CMDLIO": {
+      "file": "chunk-E4CMDLIO.js"
+    },
+    "chunk-R2THZNV7": {
+      "file": "chunk-R2THZNV7.js"
+    },
+    "chunk-ZIYUGMGG": {
+      "file": "chunk-ZIYUGMGG.js"
+    },
+    "chunk-DFIHBIIW": {
+      "file": "chunk-DFIHBIIW.js"
+    },
+    "chunk-K7E3GE6C": {
+      "file": "chunk-K7E3GE6C.js"
+    },
+    "chunk-65KY755N": {
+      "file": "chunk-65KY755N.js"
+    },
+    "chunk-V4OQ3NZ2": {
+      "file": "chunk-V4OQ3NZ2.js"
+    }
+  }
+}

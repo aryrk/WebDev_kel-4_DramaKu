@@ -125,7 +125,7 @@ CREATE TABLE movies_actors (
 cursor.execute("""
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(255) NOT NULL,
+  username VARCHAR(255) NOT NULL UNIQUE,
   profile_picture VARCHAR(255) NULL,
   email VARCHAR(255) NOT NULL,
   email_validated TIMESTAMP NULL,

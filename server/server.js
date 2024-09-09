@@ -164,27 +164,64 @@ GROUP BY m.id
 app.get("/api/cms/comments", (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const offset = parseInt(req.query.offset) || 0;
+  const search = req.query.search ? `%${req.query.search}%` : "%%";
+  const orderColumnIndex = parseInt(req.query.order) || 0;
+  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
 
-  const countQuery = "SELECT COUNT(*) as total FROM comments";
-  const dataQuery = `
-    SELECT c.*, u.username, m.title
+  const orderColumns = [
+    "c.id", // 0
+    "u.username", // 1
+    "c.rate", // 2
+    "m.title", // 3
+    "c.comments", // 4
+    "c.status", // 5
+  ];
+
+  const orderColumn = orderColumns[orderColumnIndex] || "c.comment_date";
+
+  console.log(search, orderColumn, orderDir);
+
+  const countQuery = `
+    SELECT COUNT(*) as total 
     FROM comments c
     JOIN users u ON c.user_id = u.id
     JOIN movies m ON c.movie_id = m.id
-    ORDER BY c.comment_date DESC , c.status ASC
-    LIMIT ? OFFSET ?
+    WHERE u.username LIKE ? OR m.title LIKE ? OR c.comments LIKE ?
   `;
 
-  connection.query(countQuery, (err, countResult) => {
+  const dataQuery = `
+  SELECT c.*, u.username, m.title
+  FROM comments c
+  JOIN users u ON c.user_id = u.id
+  JOIN movies m ON c.movie_id = m.id
+  WHERE u.username LIKE ? OR m.title LIKE ? OR c.comments LIKE ?
+  ORDER BY 
+  ${orderColumn} ${orderDir},
+      CASE 
+          WHEN c.status = 'pending' THEN 1 
+          ELSE 2 
+      END
+  LIMIT ? OFFSET ?
+`;
+
+  connection.query(countQuery, [search, search, search], (err, countResult) => {
     if (err) return res.status(500).send(err);
 
     const totalComments = countResult[0].total;
 
-    connection.query(dataQuery, [limit, offset], (err, dataResults) => {
-      if (err) return res.status(500).send(err);
+    connection.query(
+      dataQuery,
+      [search, search, search, limit, offset],
+      (err, dataResults) => {
+        if (err) return res.status(500).send(err);
 
-      res.json({ comments: dataResults, total: totalComments });
-    });
+        res.json({
+          comments: dataResults,
+          recordsTotal: totalComments,
+          recordsFiltered: totalComments,
+        });
+      }
+    );
   });
 });
 

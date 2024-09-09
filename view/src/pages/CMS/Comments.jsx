@@ -54,11 +54,15 @@ function CommentsTable() {
         columns: [
           {
             data: "id",
-            render: function (data) {
-              return `<input type="checkbox" class="form-check-input"
+            render: function (data, type, row) {
+              if (row.status === "pending") {
+                return `<input type="checkbox" class="form-check-input"
                 onchange="update_selected_commennt(this, ${data})"
                 id="comment-${data}"
                />`;
+              } else {
+                return ``;
+              }
             },
           },
           { data: "username" },
@@ -106,9 +110,17 @@ function CommentsTable() {
           data: function (d) {
             const limit = d.length;
             const offset = d.start;
+            const searchValue = d.search.value;
+            const orderColumn = d.order[0].column;
+            const orderDir = d.order[0].dir;
+
             return {
               limit: limit,
               offset: offset,
+              search: searchValue,
+              page: offset / limit + 1,
+              order: orderColumn,
+              dir: orderDir,
             };
           },
           dataSrc: function (json) {

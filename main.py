@@ -12,17 +12,42 @@ api_key = get_API_key("omdb_api_key")
 base_url_tmdb = 'https://api.themoviedb.org/3/movie/popular'
 base_url_omdb = 'http://www.omdbapi.com/'
 
-
+def get_movie_certification(api_key, movie_id):
+    url = f'https://api.themoviedb.org/3/movie/{movie_id}/release_dates'
+    params = {
+        'api_key': api_key
+    }
+    
+    response = requests.get(url, params=params)
+    
+    if response.status_code == 200:
+        release_data = response.json()
+        for country in release_data['results']:
+            if country['iso_3166_1'] == 'US':
+                for release in country['release_dates']:
+                    return release.get('certification', 'NR')
+    return 'NR'
 def get_popular_movies(api_key, page=1):
     params = {
         'api_key': api_key,
         'language': 'en-US',
         'page': page
     }
+    
     response = requests.get(base_url_tmdb, params=params)
+    
     if response.status_code == 200:
         movies_data = response.json()
-        return movies_data['results']
+        filtered_movies = []
+        allowed_ratings = ['G', 'PG', 'PG-13', 'R']
+        
+        for movie in movies_data['results']:
+            certification = get_movie_certification(api_key, movie['id'])
+            
+            if certification in allowed_ratings:
+                filtered_movies.append(movie)
+        
+        return filtered_movies
     else:
         print(f"Failed to fetch data: {response.status_code}")
         return None
@@ -252,7 +277,7 @@ def main():
     output_filename = 'result/all_popular_movies.json'
     all_movie_names = []
     page = 1
-    max_movie = 500
+    max_movie = 600
     movie_get = 0
 
     while movie_get < max_movie:

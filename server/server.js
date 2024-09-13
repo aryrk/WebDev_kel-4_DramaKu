@@ -421,6 +421,21 @@ app.put("/api/cms/users/:id", (req, res) => {
     res.json({ success: true });
   });
 });
+app.put("/api/cms/users/role/:id", (req, res) => {
+  const userId = req.params.id;
+  const { role } = req.body;
+
+  const query = `UPDATE users SET role = ? WHERE id = ?`;
+
+  connection.query(query, [role, userId], (err, results) => {
+    if (err)
+      return res
+        .status(500)
+        .json({ error: "Database error: Failed to update user" });
+
+    res.json({ success: true });
+  });
+});
 
 // ! ===============================================  CMS ===============================================
 

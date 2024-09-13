@@ -6,7 +6,12 @@ import $ from "jquery";
 import DataTable from "datatables.net-dt";
 import { Button, Col, Container, Form, Row, Table } from "react-bootstrap";
 
-import { faSave, faTimes, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faPencil,
+  faSave,
+  faTimes,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import { faEdit } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -147,8 +152,33 @@ function UserTable() {
   const { cancelEdit, edit, last_edit } = useEdit();
   const { notification } = useSwal();
 
+  const handleEditRole = async (id, role) => {
+    try {
+      const response = await fetch(`/api/cms/users/role/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ role: role }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        notification("success", "Role updated successfully!");
+        $(`#spanrole-${id}`).text(role);
+
+        $(`#role-${id}`).removeClass("bg-primary bg-danger");
+        $(`#role-${id}`).addClass(
+          `bg-${role === "admin" ? "danger" : "primary"}`
+        );
+      } else {
+        notification("error", "Failed to update role!");
+      }
+    } catch (error) {
+      // console.error("Error updating role:", error);
+    }
+  };
+
   const handleDeleteUser = async (id) => {
-    console.log("Deleting user with id:", id);
     try {
       const response = await fetch(`/api/cms/users/${id}`, {
         method: "DELETE",
@@ -220,10 +250,22 @@ function UserTable() {
           },
           {
             data: "role",
-            render: function (data) {
-              return `<span name="undefined" class="badge ${
-                data === "admin" ? "bg-danger" : "bg-primary"
-              }">${data}</span>`;
+            render: function (data, type, row) {
+              const id = row.id;
+              var type = "primary";
+              if (data === "admin") {
+                type = "danger";
+              }
+              return renderToString(
+                <Button
+                  name="undefined"
+                  className={`border-0 badge bg-${type}`}
+                  id={`role-${id}`}
+                >
+                  <span id={`spanrole-${id}`}>{data}</span>{" "}
+                  <FontAwesomeIcon icon={faPencil} />
+                </Button>
+              );
             },
           },
           {
@@ -322,6 +364,13 @@ function UserTable() {
               handleDeleteUser(row.id);
             };
 
+            const roleBtn = document.getElementById(`role-${row.id}`);
+            roleBtn.onclick = () => {
+              const role = roleBtn.innerText.split(" ")[0];
+              const newRole = role === "admin" ? "writer" : "admin";
+              handleEditRole(row.id, newRole);
+            };
+
             const tds = row.getElementsByTagName("td");
             for (let i = 1; i < tds.length - 1; i++) {
               const td = tds[i];
@@ -385,8 +434,6 @@ function UserTable() {
             console.log(e);
           }
         }
-
-        
       } else {
         notification("error", "Failed to update user!");
       }

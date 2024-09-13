@@ -422,9 +422,7 @@ function UserTable() {
         for (let i = 1; i < tds.length - 1; i++) {
           try {
             const td = tds[i];
-            console.log(td);
             const name = td.getAttribute("name");
-            console.log(name);
             if (name === "username") {
               td.innerText = username;
             } else if (name === "email") {

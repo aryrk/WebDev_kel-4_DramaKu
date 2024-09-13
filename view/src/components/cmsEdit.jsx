@@ -55,13 +55,17 @@ export const EditProvider = ({ children }) => {
           td.innerHTML +
           `<input type="file" name="${name}"
           form="editForm"
-          required
+          onchange="document.getElementById('img${id}').src = window.URL.createObjectURL(this.files[0])"
           class="form-control">`;
       } else {
         if (name === "undefined") {
           continue;
         } else {
-          td.innerHTML = `<input type="text" required
+          var type = "text";
+          if (name === "date") {
+            type = "date";
+          }
+          td.innerHTML = `<input type="${type}" required
           value="${value}" name="${name}" old="${value}" class="form-control"
           form="editForm"
           >`;

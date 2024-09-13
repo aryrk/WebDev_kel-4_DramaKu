@@ -3,9 +3,38 @@ const app = express();
 const mysql = require("mysql2");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const path = require("path");
+const multer = require("multer");
 const saltRounds = 10;
 app.use(cors());
 app.use(express.json());
+
+const fs = require("fs");
+const dir = "./public/uploads";
+if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/uploads");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+const upload = multer({ storage: storage });
+const deleteFile = (filename) => {
+  fs.unlink(filename, (err) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+  });
+};
+
+app.use(express.urlencoded({ extended: true }));
+app.use("/public", express.static("public"));
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -404,8 +433,6 @@ app.delete("/api/cms/users/:id", (req, res) => {
 app.post("/api/cms/users", (req, res) => {
   const { username, email, role } = req.body;
 
-  console.log(username, email, role);
-
   const default_password = bcrypt.hashSync("12345", saltRounds);
 
   const query = `INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)`;
@@ -450,6 +477,203 @@ app.put("/api/cms/users/role/:id", (req, res) => {
       return res
         .status(500)
         .json({ error: "Database error: Failed to update user" });
+
+    res.json({ success: true });
+  });
+});
+
+app.get("/api/cms/countrylist", (req, res) => {
+  const query = `SELECT * FROM countries`;
+
+  connection.query(query, (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    res.json(results);
+  });
+});
+
+app.get("/api/cms/actors", (req, res) => {
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = parseInt(req.query.offset) || 0;
+  const search = req.query.search ? `%${req.query.search}%` : "%%";
+  const orderColumnIndex = parseInt(req.query.order) || 0;
+  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
+
+  const orderColumns = [
+    "a.id", // 0
+    "c.name", // 1
+    "a.name", // 2
+    "a.birthdate", // 3
+    "a.picture_profile", // 4
+  ];
+
+  const orderColumn = orderColumns[orderColumnIndex] || "a.id";
+
+  const countQuery = `
+    SELECT COUNT(*) as total
+    FROM actors
+    WHERE (name LIKE ? OR birthdate LIKE ?) AND deleted_at IS NULL
+  `;
+  const dataQuery = `
+  SELECT a.*, c.name AS country_name
+  FROM actors a
+  JOIN countries c ON a.countries_id = c.id
+  WHERE (a.name LIKE ? OR a.birthdate LIKE ?) AND a.deleted_at IS NULL
+  ORDER BY ${orderColumn} ${orderDir}
+  LIMIT ? OFFSET ?
+`;
+
+  connection.query(countQuery, [search, search], (err, countResult) => {
+    if (err) return res.status(500).send(err);
+
+    const totalActors = countResult[0].total;
+
+    connection.query(
+      dataQuery,
+      [search, search, limit, offset],
+      (err, dataResults) => {
+        if (err) return res.status(500).send(err);
+
+        res.json({
+          actors: dataResults,
+          recordsTotal: totalActors,
+          recordsFiltered: totalActors,
+        });
+      }
+    );
+  });
+});
+
+app.post("/api/cms/actors", upload.single("file"), async (req, res) => {
+  try {
+    const { filename } = req.file;
+    var { country, actorName, birthDate } = req.body;
+    country = country.toUpperCase();
+    let country_id = 0;
+
+    const countryQuery = `SELECT id FROM countries WHERE UPPER(name) = ?`;
+
+    const queryDatabase = (query, params) => {
+      return new Promise((resolve, reject) => {
+        connection.query(query, params, (err, results) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(results);
+        });
+      });
+    };
+
+    const results = await queryDatabase(countryQuery, [country]);
+
+    if (results.length === 0) {
+      const countryName = country.charAt(0) + country.slice(1).toLowerCase();
+      const insertCountryQuery = `INSERT INTO countries (name) VALUES (?)`;
+
+      const insertResults = await queryDatabase(insertCountryQuery, [
+        countryName,
+      ]);
+      country_id = insertResults.insertId;
+    } else {
+      country_id = results[0].id;
+    }
+
+    const query = `INSERT INTO actors (countries_id, name, picture_profile, birthdate) VALUES (?, ?, ?, ?)`;
+
+    connection.query(
+      query,
+      [country_id, actorName, `/public/uploads/${filename}`, birthDate],
+      (err, results) => {
+        if (err) {
+          return res.status(500).json({ message: "Error inserting actor" });
+        }
+
+        res.json({ success: true });
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ message: "Error uploading file" });
+  }
+});
+
+app.put("/api/cms/actors/:id", upload.single("img"), async (req, res) => {
+  const actorId = req.params.id;
+  var { country, name, date } = req.body;
+  const filename = req.file ? req.file.filename : null;
+  country = country.toUpperCase();
+  let country_id = 0;
+
+  const countryQuery = `SELECT id FROM countries WHERE UPPER(name) = ?`;
+
+  const queryDatabase = (query, params) => {
+    return new Promise((resolve, reject) => {
+      connection.query(query, params, (err, results) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(results);
+      });
+    });
+  };
+
+  const results = await queryDatabase(countryQuery, [country]);
+
+  if (results.length === 0) {
+    const countryName = country.charAt(0) + country.slice(1).toLowerCase();
+    const insertCountryQuery = `INSERT INTO countries (name) VALUES (?)`;
+
+    const insertResults = await queryDatabase(insertCountryQuery, [
+      countryName,
+    ]);
+    country_id = insertResults.insertId;
+  } else {
+    country_id = results[0].id;
+  }
+
+  const actorQuery = `SELECT picture_profile FROM actors WHERE id = ?`;
+
+  const actorResults = await queryDatabase(actorQuery, [actorId]);
+
+  if (actorResults.length === 0) {
+    return res.status(404).json({ message: "Actor not found" });
+  }
+
+  const oldPicture = actorResults[0].picture_profile;
+
+  const query = `UPDATE actors SET countries_id = ?, name = ?, picture_profile = ?, birthdate = ? WHERE id = ?`;
+
+  connection.query(
+    query,
+    [
+      country_id,
+      name,
+      filename ? `/public/uploads/${filename}` : oldPicture,
+      date,
+      actorId,
+    ],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ message: "Error updating actor" });
+      }
+
+      if (filename && oldPicture.includes("/public/uploads/")) {
+        const oldPicturePath = oldPicture.replace("/public", "");
+
+        deleteFile(`public${oldPicturePath}`);
+      }
+
+      res.json({ success: true });
+    }
+  );
+});
+
+app.delete("/api/cms/actors/:id", (req, res) => {
+  const actorId = req.params.id;
+
+  const query = `UPDATE actors SET deleted_at = NOW() WHERE id = ?`;
+
+  connection.query(query, [actorId], (err, results) => {
+    if (err) return res.status(500).send(err);
 
     res.json({ success: true });
   });

@@ -3,5 +3,6 @@
   "name": "PlutoChinema",
   "description": "Kami menyediakan film terbaru dan terbaik untuk Anda. Tonton film sekarang juga!",
   "logo_png": "/images/logo.png",
-  "logo_svg": "/images/logo.svg"
+  "logo_svg": "/images/logo.svg",
+  "server": "http://localhost:5000"
 }

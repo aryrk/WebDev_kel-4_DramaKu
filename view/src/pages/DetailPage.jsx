@@ -24,6 +24,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useParams } from "react-router-dom";
 import { useSwal } from "../components/SweetAlert";
 
+import { withConfig } from "../Config";
+
 function MovieInfo(props) {
   var {
     poster,
@@ -767,7 +769,7 @@ function BackgroundPoster(props) {
   );
 }
 
-function DetailPage() {
+function DetailPage({ config }) {
   const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
   useEffect(() => {
     setShowNavigation(true);
@@ -817,11 +819,16 @@ function DetailPage() {
                 >
                   <div className="justify-content-start">
                     {movie.actors.map((actor) => (
+                      // if (data.includes("/public/uploads/")) {
+                      //   img = `${config.server}${data}`;
+                      // }
                       <Actor
                         key={actor.id}
                         src={
                           actor.picture_profile != ""
-                            ? actor.picture_profile
+                            ? actor.picture_profile.includes("/public/uploads/")
+                              ? `${config.server}${actor.picture_profile}`
+                              : actor.picture_profile
                             : "/images/empty_profile.jpg"
                         }
                         name={actor.name}
@@ -848,5 +855,5 @@ function DetailPage() {
   );
 }
 
-export default DetailPage;
+export default withConfig(DetailPage);
 export { StarRating, MovieInfo, Actor, Trailer, BackgroundPoster };

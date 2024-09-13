@@ -151,30 +151,48 @@ app.post("/api/movies/update-view-count/:id", (req, res) => {
   });
 });
 
-app.get("/api/movie-search", (req, res) => {
-  const search = req.query.search;
+app.get("/api/movies-search", (req, res) => {
+  const search = req.query.search || ""; // Get search term from query
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const offset = parseInt(req.query.offset, 10) || 0;
 
+  // SQL query to search movies and join with genres
   const query = `
-    SELECT m.*, GROUP_CONCAT(DISTINCT g.name) AS genres, GROUP_CONCAT(DISTINCT a.name) AS cast
+    SELECT m.id, m.poster, m.title, m.year, m.synopsis, m.availability, m.views, m.trailer, m.status,
+           GROUP_CONCAT(g.name ORDER BY g.name ASC) AS genres
     FROM movies m
-    LEFT JOIN movies_genres mg ON mg.movie_id = m.id
-    LEFT JOIN genres g ON g.id = mg.genre_id
-    LEFT JOIN movies_actors ma ON ma.movie_id = m.id
-    LEFT JOIN actors a ON a.id = ma.actor_id
-    WHERE m.title LIKE ? AND m.status = 'accepted'
+    LEFT JOIN movies_genres mg ON m.id = mg.movie_id
+    LEFT JOIN genres g ON mg.genre_id = g.id
+    WHERE m.status = "accepted" AND m.title LIKE ?
     GROUP BY m.id
+    LIMIT ? OFFSET ?
   `;
 
-  connection.query(query, [`%${search}%`], (err, results) => {
-    if (err) return res.status(500).send(err);
+  connection.query(query, [`%${search}%`, limit, offset], (err, results) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
 
-    res.json(
-      results.map((movie) => ({
-        ...movie,
-        genres: movie.genres ? movie.genres.split(",") : [],
-        cast: movie.cast ? movie.cast.split(",") : [],
-      }))
-    );
+    // Count total movies that match the search
+    const countQuery = `
+      SELECT COUNT(*) as total 
+      FROM movies 
+      WHERE status = "accepted" AND title LIKE ?
+    `;
+
+    connection.query(countQuery, [`%${search}%`], (err, countResult) => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+
+      const totalMovies = countResult[0].total;
+
+      // Send the search results and total count
+      res.json({
+        movies: results, // Movies matching the search
+        total: totalMovies, // Total count of movies matching the search
+      });
+    });
   });
 });
 

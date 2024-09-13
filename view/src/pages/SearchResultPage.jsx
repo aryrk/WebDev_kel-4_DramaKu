@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row, Col, Image } from "react-bootstrap";
 
 function MovieCard(props) {
-  const { src, title, year, genre, cast, views } = props;
+  const { src, title, year, genre = [], cast = [], views } = props; // Default empty arrays if undefined
   return (
     <Col sm="6" className="mb-4 ps-0 pe-0 ps-md-1 pe-md-1">
       <div className="d-flex align-items-start">
@@ -66,21 +66,25 @@ const SearchResultPage = () => {
 
   // Extract search query from URL
   const searchParams = new URLSearchParams(location.search);
-  const searchTerm = searchParams.get("search");
+  const searchTerm = searchParams.get("query") || ""; // Default to empty string if not found
 
   useEffect(() => {
     if (searchTerm) {
-      fetch(`/api/movie-search?search=${searchTerm}`).then((response) => {
-        response.json().then((data) => {
-          setMovies(data);
+      fetch(`/api/movies-search?search=${encodeURIComponent(searchTerm)}`)
+        .then((response) => response.json())
+        .then((data) => {
+          setMovies(Array.isArray(data.movies) ? data.movies : []); // Ensure movies is an array
+          console.log(data.movies); // Log data.movies after state update
+        })
+        .catch((error) => {
+          console.error("Error:", error);
         });
-      });
     }
   }, [searchTerm]);
 
   return (
     <>
-      {movies.length > 0 ? (
+      {movies && movies.length > 0 ? (
         <section className="pt-3 pt-md-4 text-white">
           <Container className="p-0 m-0 w-100 text-start">
             <div className="text-center mb-4 mb-md-5">
@@ -92,19 +96,19 @@ const SearchResultPage = () => {
               {movies.map((movie) => (
                 <MovieCard
                   key={movie.id}
-                  src={movie.poster}
-                  title={movie.title}
-                  year={movie.year}
-                  genre={movie.genres}
-                  cast={movie.cast}
-                  views={movie.views}
+                  src={movie.poster || ""} // Provide default values if undefined
+                  title={movie.title || "No Title"}
+                  year={movie.year || "Unknown Year"}
+                  genre={Array.isArray(movie.genres) ? movie.genres : []} // Ensure genre is an array
+                  cast={Array.isArray(movie.cast) ? movie.cast : []} // Ensure cast is an array
+                  views={movie.views || "N/A"}
                 />
               ))}
             </Row>
           </Container>
         </section>
       ) : (
-        <p>Loading...</p>
+        <p>Tidak ada hasil. Cari dengan kata kunci lain.</p>
       )}
     </>
   );

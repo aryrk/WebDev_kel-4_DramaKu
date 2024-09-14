@@ -61,6 +61,7 @@ function AddActor() {
         notification("success", "Actor added successfully");
         e.target.reset();
         setFiles([]);
+        fetchActors();
       } else {
         notification("error", "Failed to add actor");
       }
@@ -243,7 +244,7 @@ function ActorTable(props) {
           {
             data: "country_name",
             render: function (data) {
-              return `<span name="country">${data}</span>`;
+              return `<span name="country" list="countries">${data}</span>`;
             },
           },
           {
@@ -273,8 +274,9 @@ function ActorTable(props) {
               }
 
               return renderToString(
-                <center name="img">
+                <center name="img" old={img}>
                   <img
+                    old={img}
                     id={`img${id}`}
                     src={img}
                     alt="actor"
@@ -382,6 +384,16 @@ function ActorTable(props) {
               const innerElement = td.firstChild;
               const name = innerElement.getAttribute("name");
               td.setAttribute("name", name);
+
+              try {
+                const old = innerElement.getAttribute("old");
+                td.setAttribute("old", old);
+              } catch {}
+
+              try{
+                const list = innerElement.getAttribute("list");
+                td.setAttribute("list", list);
+              }catch{}
             }
           });
         },
@@ -439,6 +451,7 @@ function ActorTable(props) {
           const reader = new FileReader();
           reader.onload = function (e) {
             $(`#img${id}`).attr("src", e.target.result);
+            $(`#img${id}`).attr("old", e.target.result);
           };
           reader.readAsDataURL(picture);
         }

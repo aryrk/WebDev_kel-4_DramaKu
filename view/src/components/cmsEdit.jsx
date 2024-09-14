@@ -14,6 +14,8 @@ export const EditProvider = ({ children }) => {
       if (name === "img") {
         const input = td.getElementsByTagName("input")[0];
         input.remove();
+        const img = document.getElementById(`img${id}`);
+        img.src = img.getAttribute("old");
       } else {
         if (name === "undefined") {
           continue;
@@ -51,10 +53,12 @@ export const EditProvider = ({ children }) => {
       const value = td.innerText;
       const name = td.getAttribute("name");
       if (name === "img") {
+        const old = td.getAttribute("old");
         td.innerHTML =
           td.innerHTML +
           `<input type="file" name="${name}"
           form="editForm"
+          old="${old}"
           onchange="document.getElementById('img${id}').src = window.URL.createObjectURL(this.files[0])"
           class="form-control">`;
       } else {
@@ -62,12 +66,25 @@ export const EditProvider = ({ children }) => {
           continue;
         } else {
           var type = "text";
+          var etc = "";
+          var list = "";
+          if (td.hasAttribute("list")) {
+            list = td.getAttribute("list");
+          }
           if (name === "date") {
             type = "date";
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, "0");
+            const mm = String(today.getMonth() + 1).padStart(2, "0");
+            const yyyy = today.getFullYear();
+            const maxDate = `${yyyy}-${mm}-${dd}`;
+            etc = `max="${maxDate}"`;
           }
           td.innerHTML = `<input type="${type}" required
           value="${value}" name="${name}" old="${value}" class="form-control"
           form="editForm"
+          list="${list}"
+          ${etc}
           >`;
         }
       }

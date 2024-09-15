@@ -3,6 +3,7 @@ import { useGlobalState } from "../components/GlobalStateContext";
 import { useLocation } from "react-router-dom"; // To get query params
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row, Col, Image } from "react-bootstrap";
+import { withConfig } from "../Config";
 
 function MovieCard(props) {
   const { src, title, year, genre = [], cast = [], views } = props; // Default empty arrays if undefined
@@ -13,12 +14,11 @@ function MovieCard(props) {
           <Row>
             <Col sm="auto" className="p-0">
               <Image
-                className="w-sm-100 w-md-100 img-fluid rounded img_cover"
+                className="img-fluid rounded img_cover search_result_img"
                 src={src}
                 fluid
                 loading="lazy"
                 style={{
-                  width: "150px",
                   height: "150px",
                 }}
               />
@@ -53,7 +53,7 @@ function MovieCard(props) {
   );
 }
 
-const SearchResultPage = () => {
+const SearchResultPage = ({ config }) => {
   const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
   const [movies, setMovies] = useState([]);
   const location = useLocation();
@@ -96,7 +96,11 @@ const SearchResultPage = () => {
               {movies.map((movie) => (
                 <MovieCard
                   key={movie.id}
-                  src={movie.poster || ""} // Provide default values if undefined
+                  src={
+                    movie.poster.includes("/public/uploads/")
+                      ? `${config.server}${movie.poster}`
+                      : movie.poster
+                  }
                   title={movie.title || "No Title"}
                   year={movie.year || "Unknown Year"}
                   genre={Array.isArray(movie.genres) ? movie.genres : []} // Ensure genre is an array
@@ -114,4 +118,4 @@ const SearchResultPage = () => {
   );
 };
 
-export default SearchResultPage;
+export default withConfig(SearchResultPage);

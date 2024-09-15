@@ -41,7 +41,7 @@ CREATE TABLE movies (
   year YEAR NOT NULL,
   synopsis TEXT NOT NULL,
   availability VARCHAR(255) NOT NULL,
-  views INT NOT NULL,
+  views INT NOT NULL DEFAULT 0,
   trailer VARCHAR(255) NOT NULL,
   status ENUM('pending', 'rejected', 'accepted') NOT NULL DEFAULT 'pending',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

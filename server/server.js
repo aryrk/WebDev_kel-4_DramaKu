@@ -483,7 +483,27 @@ app.put("/api/cms/users/role/:id", (req, res) => {
 });
 
 app.get("/api/cms/countrylist", (req, res) => {
-  const query = `SELECT * FROM countries`;
+  const query = `SELECT id, name FROM countries`;
+
+  connection.query(query, (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    res.json(results);
+  });
+});
+
+app.get("/api/cms/genrelist", (req, res) => {
+  const query = `SELECT id, name FROM genres`;
+
+  connection.query(query, (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    res.json(results);
+  });
+});
+
+app.get("/api/cms/awardlist", (req, res) => {
+  const query = `SELECT id, name FROM awards`;
 
   connection.query(query, (err, results) => {
     if (err) return res.status(500).send(err);
@@ -677,6 +697,153 @@ app.delete("/api/cms/actors/:id", (req, res) => {
 
     res.json({ success: true });
   });
+});
+
+app.post("/api/cms/movies", upload.single("poster"), async (req, res) => {
+  try {
+    const { filename } = req.file;
+    var {
+      title,
+      alternative_title,
+      year,
+      country,
+      synopsis,
+      availability,
+      genres,
+      link_trailer,
+      award,
+      actors,
+    } = req.body;
+
+    if (typeof genres === "string") {
+      genres = [genres];
+    }
+    if (typeof award === "string") {
+      award = [award];
+    }
+
+    // ----------------- COUNTRY -----------------
+
+    country = country.toUpperCase();
+    let country_id = 0;
+
+    const countryQuery = `SELECT id FROM countries WHERE UPPER(name) = ?`;
+
+    const queryDatabase = (query, params) => {
+      return new Promise((resolve, reject) => {
+        connection.query(query, params, (err, results) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(results);
+        });
+      });
+    };
+
+    const results = await queryDatabase(countryQuery, [country]);
+
+    if (results.length === 0) {
+      const countryName = country.charAt(0) + country.slice(1).toLowerCase();
+      const insertCountryQuery = `INSERT INTO countries (name) VALUES (?)`;
+
+      const insertResults = await queryDatabase(insertCountryQuery, [
+        countryName,
+      ]);
+      country_id = insertResults.insertId;
+    } else {
+      country_id = results[0].id;
+    }
+    // ----------------- COUNTRY -----------------
+
+    // ----------------- GENRES -----------------
+    var genres_id = [];
+    for (let i = 0; i < genres.length; i++) {
+      if (isNaN(parseInt(genres[i]))) {
+        const genreName =
+          genres[i].charAt(0) + genres[i].slice(1).toLowerCase();
+        const insertGenreQuery = `INSERT INTO genres (name) VALUES (?)`;
+
+        const insertResults = await queryDatabase(insertGenreQuery, [
+          genreName,
+        ]);
+        genres_id.push(insertResults.insertId);
+      } else {
+        genres_id.push(parseInt(genres[i]));
+      }
+    }
+    // ----------------- GENRES -----------------
+
+    // ----------------- AWARD -----------------
+    var award_id = [];
+    for (let i = 0; i < award.length; i++) {
+      if (isNaN(parseInt(award[i]))) {
+        const awardName = award[i].charAt(0) + award[i].slice(1).toLowerCase();
+        const insertAwardQuery = `INSERT INTO awards (name) VALUES (?)`;
+
+        const insertResults = await queryDatabase(insertAwardQuery, [
+          awardName,
+        ]);
+        award_id.push(insertResults.insertId);
+      } else {
+        award_id.push(parseInt(award[i]));
+      }
+    }
+    // ----------------- AWARD -----------------
+
+    const query = `INSERT INTO movies (countries_id, poster, title, alternative_titles, year, synopsis, availability, trailer) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    connection.query(
+      query,
+      [
+        country_id,
+        `/public/uploads/${filename}`,
+        title,
+        alternative_title,
+        year,
+        synopsis,
+        availability,
+        link_trailer,
+      ],
+      (err, results) => {
+        if (err) {
+          return res.status(500).json({ message: "Error inserting movie" });
+        }
+
+        const movieId = results.insertId;
+
+        const genresQuery = `INSERT INTO movies_genres (movie_id, genre_id) VALUES ?`;
+        const genresValues = genres_id.map((genreId) => [movieId, genreId]);
+
+        connection.query(genresQuery, [genresValues], (err, results) => {
+          if (err) {
+            return res.status(500).json({ message: "Error inserting genres" });
+          }
+        });
+
+        const awardQuery = `INSERT INTO movies_awards (movie_id, award_id) VALUES ?`;
+        const awardValues = award_id.map((awardId) => [movieId, awardId]);
+
+        connection.query(awardQuery, [awardValues], (err, results) => {
+          if (err) {
+            return res.status(500).json({ message: "Error inserting awards" });
+          }
+        });
+
+        const actorsQuery = `INSERT INTO movies_actors (movie_id, actor_id) VALUES ?`;
+        const actorsValues = actors.map((actorId) => [movieId, actorId]);
+
+        connection.query(actorsQuery, [actorsValues], (err, results) => {
+          if (err) {
+            return res.status(500).json({ message: "Error inserting actors" });
+          }
+        });
+
+        res.json({ success: true });
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ message: "Error uploading file" });
+  }
 });
 
 // ! ===============================================  CMS ===============================================

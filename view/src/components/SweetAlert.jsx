@@ -17,8 +17,21 @@ export const SwalProvider = ({ children }) => {
       color: "#fff",
     });
   };
+
+  const alert = (icon, title, text = "") => {
+    Swal.fire({
+      icon: icon,
+      title: title,
+      text: text,
+      background: "#1c1c1c",
+      confirmButtonColor: "#ff0000",
+      color: "#fff",
+    });
+  };
   return (
-    <swalFun.Provider value={{ notification }}>{children}</swalFun.Provider>
+    <swalFun.Provider value={{ notification, alert }}>
+      {children}
+    </swalFun.Provider>
   );
 };
 

@@ -69,7 +69,7 @@ a {
   object-fit: contain;
 }
 .bg_pallete_1 {
-  background-color: #141414;
+  background-color: #141414 !important;
   color: white;
 }
 

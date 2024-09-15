@@ -749,12 +749,9 @@ function BackgroundPoster(props) {
   if (zIndex === undefined) {
     zIndex = "-1";
   }
-  if (imgHeight === undefined) {
-    imgHeight = "65vh";
-  }
   return (
     <div
-      className="position-absolute top-0 start-0"
+      className="position-absolute top-0 start-0 d-none d-md-block"
       style={{ zIndex: zIndex, filter: "blur(10px)", opacity: "0.18" }}
     >
       <Image
@@ -763,7 +760,7 @@ function BackgroundPoster(props) {
         thumbnail
         loading="lazy"
         className="h-sm-100 img_cover border-0 rounded-4 p-0"
-        style={{ width: "100vw", height: imgHeight }}
+        style={{ width: "100vw", height: "90vh" }}
       />
     </div>
   );

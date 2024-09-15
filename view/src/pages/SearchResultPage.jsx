@@ -3,6 +3,8 @@ import { useGlobalState } from "../components/GlobalStateContext";
 import { useLocation } from "react-router-dom"; // To get query params
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row, Col, Image } from "react-bootstrap";
+import { withConfig } from "../Config";
+import AddDrama from "./AddDrama";
 
 function MovieCard(props) {
   const { src, title, year, genre = [], cast = [], views } = props; // Default empty arrays if undefined
@@ -13,15 +15,11 @@ function MovieCard(props) {
           <Row className="g-0">
             <Col xs="4" sm="auto" className="p-0">
               <Image
-                className="w-100 img-fluid rounded img_cover"
+                className="img-fluid rounded img_cover search_result_img"
                 src={src}
                 fluid
                 loading="lazy"
-                style={{
-                  width: "100%", // Responsively fill the width of its parent
-                  height: "auto", // Maintain aspect ratio
-                  maxWidth: "150px", // Maximum size for medium and larger screens
-                }}
+                style={{}}
               />
             </Col>
             <Col className="p-0">
@@ -54,7 +52,7 @@ function MovieCard(props) {
   );
 }
 
-const SearchResultPage = () => {
+const SearchResultPage = ({ config }) => {
   const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
   const [movies, setMovies] = useState([]);
   const location = useLocation();
@@ -97,7 +95,11 @@ const SearchResultPage = () => {
               {movies.map((movie) => (
                 <MovieCard
                   key={movie.id}
-                  src={movie.poster || ""} // Provide default values if undefined
+                  src={
+                    movie.poster.includes("/public/uploads/")
+                      ? `${config.server}${movie.poster}`
+                      : movie.poster
+                  }
                   title={movie.title || "No Title"}
                   year={movie.year || "Unknown Year"}
                   genre={Array.isArray(movie.genres) ? movie.genres : []} // Ensure genre is an array
@@ -111,8 +113,9 @@ const SearchResultPage = () => {
       ) : (
         <p>Tidak ada hasil. Cari dengan kata kunci lain.</p>
       )}
+      <AddDrama />
     </>
   );
 };
 
-export default SearchResultPage;
+export default withConfig(SearchResultPage);

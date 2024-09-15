@@ -25,6 +25,7 @@ import { useParams } from "react-router-dom";
 import { useSwal } from "../components/SweetAlert";
 
 import { withConfig } from "../Config";
+import AddDrama from "./AddDrama";
 
 function MovieInfo(props) {
   var {
@@ -791,64 +792,79 @@ function DetailPage({ config }) {
   }, [movieId]);
 
   return (
-    <center>
-      {movie && movie.id ? (
-        <div className="w-sm-100 w-xl-75 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
-          <MovieInfo
-            poster={movie.poster}
-            judul={movie.title}
-            otherTitles={movie.alternative_titles}
-            year={movie.year}
-            synopsis={movie.synopsis}
-            genres={movie.genres.map((genre) => genre.name)}
-            rating={movie.rating.toFixed(1)}
-            availability={movie.availability}
-          />
-          <div
-            className="container-fluid mt-4 p-0"
-            style={{ overflow: "hidden" }}
-          >
-            <div className="row">
-              <div className="col-12 p-0">
-                <div
-                  className="d-flex"
-                  style={{ whiteSpace: "nowrap", overflowX: "scroll" }}
-                >
-                  <div className="justify-content-start">
-                    {movie.actors.map((actor) => (
-                      // if (data.includes("/public/uploads/")) {
-                      //   img = `${config.server}${data}`;
-                      // }
-                      <Actor
-                        key={actor.id}
-                        src={
-                          actor.picture_profile != ""
-                            ? actor.picture_profile.includes("/public/uploads/")
-                              ? `${config.server}${actor.picture_profile}`
-                              : actor.picture_profile
-                            : "/images/empty_profile.jpg"
-                        }
-                        name={actor.name}
-                      />
-                    ))}
+    <>
+      <center>
+        {movie && movie.id ? (
+          <div className="w-sm-100 w-xl-75 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
+            <MovieInfo
+              poster={
+                movie.poster.includes("/public/uploads/")
+                  ? `${config.server}${movie.poster}`
+                  : movie.poster
+              }
+              judul={movie.title}
+              otherTitles={movie.alternative_titles}
+              year={movie.year}
+              synopsis={movie.synopsis}
+              genres={movie.genres.map((genre) => genre.name)}
+              rating={movie.rating.toFixed(1)}
+              availability={movie.availability}
+            />
+            <div
+              className="container-fluid mt-4 p-0"
+              style={{ overflow: "hidden" }}
+            >
+              <div className="row">
+                <div className="col-12 p-0">
+                  <div
+                    className="d-flex"
+                    style={{ whiteSpace: "nowrap", overflowX: "scroll" }}
+                  >
+                    <div className="justify-content-start">
+                      {movie.actors.map((actor) => (
+                        // if (data.includes("/public/uploads/")) {
+                        //   img = `${config.server}${data}`;
+                        // }
+                        <Actor
+                          key={actor.id}
+                          src={
+                            actor.picture_profile != ""
+                              ? actor.picture_profile.includes(
+                                  "/public/uploads/"
+                                )
+                                ? `${config.server}${actor.picture_profile}`
+                                : actor.picture_profile
+                              : "/images/empty_profile.jpg"
+                          }
+                          name={actor.name}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            <Trailer src={movie.trailer} />
+            <Synopsis synopsis={movie.synopsis} />
+
+            <CommentSection />
+
+            <BackgroundPoster
+              src={
+                movie.poster.includes("/public/uploads/")
+                  ? `${config.server}${movie.poster}`
+                  : movie.poster
+              }
+            />
           </div>
-          <Trailer src={movie.trailer} />
-          <Synopsis synopsis={movie.synopsis} />
-
-          <CommentSection />
-
-          <BackgroundPoster src={movie.poster} />
-        </div>
-      ) : movie ? (
-        window.location.replace("/404")
-      ) : (
-        <p>Loading...</p>
-      )}
-    </center>
+        ) : movie ? (
+          window.location.replace("/404")
+        ) : (
+          <p>Loading...</p>
+        )}
+      </center>
+      <AddDrama />
+    </>
   );
 }
 

@@ -320,7 +320,7 @@ function AddActor(props) {
           width: "inherit",
           // display: "block",
         }}
-        className="mt-3 mb-2 ms-5 me-5"
+        className="mt-3 mb-2 ms-3 me-1 ms-md-5 me-md-5"
       >
         Add Actor (Max 20):
         <center>
@@ -635,7 +635,7 @@ const FormDramaInput = (props) => {
   const { config } = props;
 
   return (
-    <div className="bg-dark pt-4 pb-4 rounded-3 pe-3">
+    <>
       <Container>
         <Row>
           <Col sm="auto">
@@ -647,7 +647,7 @@ const FormDramaInput = (props) => {
         </Row>
       </Container>
       <AddActor config={config} />
-    </div>
+    </>
   );
 };
 
@@ -663,10 +663,13 @@ const DramaInput = ({ config }) => {
   return (
     <>
       <div className="inner-container w-sm-100 w-xl-90 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
-        <FormDramaInput config={config} />
+        <div className="bg-dark pt-4 pb-4 rounded-3 pe-3">
+          <FormDramaInput config={config} />
+        </div>
       </div>
     </>
   );
 };
 
 export default withConfig(DramaInput);
+export { FormDramaInput };

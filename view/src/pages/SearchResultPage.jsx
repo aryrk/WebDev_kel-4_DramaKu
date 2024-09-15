@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom"; // To get query params
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row, Col, Image } from "react-bootstrap";
 import { withConfig } from "../Config";
+import AddDrama from "./AddDrama";
 
 function MovieCard(props) {
   const { src, title, year, genre = [], cast = [], views } = props; // Default empty arrays if undefined
@@ -114,6 +115,7 @@ const SearchResultPage = ({ config }) => {
       ) : (
         <p>Tidak ada hasil. Cari dengan kata kunci lain.</p>
       )}
+      <AddDrama />
     </>
   );
 };

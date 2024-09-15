@@ -33,6 +33,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 //   files = file;
 // };
 
+var GenreRef = null;
+var AwardRef = null;
+
 function PosterUpload() {
   registerPlugin(
     FilePondPluginImageExifOrientation,
@@ -88,9 +91,8 @@ function PosterUpload() {
         const hiddenInputs = form.querySelectorAll("input[type='hidden']");
         hiddenInputs.forEach((input) => input.remove());
 
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        GenreRef.clearValue();
+        AwardRef.clearValue();
       } else {
         notification("error", "Failed to add drama");
       }
@@ -356,15 +358,14 @@ function AddActor(props) {
 }
 
 function DramaForm() {
-  var genre_option = [];
-  var award_option = [];
+  const [genre_option, setGenreOption] = useState([]);
+  const [award_option, setAwardOption] = useState([]);
 
   const [countries, setCountries] = useState([]);
   const [genres, setGenres] = useState([]);
   const [awards, setAwards] = useState([]);
 
   const fetch_data = () => {
-    console.log("fetching data");
     fetch("/api/cms/countrylist")
       .then((res) => res.json())
       .then((data) => {
@@ -384,17 +385,25 @@ function DramaForm() {
       });
   };
 
+  const put_data = () => {
+    setGenreOption(
+      genres.map((genre) => {
+        return { value: genre.id, label: genre.name };
+      })
+    );
+    setAwardOption(
+      awards.map((award) => {
+        return { value: award.id, label: award.name };
+      })
+    );
+  };
+
   useEffect(() => {
     fetch_data();
   }, []);
 
   useEffect(() => {
-    genres.forEach((genre) => {
-      genre_option.push({ value: genre.id, label: genre.name });
-    });
-    awards.forEach((award) => {
-      award_option.push({ value: award.id, label: award.name });
-    });
+    put_data();
   }, [genres, awards]);
 
   const handleGenreChange = (newValue, actionMeta) => {
@@ -412,6 +421,9 @@ function DramaForm() {
       input.setAttribute("value", genreId);
       form.appendChild(input);
     });
+
+    fetch_data();
+    put_data();
   };
 
   const handleAwardChange = (newValue, actionMeta) => {
@@ -429,6 +441,9 @@ function DramaForm() {
       input.setAttribute("value", awardId);
       form.appendChild(input);
     });
+
+    fetch_data();
+    put_data();
   };
 
   return (
@@ -477,6 +492,10 @@ function DramaForm() {
               autoComplete="off"
               form="form-drama"
               name="country"
+              onChange={(e) => {
+                fetch_data();
+                put_data();
+              }}
             />
             <datalist id="countries">
               {countries.map((country, index) => (
@@ -508,6 +527,7 @@ function DramaForm() {
             <Form.Label>Genres</Form.Label>
             <CreatableSelect
               onChange={handleGenreChange}
+              ref={(ref) => (GenreRef = ref)}
               isClearable
               required
               isMulti
@@ -563,6 +583,7 @@ function DramaForm() {
             <Form.Label>Award</Form.Label>
             <CreatableSelect
               onChange={handleAwardChange}
+              ref={(ref) => (AwardRef = ref)}
               isClearable
               required
               id="award"

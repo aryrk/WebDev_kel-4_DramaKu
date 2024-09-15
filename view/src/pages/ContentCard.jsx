@@ -35,6 +35,11 @@ function ContentCard() {
 
   const totalPages = Math.ceil(totalMovies / limit);
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0); // Scroll to top
+  };
+
   return (
     <center>
       {movies.length > 0 ? (
@@ -93,7 +98,7 @@ function ContentCard() {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage}
+            onPageChange={handlePageChange} // Use the updated handler
           />
         </Container>
       ) : (

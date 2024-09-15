@@ -7,27 +7,28 @@ import { Container, Row, Col, Image } from "react-bootstrap";
 function MovieCard(props) {
   const { src, title, year, genre = [], cast = [], views } = props; // Default empty arrays if undefined
   return (
-    <Col sm="6" className="mb-4 ps-0 pe-0 ps-md-1 pe-md-1">
-      <div className="d-flex align-items-start">
-        <Container>
-          <Row>
-            <Col sm="auto" className="p-0">
+    <Col xs="12" sm="6" md="4" lg="3" className="mb-4">
+      <div className="d-flex align-items-start h-100">
+        <Container className="p-0">
+          <Row className="g-0">
+            <Col xs="4" sm="auto" className="p-0">
               <Image
-                className="w-sm-100 w-md-100 img-fluid rounded img_cover"
+                className="w-100 img-fluid rounded img_cover"
                 src={src}
                 fluid
                 loading="lazy"
                 style={{
-                  width: "150px",
-                  height: "150px",
+                  width: "100%", // Responsively fill the width of its parent
+                  height: "auto", // Maintain aspect ratio
+                  maxWidth: "150px", // Maximum size for medium and larger screens
                 }}
               />
             </Col>
             <Col className="p-0">
-              <div className="ms-4 ms-md-3 mt-3 mt-md-0">
+              <div className="ms-3">
                 <h5 className="mb-1">{title}</h5>
-                <p className=" mb-1">{year}</p>
-                <p className=" mb-1">
+                <p className="mb-1 text-muted">{year}</p>
+                <p className="mb-1 text-muted">
                   {genre.map((title, i) => (
                     <span key={i}>
                       {title}
@@ -35,7 +36,7 @@ function MovieCard(props) {
                     </span>
                   ))}
                 </p>
-                <p className=" mb-1">
+                <p className="mb-1 text-muted">
                   {cast.map((title, i) => (
                     <span key={i}>
                       {title}
@@ -43,7 +44,7 @@ function MovieCard(props) {
                     </span>
                   ))}
                 </p>
-                <p className="">{views} views</p>
+                <p className="text-muted">{views} views</p>
               </div>
             </Col>
           </Row>
@@ -86,7 +87,7 @@ const SearchResultPage = () => {
     <>
       {movies && movies.length > 0 ? (
         <section className="pt-3 pt-md-4 text-white">
-          <Container className="p-0 m-0 w-100 text-start">
+          <Container fluid="md" className="p-0">
             <div className="text-center mb-4 mb-md-5">
               <p className="fs-7 fs-md-5 font-weight-bold">
                 Results for "{searchTerm}"

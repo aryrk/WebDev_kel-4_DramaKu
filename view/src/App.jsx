@@ -66,7 +66,7 @@ function AppContent() {
             <Route path="/cms/awards" element={<Awards />} />
             <Route path="/cms/genres" element={<Genres />} />
           </Routes>
-          {showFooter && <Footer />}
+          {/* {showFooter && <Footer />} */}
         </div>
       </div>
     </div>
@@ -75,15 +75,28 @@ function AppContent() {
 
 function App() {
   return (
-    <SwalProvider>
-      <EditProvider>
-        <GlobalStateProvider>
-          <Router>
-            <AppContent />
-          </Router>
-        </GlobalStateProvider>
-      </EditProvider>
-    </SwalProvider>
+    <>
+      <SwalProvider>
+        <EditProvider>
+          <GlobalStateProvider>
+            <Router>
+              <AppContent />
+            </Router>
+          </GlobalStateProvider>
+        </EditProvider>
+      </SwalProvider>
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "10vh",
+        }}
+      >
+        <div style={{ flex: 1 }}>{/* Your other components go here */}</div>
+        <Footer />
+      </div>
+    </>
   );
 }
 

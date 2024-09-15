@@ -795,7 +795,11 @@ function DetailPage({ config }) {
       {movie && movie.id ? (
         <div className="w-sm-100 w-xl-75 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
           <MovieInfo
-            poster={movie.poster}
+            poster={
+              movie.poster.includes("/public/uploads/")
+                ? `${config.server}${movie.poster}`
+                : movie.poster
+            }
             judul={movie.title}
             otherTitles={movie.alternative_titles}
             year={movie.year}
@@ -841,7 +845,13 @@ function DetailPage({ config }) {
 
           <CommentSection />
 
-          <BackgroundPoster src={movie.poster} />
+          <BackgroundPoster
+            src={
+              movie.poster.includes("/public/uploads/")
+                ? `${config.server}${movie.poster}`
+                : movie.poster
+            }
+          />
         </div>
       ) : movie ? (
         window.location.replace("/404")

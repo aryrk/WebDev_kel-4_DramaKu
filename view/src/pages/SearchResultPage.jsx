@@ -74,19 +74,27 @@ const SearchResultPage = ({ config }) => {
 
   const searchParams = new URLSearchParams(location.search);
   const searchTerm = searchParams.get("query") || "";
+  const country = searchParams.get("country") || "";
+  const genre = searchParams.get("genre") || "";
+  const year = searchParams.get("year") || "";
+  const award = searchParams.get("award") || "";
 
   useEffect(() => {
-    if (searchTerm) {
-      fetch(`/api/movies-search?search=${encodeURIComponent(searchTerm)}`)
-        .then((response) => response.json())
-        .then((data) => {
-          setMovies(Array.isArray(data.movies) ? data.movies : []);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    }
-  }, [searchTerm]);
+    fetch(
+      `/api/movies-search?search=${encodeURIComponent(
+        searchTerm
+      )}&country=${encodeURIComponent(country)}&genre=${encodeURIComponent(
+        genre
+      )}&year=${encodeURIComponent(year)}&award=${encodeURIComponent(award)}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setMovies(Array.isArray(data.movies) ? data.movies : []);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }, [searchTerm, country, genre, year, award]);
 
   return (
     <>

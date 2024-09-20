@@ -9,6 +9,7 @@ import {
   NavDropdown,
   Image,
   Modal,
+  ListGroup,
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./componentsStyle/Navigation.css";
@@ -25,7 +26,12 @@ const CustomNavbar = ({ config }) => {
   const [searchYear, setSearchYear] = useState("all");
   const [searchGenre, setSearchGenre] = useState("all");
   const [searchAward, setSearchAward] = useState("all");
-  const navigate = useNavigate(); // Initialize navigation
+  const navigate = useNavigate();
+  const [showMore, setShowMore] = useState(false);
+  const handleCloseModal = () => setShowMore(false);
+  const handleShowMore = () => setShowMore(true);
+  const [activeCountry, setActiveCountry] = useState("");
+  const [isFilterDisabled, setIsFilterDisabled] = useState(false);
 
   const [country, setCountry] = useState([]);
 
@@ -104,8 +110,18 @@ const CustomNavbar = ({ config }) => {
     // }
   };
 
-  const handleModalClose = () => setShowModal(false);
-  const handleModalShow = () => setShowModal(true);
+  const handleClearFilter = (e) => {
+    e.preventDefault();
+    setSearchCountry("all");
+    setSearchYear("all");
+    setSearchGenre("all");
+    setSearchAward("all");
+    setIsFilterDisabled(true);
+    handleSearch(e, searchTerm, "all", "all", "all", "all");
+    navigate("/home"); // Navigate back to the homepage
+  };
+
+  const remainingCountries = country.slice(5);
 
   return (
     <>
@@ -163,22 +179,59 @@ const CustomNavbar = ({ config }) => {
 
               {country && (
                 <Nav className="d-none d-lg-flex">
-                  {country.slice(0, 5).map((country) => (
+                  {country.slice(0, 5).map((countryItem) => (
                     <Nav.Link
-                      key={country.id}
+                      key={countryItem.id}
                       onClick={(e) => {
-                        setSearchCountry(country.name);
-                        handleSearch(e, searchTerm, country.name);
+                        setActiveCountry(countryItem.name); // Set the active country
+                        handleSearch(e, searchTerm, countryItem.name);
                       }}
-                      // href={`#${country.name.toLowerCase()}`}
-                      className="navbar-custom"
+                      className={`navbar-custom ${
+                        activeCountry === countryItem.name ? "active" : ""
+                      }`} // Apply active class
                     >
-                      {country.name}
+                      {countryItem.name}
                     </Nav.Link>
                   ))}
+                  {remainingCountries.length > 0 && (
+                    <Nav.Link
+                      onClick={handleShowMore}
+                      className="navbar-custom"
+                    >
+                      Show More
+                    </Nav.Link>
+                  )}
                 </Nav>
               )}
             </Nav>
+
+            <Modal show={showMore} onHide={handleCloseModal}>
+              <Modal.Header closeButton>
+                <Modal.Title>More Countries</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <ListGroup>
+                  {remainingCountries.map((countryItem) => (
+                    <ListGroup.Item
+                      key={countryItem.id}
+                      onClick={(e) => {
+                        setSearchCountry(countryItem.name);
+                        handleSearch(e, searchTerm, countryItem.name);
+                        handleCloseModal(); // Tutup modal setelah memilih
+                      }}
+                      style={{ cursor: "pointer" }} // Optional: agar terlihat seperti bisa diklik
+                    >
+                      {countryItem.name}
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handleCloseModal}>
+                  Close
+                </Button>
+              </Modal.Footer>
+            </Modal>
 
             {/* Search Form */}
             <Form
@@ -289,12 +342,19 @@ const CustomNavbar = ({ config }) => {
             <Button
               className="bg_pallete_3 border-0 ms-2 mb-3 mb-md-0"
               type="submit"
-              onClick={(e) => {
+              onClick={(handleClearFilter) => {
                 setSearchCountry("all");
                 setSearchYear("all");
                 setSearchGenre("all");
                 setSearchAward("all");
-                handleSearch(e, searchTerm, "all", "all", "all", "all");
+                handleSearch(
+                  handleClearFilter,
+                  searchTerm,
+                  "all",
+                  "all",
+                  "all",
+                  "all"
+                );
               }}
             >
               Clear Filter

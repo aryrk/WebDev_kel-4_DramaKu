@@ -25,7 +25,7 @@ export const SwalProvider = ({ children }) => {
         validate_color = "#ff0000";
         break;
       case "success":
-        validate_color = "#00ff00";
+        validate_color = "#a5dc86";
         break;
       case "warning":
         validate_color = "#ffcc00";
@@ -34,7 +34,7 @@ export const SwalProvider = ({ children }) => {
         validate_color = "#00ccff";
         break;
       default:
-        validate_color = "#ff0000";
+        validate_color = "#a5dc86";
         break;
     }
 

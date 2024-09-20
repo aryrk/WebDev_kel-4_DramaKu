@@ -18,14 +18,13 @@ app.use(express.json());
 
 const port = 5000;
 const domain = "http://localhost:" + port;
-const email_user = process.env.EMAIL_USER;
 
-const clien_domain = "http://localhost:5173";
+const client_domain = "http://localhost:5173";
 
 const oAuth2Client = new google.auth.OAuth2(
   process.env.EMAIL_CLIENT_ID,
   process.env.EMAIL_CLIENT_SECRET,
-  clien_domain + "/auth/google/callback"
+  client_domain + "/auth/google/callback"
 );
 
 oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
@@ -549,8 +548,8 @@ const email_template = (username, email, header_text, header, inner) => {
                 on
                 <a
                   style="font-size: 13px; color: #fff"
-                  href="${domain}"
-                  >${domain}</a
+                  href="${client_domain}"
+                  >${client_domain}"</a
                 >.
               </p>
             </td>
@@ -633,7 +632,7 @@ app.get("/api/confirm-email", async (req, res) => {
         if (error)
           return res.status(500).json({ message: "Error confirming email" });
 
-        const redirectUrl = `${clien_domain}/email-confirmed`;
+        const redirectUrl = `${client_domain}/email-confirmed`;
         res.redirect(redirectUrl);
       }
     );
@@ -735,7 +734,7 @@ app.get(
     const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
-    res.redirect(`${clien_domain}/home?token=${token}`);
+    res.redirect(`${client_domain}/home?token=${token}`);
   }
 );
 

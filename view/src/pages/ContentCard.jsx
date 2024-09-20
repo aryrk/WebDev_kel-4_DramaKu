@@ -5,6 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useGlobalState } from "../components/GlobalStateContext";
 import Pagination from "../components/Pagination"; // Import the Pagination component
 import "./pagesStyle/ContentCard.css";
+import AddDrama from "./AddDrama";
 
 function ContentCard() {
   const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
@@ -100,6 +101,7 @@ function ContentCard() {
             totalPages={totalPages}
             onPageChange={handlePageChange} // Use the updated handler
           />
+          <AddDrama />
         </Container>
       ) : (
         <h1>Loading...</h1>

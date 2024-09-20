@@ -458,45 +458,88 @@ app.get("/api/movies-search", (req, res) => {
   const search = req.query.search || ""; // Get search term from query
   const limit = parseInt(req.query.limit, 10) || 10;
   const offset = parseInt(req.query.offset, 10) || 0;
+  const country = req.query.country || "";
+  const genre = req.query.genre || "";
+  const year = req.query.year || "";
+  const award = req.query.award || "";
+
+  var title_query = "";
+  if (search !== "all") {
+    title_query = `AND m.title LIKE "%${search}%"`;
+  }
+  var country_query = "";
+
+  if (country !== "all") {
+    country_query = `AND c.name = '${country}'`;
+  }
+
+  var genre_query = "";
+  if (genre !== "all") {
+    genre_query = `AND g.name = '${genre}'`;
+  }
+
+  var year_query = "";
+  if (year !== "all") {
+    year_query = `AND m.year = '${year}'`;
+  }
+
+  var award_query = "";
+  if (award !== "all") {
+    award_query = `AND a.name = '${award}'`;
+  }
 
   // SQL query to search movies and join with genres
-  const query = `
+  var query = `
     SELECT m.id, m.poster, m.title, m.year, m.synopsis, m.availability, m.views, m.trailer, m.status,
            GROUP_CONCAT(g.name ORDER BY g.name ASC) AS genres
     FROM movies m
     LEFT JOIN movies_genres mg ON m.id = mg.movie_id
     LEFT JOIN genres g ON mg.genre_id = g.id
-    WHERE m.status = "accepted" AND m.title LIKE ?
-    GROUP BY m.id
+    LEFT JOIN countries c ON m.id = c.id
+    LEFT JOIN movies_awards ma ON m.id = ma.movie_id
+    LEFT JOIN awards a ON ma.award_id = a.id
+    WHERE m.status = "accepted"
+    `;
+  query =
+    query +
+    `${title_query} ${country_query} ${year_query} ${genre_query} ${award_query} `;
+
+  query =
+    query +
+    `GROUP BY m.id
     LIMIT ? OFFSET ?
   `;
 
-  connection.query(query, [`%${search}%`, limit, offset], (err, results) => {
-    if (err) {
-      return res.status(500).send(err);
-    }
+  connection.query(
+    query,
+    [limit, offset],
 
-    // Count total movies that match the search
-    const countQuery = `
+    (err, results) => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+
+      const countQuery = `
       SELECT COUNT(*) as total 
       FROM movies 
       WHERE status = "accepted" AND title LIKE ?
     `;
 
-    connection.query(countQuery, [`%${search}%`], (err, countResult) => {
-      if (err) {
-        return res.status(500).send(err);
-      }
+      connection.query(countQuery, [`%${search}%`], (err, countResult) => {
+        if (err) {
+          return res.status(500).send(err);
+        }
 
-      const totalMovies = countResult[0].total;
+        const totalMovies = countResult[0].total;
 
-      // Send the search results and total count
-      res.json({
-        movies: results, // Movies matching the search
-        total: totalMovies, // Total count of movies matching the search
+        // Send the search results and total count
+        res.json({
+          movies: results, // Movies matching the search
+          total: totalMovies, // Total count of movies matching the search
+        });
       });
-    });
-  });
+    }
+  );
 });
 
 app.get("/api/movie-details/:id", (req, res) => {
@@ -758,6 +801,18 @@ app.put("/api/cms/users/role/:id", (req, res) => {
 
 app.get("/api/cms/countrylist", (req, res) => {
   const query = `SELECT id, name FROM countries`;
+
+  connection.query(query, (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    // Mengubah format data agar sesuai dengan frontend
+    const formattedResults = results.map((result) => ({ name: result.name }));
+    res.json(formattedResults);
+  });
+});
+
+app.get("/api/cms/yearlist", (req, res) => {
+  const query = "SELECT DISTINCT year FROM movies ORDER BY year DESC";
 
   connection.query(query, (err, results) => {
     if (err) return res.status(500).send(err);

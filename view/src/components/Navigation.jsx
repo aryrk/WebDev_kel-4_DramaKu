@@ -18,8 +18,51 @@ import $ from "jquery";
 
 const CustomNavbar = ({ config }) => {
   const [show, setShow] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("all");
+  const [searchCountry, setSearchCountry] = useState("all");
+  const [searchYear, setSearchYear] = useState("all");
+  const [searchGenre, setSearchGenre] = useState("all");
+  const [searchAward, setSearchAward] = useState("all");
   const navigate = useNavigate(); // Initialize navigation
+
+  const [country, setCountry] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/cms/countrylist")
+      .then((res) => res.json())
+      .then((data) => {
+        setCountry(data);
+      });
+  }, []);
+
+  const [year, setYear] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/cms/yearlist")
+      .then((res) => res.json())
+      .then((data) => {
+        setYear(data);
+      });
+  }, []);
+
+  const [award, setAward] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/cms/awardlist")
+      .then((res) => res.json())
+      .then((data) => {
+        setAward(data);
+      });
+  }, []);
+
+  const [genre, setGenre] = useState([]);
+  useEffect(() => {
+    fetch("/api/cms/genrelist")
+      .then((res) => res.json())
+      .then((data) => {
+        setGenre(data);
+      });
+  }, []);
 
   useEffect(() => {
     document.title = `Page 1 - ${config.short_name}`;
@@ -37,12 +80,26 @@ const CustomNavbar = ({ config }) => {
     $("#bottom-navbar-nav").toggleClass("show");
   };
 
-  const handleSearch = (event) => {
-    event.preventDefault(); // Prevent form submission
-    if (searchTerm.trim()) {
-      // Navigate to the search results page and pass the search term
-      navigate(`/search?query=${encodeURIComponent(searchTerm)}`);
-    }
+  const handleSearch = (
+    event,
+    title = searchTerm,
+    country = searchCountry,
+    year = searchYear,
+    genre = searchGenre,
+    award = searchAward
+  ) => {
+    // event.preventDefault(); // Prevent form submission
+    // if (searchTerm.trim()) {
+    // Navigate to the search results page and pass the search term
+
+    navigate(
+      `/search?query=${encodeURIComponent(title)}&country=${encodeURIComponent(
+        country
+      )}&year=${encodeURIComponent(year)}&genre=${encodeURIComponent(
+        genre
+      )}&award=${encodeURIComponent(award)}`
+    );
+    // }
   };
 
   return (
@@ -99,34 +156,32 @@ const CustomNavbar = ({ config }) => {
                 </a>
               </Navbar.Brand>
 
-              {/* Navigation Links */}
-              <Nav className="d-none d-lg-flex">
-                {[
-                  "Indonesia",
-                  "Japan",
-                  "Korea",
-                  "Spanyol",
-                  "Inggris",
-                  "Amerika",
-                  "Thailand",
-                  "Filiphina",
-                  "Taiwan",
-                ].map((country) => (
-                  <Nav.Link
-                    key={country}
-                    href={`#${country.toLowerCase()}`}
-                    className="navbar-custom"
-                  >
-                    {country}
-                  </Nav.Link>
-                ))}
-              </Nav>
+              {country && (
+                <Nav className="d-none d-lg-flex">
+                  {country.slice(0, 5).map((country) => (
+                    <Nav.Link
+                      key={country.id}
+                      onClick={(e) => {
+                        setSearchCountry(country.name);
+                        handleSearch(e, searchTerm, country.name);
+                      }}
+                      // href={`#${country.name.toLowerCase()}`}
+                      className="navbar-custom"
+                    >
+                      {country.name}
+                    </Nav.Link>
+                  ))}
+                </Nav>
+              )}
             </Nav>
 
             {/* Search Form */}
             <Form
               className="d-flex ms-auto my-2 my-lg-0 justify-content-end"
-              onSubmit={handleSearch}
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSearch(e);
+              }}
             >
               <Form.Control
                 type="text"
@@ -134,11 +189,11 @@ const CustomNavbar = ({ config }) => {
                 aria-label="Search"
                 className="me-2"
                 style={{ maxWidth: "280px" }}
-                value={searchTerm}
+                value={searchTerm != "all" ? searchTerm : ""}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
                   // submit search on enter
-                  handleSearch(e);
+                  handleSearch(e, e.target.value);
                 }}
               />
               <Button variant="outline-light" type="submit">
@@ -154,83 +209,66 @@ const CustomNavbar = ({ config }) => {
         <Container>
           <Navbar.Collapse id="bottom-navbar-nav" className="text-center">
             <Nav className="justify-content-center">
-              <NavDropdown title="Countries" id="countries-dropdown">
-                {[
-                  "Indonesia",
-                  "Japan",
-                  "Korea",
-                  "Spanyol",
-                  "Inggris",
-                  "Amerika",
-                  "Thailand",
-                  "Filiphina",
-                  "Taiwan",
-                ].map((country) => (
-                  <NavDropdown.Item
-                    key={country}
-                    href={`#${country.toLowerCase()}`}
-                  >
-                    {country}
-                  </NavDropdown.Item>
-                ))}
-              </NavDropdown>
-
-              <NavDropdown title="Year" id="year-dropdown" className="me-2">
-                {["2024", "2023", "2022", "2021", "2020"].map((year) => (
-                  <NavDropdown.Item key={year} href={`#${year}`}>
-                    {year}
-                  </NavDropdown.Item>
-                ))}
-              </NavDropdown>
-
-              <NavDropdown title="Genre" id="genre-dropdown" className="me-2">
-                {["Action", "Biography", "Comedy", "Documentary", "Family"].map(
-                  (genre) => (
+              {year && (
+                <NavDropdown title="Year" id="year-dropdown" className="me-2">
+                  {year.map((year) => (
                     <NavDropdown.Item
-                      key={genre}
-                      href={`#${genre.toLowerCase()}`}
+                      key={year.year}
+                      onClick={(e) => {
+                        setSearchYear(year.year);
+                        handleSearch(e, searchTerm, searchCountry, year.year);
+                      }}
                     >
-                      {genre}
+                      {year.year}
                     </NavDropdown.Item>
-                  )
-                )}
-              </NavDropdown>
+                  ))}
+                </NavDropdown>
+              )}
 
-              <NavDropdown title="Status" id="status-dropdown" className="me-2">
-                {["Completed", "On-Going"].map((status) => (
-                  <NavDropdown.Item
-                    key={status}
-                    href={`#${status.toLowerCase()}`}
-                  >
-                    {status}
-                  </NavDropdown.Item>
-                ))}
-              </NavDropdown>
+              {genre && (
+                <NavDropdown title="Genre" id="genre-dropdown" className="me-2">
+                  {genre.map((genre) => (
+                    <NavDropdown.Item
+                      key={genre.id}
+                      onClick={(e) => {
+                        setSearchGenre(genre.name);
+                        handleSearch(
+                          e,
+                          searchTerm,
+                          searchCountry,
+                          searchYear,
+                          genre.name
+                        );
+                      }}
+                    >
+                      {genre.name}
+                    </NavDropdown.Item>
+                  ))}
+                </NavDropdown>
+              )}
 
-              <NavDropdown
-                title="Availability"
-                id="availability-dropdown"
-                className="me-2"
-              >
-                <NavDropdown.Item href="#fansub">Fansub</NavDropdown.Item>
-              </NavDropdown>
-
-              <NavDropdown title="Award" id="award-dropdown" className="me-2">
-                {[
-                  "Oscar-Winning",
-                  "Emmy Award-Winning",
-                  "Golden Globe-Winning",
-                  "Best Picture-Winning",
-                  "Best Director-Winning",
-                ].map((award) => (
-                  <NavDropdown.Item
-                    key={award}
-                    href={`#${award.toLowerCase()}`}
-                  >
-                    {award}
-                  </NavDropdown.Item>
-                ))}
-              </NavDropdown>
+              {award && (
+                <NavDropdown title="Award" id="award-dropdown" className="me-2">
+                  {award.map((award) => (
+                    <NavDropdown.Item
+                      key={award.id}
+                      onClick={(e) => {
+                        setSearchAward(award.name);
+                        handleSearch(
+                          e,
+                          searchTerm,
+                          searchCountry,
+                          searchYear,
+                          searchGenre,
+                          award.name
+                        );
+                      }}
+                    >
+                      {award.name}
+                    </NavDropdown.Item>
+                  ))}
+                </NavDropdown>
+              )}
 
               <NavDropdown
                 title="Sorted by"
@@ -246,6 +284,13 @@ const CustomNavbar = ({ config }) => {
             <Button
               className="bg_pallete_3 border-0 ms-2 mb-3 mb-md-0"
               type="submit"
+              onClick={(e) => {
+                setSearchCountry("all");
+                setSearchYear("all");
+                setSearchGenre("all");
+                setSearchAward("all");
+                handleSearch(e, searchTerm, "all", "all", "all", "all");
+              }}
             >
               Clear Filter
             </Button>

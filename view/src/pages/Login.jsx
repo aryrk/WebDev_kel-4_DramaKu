@@ -13,8 +13,35 @@ import { useGlobalState } from "../components/GlobalStateContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import "./pagesStyle/Login.css";
+import { useSwal } from "../components/SweetAlert";
 
 function LoginForm(props) {
+  const { alert } = useSwal();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const response = await fetch("http://localhost:5000/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      localStorage.setItem("token", data.token);
+      window.location.href = "/home";
+    } else {
+      alert("error", data.message);
+    }
+  };
+  const handleGoogleRegister = () => {
+    window.open("http://localhost:5000/auth/google", "_self");
+  };
   const { config } = props;
   return (
     <center
@@ -23,7 +50,7 @@ function LoginForm(props) {
     >
       <div className="w-30 ms-5 me-5 rounded-4 text-light pt-3 bg_pallete_1">
         <span className="fs-5">{config.short_name}</span>
-        <Form className="p-5 pb-4 pt-3">
+        <Form className="p-5 pb-4 pt-3" onSubmit={handleLogin}>
           <InputGroup className="mb-3">
             <InputGroup.Text
               id="basic-addon1"
@@ -36,6 +63,8 @@ function LoginForm(props) {
               aria-label="Username"
               aria-describedby="basic-addon1"
               className="bg-dark border-0 text-white rounded-end"
+              required
+              onChange={(e) => setEmail(e.target.value)}
             />
           </InputGroup>
           <InputGroup className="mb-3">
@@ -46,17 +75,26 @@ function LoginForm(props) {
               <FontAwesomeIcon icon={faKey} />
             </InputGroup.Text>
             <Form.Control
+              type="password"
               placeholder="Password"
               aria-label="Password"
               aria-describedby="basic-addon1"
               className="bg-dark border-0 text-white rounded-end"
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </InputGroup>
-          <button className="btn border-0 bg_pallete_3 mt-3 rounded-3 w-100">
+          <button
+            className="btn border-0 bg_pallete_3 mt-3 rounded-3 w-100"
+            type="submit"
+          >
             Sign in
           </button>
           <br></br>
-          <button className="btn border-0 bg_pallete_3 mt-3 mb-4 pb-2 rounded-3 w-100">
+          <button
+            className="btn border-0 bg_pallete_3 mt-3 mb-4 pb-2 rounded-3 w-100"
+            onClick={handleGoogleRegister}
+          >
             Sign in with Google{" "}
             <FontAwesomeIcon className="ms-1" icon={faGoogle} />
           </button>

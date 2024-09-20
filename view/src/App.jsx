@@ -28,6 +28,7 @@ import {
 import "./App.css";
 import { EditProvider } from "./components/cmsEdit";
 import { SwalProvider } from "./components/SweetAlert";
+import EmailVerified from "./pages/EmailVerified";
 
 function AppContent() {
   const { showFooter, showNavigation, showSidebar } = useGlobalState();
@@ -54,6 +55,7 @@ function AppContent() {
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/email-confirmed" element={<EmailVerified />} />
             <Route path="/detail/:movieId" element={<DetailPage />} />
             <Route path="/home" element={<ContentCard />} />
             <Route path="/search" element={<SearchResultPage />} />

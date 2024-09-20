@@ -5,9 +5,30 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const path = require("path");
 const multer = require("multer");
+const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 const saltRounds = 10;
+const passport = require("passport");
+const session = require("express-session");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const { google } = require("googleapis");
+require("dotenv").config();
 app.use(cors());
 app.use(express.json());
+
+const port = 5000;
+const domain = "http://localhost:" + port;
+const email_user = process.env.EMAIL_USER;
+
+const clien_domain = "http://localhost:5173";
+
+const oAuth2Client = new google.auth.OAuth2(
+  process.env.EMAIL_CLIENT_ID,
+  process.env.EMAIL_CLIENT_SECRET,
+  clien_domain + "/auth/google/callback"
+);
+
+oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
 
 const fs = require("fs");
 const dir = "./public/uploads";
@@ -33,6 +54,78 @@ const deleteFile = (filename) => {
   });
 };
 
+app.use(
+  session({
+    secret: process.env.SESSION_KEY,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const existingUser = await new Promise((resolve, reject) => {
+          connection.query(
+            "SELECT * FROM users WHERE google_id = ?",
+            [profile.id],
+            (error, results) => {
+              if (error) return reject(error);
+              resolve(results[0]);
+            }
+          );
+        });
+
+        if (existingUser) {
+          return done(null, existingUser);
+        }
+
+        const newUser = {
+          google_id: profile.id,
+          username: profile.displayName,
+          email: profile.emails[0].value,
+          profile_picture: profile.photos[0].value,
+        };
+
+        connection.query(
+          "INSERT INTO users (google_id, username, email, profile_picture, is_verified) VALUES (?, ?, ?, ?, ?)",
+          [
+            newUser.google_id,
+            newUser.username,
+            newUser.email,
+            newUser.profile_picture,
+            true,
+          ],
+          (error, results) => {
+            if (error) return done(error);
+            newUser.id = results.insertId;
+            done(null, newUser);
+          }
+        );
+      } catch (error) {
+        done(error);
+      }
+    }
+  )
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((obj, done) => {
+  done(null, obj);
+});
+
 app.use(express.urlencoded({ extended: true }));
 app.use("/public", express.static("public"));
 
@@ -50,6 +143,187 @@ connection.connect((err) => {
   }
   console.log("Connected as id " + connection.threadId);
 });
+const accessToken = oAuth2Client.getAccessToken();
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    type: "OAuth2",
+    user: process.env.EMAIL_USER,
+    clientId: process.env.EMAIL_CLIENT_ID,
+    clientSecret: process.env.EMAIL_CLIENT_SECRET,
+    refreshToken: process.env.REFRESH_TOKEN,
+    accessToken: accessToken.token,
+  },
+});
+
+const sendConfirmationEmail = (to, token) => {
+  const url = `${domain}/confirm-email?token=${token}`;
+  const mailOptions = {
+    from: email_user,
+    to,
+    subject: "Konfirmasi Email",
+    text: `Silakan klik link berikut untuk mengonfirmasi email Anda: ${url}`,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error sending email: ", error);
+    } else {
+      console.log("Email sent: " + info.response);
+    }
+  });
+};
+
+// ! ===============================================  Auth ===============================================
+app.post("/register", async (req, res) => {
+  const { username, email, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const newUser = {
+    username,
+    email,
+    password: hashedPassword,
+  };
+
+  connection.query("INSERT INTO users SET ?", newUser, (error, results) => {
+    if (error)
+      return res.status(500).json({ message: "Error registering user" });
+
+    const token = jwt.sign({ id: results.insertId }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    const confirmUrl = `${domain}/confirm-email?token=${token}`;
+
+    transporter.sendMail({
+      to: email,
+      subject: "Confirm Your Email",
+      html: `<a href="${confirmUrl}">Confirm your email</a>`,
+    });
+
+    res.json({
+      message: "Registration successful. Please check your email to confirm.",
+    });
+  });
+});
+
+app.get("/confirm-email", async (req, res) => {
+  const { token } = req.query;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    connection.query(
+      "UPDATE users SET is_verified = ? WHERE id = ?",
+      [true, decoded.id],
+      (error) => {
+        if (error)
+          return res.status(500).json({ message: "Error confirming email" });
+
+        const redirectUrl = `${clien_domain}/email-confirmed`;
+        res.redirect(redirectUrl);
+      }
+    );
+  } catch (err) {
+    res.status(400).json({ message: "Invalid or expired token." });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  connection.query(
+    "SELECT * FROM users WHERE email = ? or username = ?",
+    [email, email],
+    async (error, results) => {
+      if (error) return res.status(500).json({ message: "Error logging in" });
+      if (results.length === 0)
+        return res.status(401).json({ message: "User not found" });
+
+      const user = results[0];
+      if (!user.is_verified)
+        return res.status(401).json({ message: "Email not verified" });
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch)
+        return res.status(401).json({ message: "Invalid credentials" });
+
+      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
+      res.json({ token });
+    }
+  );
+});
+
+app.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+
+  connection.query(
+    "SELECT * FROM users WHERE email = ?",
+    [email],
+    (error, results) => {
+      if (error)
+        return res.status(500).json({ message: "Error fetching user" });
+      if (results.length === 0)
+        return res.status(404).json({ message: "User not found" });
+
+      const user = results[0];
+      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
+      const resetUrl = `${domain}/reset-password?token=${token}`;
+
+      transporter.sendMail({
+        to: email,
+        subject: "Reset Your Password",
+        html: `<a href="${resetUrl}">Reset your password</a>`,
+      });
+
+      res.json({ message: "Password reset link sent to your email." });
+    }
+  );
+});
+
+app.post("/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    connection.query(
+      "UPDATE users SET password = ? WHERE id = ?",
+      [hashedPassword, decoded.id],
+      (error) => {
+        if (error)
+          return res.status(500).json({ message: "Error updating password" });
+        res.json({ message: "Password updated successfully" });
+      }
+    );
+  } catch (err) {
+    res.status(400).json({ message: "Invalid or expired token." });
+  }
+});
+
+// ! ===============================================  Auth ===============================================
+// ! ===============================================  Auth Google ===============================================
+app.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/login",
+    session: false,
+  }),
+  (req, res) => {
+    const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    res.redirect(`${clien_domain}/home?token=${token}`);
+  }
+);
+
+// ! ===============================================  Auth Google ===============================================
 
 app.get("/api/all-movies", (req, res) => {
   // Get limit and offset from query parameters (default: limit = 10, offset = 0)
@@ -848,6 +1122,6 @@ app.post("/api/cms/movies", upload.single("poster"), async (req, res) => {
 
 // ! ===============================================  CMS ===============================================
 
-app.listen(5000, () => {
-  console.log("Server is running on http://localhost:5000");
+app.listen(port, () => {
+  console.log("Server is running on " + domain);
 });

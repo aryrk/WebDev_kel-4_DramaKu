@@ -14,7 +14,7 @@ cursor = db.cursor()
 cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
 
 tables = ["movies", "countries", "movies_genres", "genres", "movies_awards", 
-          "awards", "movies_actors", "actors", "comments", "users"]
+          "awards", "movies_actors", "actors", "comments", "users", "tokens"]
 
 for table in tables:
     cursor.execute(f"DROP TABLE IF EXISTS {table}")
@@ -128,10 +128,12 @@ CREATE TABLE users (
   username VARCHAR(255) NOT NULL UNIQUE,
   profile_picture VARCHAR(255) NULL,
   email VARCHAR(255) NOT NULL,
-  email_validated TIMESTAMP NULL,
+  google_id VARCHAR(255) NULL,
+  is_verified BOOLEAN NOT NULL DEFAULT 0,
   reset_password_token VARCHAR(255) NULL,
+  reset_password_expires TIMESTAMP NULL,
   password VARCHAR(255) NOT NULL,
-  role ENUM('admin', 'writer') NOT NULL,
+  role ENUM('admin', 'writer') NOT NULL DEFAULT 'writer',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP NULL
@@ -154,6 +156,17 @@ CREATE TABLE comments (
   FOREIGN KEY (user_id) REFERENCES users(id)
 )
 """)
+
+cursor.execute("""
+               CREATE TABLE tokens (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id),
+  token VARCHAR(255),
+  token_type VARCHAR(50), -- 'email_confirmation' atau 'password_reset'
+  expires_at TIMESTAMP
+);
+
+               """)
 
 
 
@@ -216,10 +229,15 @@ for user in users_data:
     profile_picture = ""
     if user['profile_picture'] != "N/A":
         profile_picture = user['profile_picture']
+    # cursor.execute("""
+    #     INSERT INTO users (username, profile_picture, email, password, role, created_at, updated_at, email_validated)
+    #     VALUES (%s, %s, %s, %s, %s, NOW(), NOW(), NOW())
+    # """, (user['username'], profile_picture, user['email'], user['password'], user['role']))
     cursor.execute("""
-        INSERT INTO users (username, profile_picture, email, password, role, created_at, updated_at, email_validated)
-        VALUES (%s, %s, %s, %s, %s, NOW(), NOW(), NOW())
+        INSERT INTO users (username, profile_picture, email, password, role, created_at, updated_at)
+        VALUES (%s, %s, %s, %s, %s, NOW(), NOW())
     """, (user['username'], profile_picture, user['email'], user['password'], user['role']))
+    
     
 
 for comment in comments_data:

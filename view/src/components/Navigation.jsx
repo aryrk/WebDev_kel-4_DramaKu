@@ -8,6 +8,7 @@ import {
   Button,
   NavDropdown,
   Image,
+  Modal,
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./componentsStyle/Navigation.css";
@@ -18,6 +19,7 @@ import $ from "jquery";
 
 const CustomNavbar = ({ config }) => {
   const [show, setShow] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("all");
   const [searchCountry, setSearchCountry] = useState("all");
   const [searchYear, setSearchYear] = useState("all");
@@ -101,6 +103,9 @@ const CustomNavbar = ({ config }) => {
     );
     // }
   };
+
+  const handleModalClose = () => setShowModal(false);
+  const handleModalShow = () => setShowModal(true);
 
   return (
     <>

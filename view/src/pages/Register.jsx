@@ -19,7 +19,7 @@ function RegisterForm() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://localhost:5000/register", {
+    const response = await fetch("/api/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -28,11 +28,16 @@ function RegisterForm() {
     });
 
     const data = await response.json();
-    alert("success", data.message);
+    
+    setUsername("");
+    setEmail("");
+    setPassword("");
+    
+    alert("success", "success", data.message);
   };
 
   const handleGoogleRegister = () => {
-    window.open("http://localhost:5000/auth/google", "_self");
+    window.open("/api/auth/google", "_self");
   };
 
   return (

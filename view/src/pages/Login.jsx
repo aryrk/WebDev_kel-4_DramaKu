@@ -22,7 +22,7 @@ function LoginForm(props) {
   const [password, setPassword] = useState("");
   const handleLogin = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://localhost:5000/login", {
+    const response = await fetch("/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -40,7 +40,7 @@ function LoginForm(props) {
     }
   };
   const handleGoogleRegister = () => {
-    window.open("http://localhost:5000/auth/google", "_self");
+    window.open("/api/auth/google", "_self");
   };
   const { config } = props;
   return (

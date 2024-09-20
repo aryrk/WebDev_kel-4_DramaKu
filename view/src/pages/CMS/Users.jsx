@@ -23,6 +23,8 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.min.css";
 import { useSwal } from "../../components/SweetAlert";
 
+const token = sessionStorage.getItem("token");
+
 function AddUser() {
   const { notification } = useSwal();
   const [username, setUsername] = useState("");
@@ -41,6 +43,8 @@ function AddUser() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(newUser),
     })
@@ -157,6 +161,7 @@ function UserTable() {
       const response = await fetch(`/api/cms/users/role/${id}`, {
         method: "PUT",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ role: role }),
@@ -182,6 +187,9 @@ function UserTable() {
     try {
       const response = await fetch(`/api/cms/users/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       const data = await response.json();
       if (data.success) {
@@ -201,7 +209,12 @@ function UserTable() {
       const limit = 10;
       const offset = (page - 1) * limit;
       const response = await fetch(
-        `/api/cms/users?limit=${limit}&offset=${offset}`
+        `/api/cms/users?limit=${limit}&offset=${offset}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       const data = await response.json();
       setUsers(data.users);
@@ -323,6 +336,9 @@ function UserTable() {
         ajax: {
           url: "/api/cms/users",
           type: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           data: function (d) {
             const limit = d.length;
             const offset = d.start;
@@ -406,6 +422,7 @@ function UserTable() {
       const response = await fetch(`/api/cms/users/${id}`, {
         method: "PUT",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(user),

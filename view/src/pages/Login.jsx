@@ -33,7 +33,7 @@ function LoginForm(props) {
     const data = await response.json();
 
     if (response.ok) {
-      localStorage.setItem("token", data.token);
+      sessionStorage.setItem("token", data.token);
       window.location.href = "/home";
     } else {
       alert("error", data.message);
@@ -42,6 +42,11 @@ function LoginForm(props) {
   const handleGoogleRegister = () => {
     window.open("/api/auth/google", "_self");
   };
+
+  useEffect(() => {
+    sessionStorage.removeItem("token");
+  }, []);
+
   const { config } = props;
   return (
     <center

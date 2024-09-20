@@ -568,11 +568,28 @@ const email_template = (username, email, header_text, header, inner) => {
 </html>
 
   `;
-}
+};
 
 // ! ===============================================  Auth ===============================================
+const authorize = (allowedRoles = []) => {
+  return (req, res, next) => {
+    const token = req.headers["authorization"]?.split(" ")[1];
+    if (!token) return res.status(403).json({ message: "Access denied" });
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      if (allowedRoles.length && !allowedRoles.includes(decoded.role)) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+      req.user = decoded;
+      next();
+    } catch (err) {
+      res.status(401).json({ message: "Invalid token" });
+    }
+  };
+};
+
 app.post("/api/register", async (req, res) => {
-  console.log(req.body);
   const { username, email, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -595,9 +612,14 @@ app.post("/api/register", async (req, res) => {
       to: email,
       subject: "Confirm Your Email",
       // html: `<a href="${confirmUrl}">Confirm your email</a>`,
-      html: email_template(username,email,`Hi ${username}! We need to confirm your email address in order to activate
-        your account.`,`Thanks for signing up to Pluto Cinema. Before we can
-                        continue, we need to validate your email address.`,`<p style="margin: 40px 0; color: #fff">
+      html: email_template(
+        username,
+        email,
+        `Hi ${username}! We need to confirm your email address in order to activate
+        your account.`,
+        `Thanks for signing up to Pluto Cinema. Before we can
+                        continue, we need to validate your email address.`,
+        `<p style="margin: 40px 0; color: #fff">
                         <a
                           style="
                             color: #fff;
@@ -612,7 +634,8 @@ app.post("/api/register", async (req, res) => {
                           href="${confirmUrl}"
                           >Activate My Account</a
                         >
-                      </p>`)
+                      </p>`
+      ),
     });
 
     res.json({
@@ -660,62 +683,66 @@ app.post("/api/login", async (req, res) => {
       if (!isMatch)
         return res.status(401).json({ message: "Invalid credentials" });
 
-      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-        expiresIn: "1h",
-      });
+      const token = jwt.sign(
+        { id: user.id, role: user.role },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      );
       res.json({ token });
     }
   );
 });
 
-app.post("/api/forgot-password", async (req, res) => {
-  const { email } = req.body;
+// app.post("/api/forgot-password", async (req, res) => {
+//   const { email } = req.body;
 
-  connection.query(
-    "SELECT * FROM users WHERE email = ?",
-    [email],
-    (error, results) => {
-      if (error)
-        return res.status(500).json({ message: "Error fetching user" });
-      if (results.length === 0)
-        return res.status(404).json({ message: "User not found" });
+//   connection.query(
+//     "SELECT * FROM users WHERE email = ?",
+//     [email],
+//     (error, results) => {
+//       if (error)
+//         return res.status(500).json({ message: "Error fetching user" });
+//       if (results.length === 0)
+//         return res.status(404).json({ message: "User not found" });
 
-      const user = results[0];
-      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-        expiresIn: "1h",
-      });
-      const resetUrl = `${domain}/reset-password?token=${token}`;
+//       const user = results[0];
+//       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+//         expiresIn: "1h",
+//       });
+//       const resetUrl = `${domain}/reset-password?token=${token}`;
 
-      transporter.sendMail({
-        to: email,
-        subject: "Reset Your Password",
-        html: `<a href="${resetUrl}">Reset your password</a>`,
-      });
+//       transporter.sendMail({
+//         to: email,
+//         subject: "Reset Your Password",
+//         html: `<a href="${resetUrl}">Reset your password</a>`,
+//       });
 
-      res.json({ message: "Password reset link sent to your email." });
-    }
-  );
-});
+//       res.json({ message: "Password reset link sent to your email." });
+//     }
+//   );
+// });
 
-app.post("/api/reset-password", async (req, res) => {
-  const { token, newPassword } = req.body;
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+// app.post("/api/reset-password", async (req, res) => {
+//   const { token, newPassword } = req.body;
+//   try {
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    connection.query(
-      "UPDATE users SET password = ? WHERE id = ?",
-      [hashedPassword, decoded.id],
-      (error) => {
-        if (error)
-          return res.status(500).json({ message: "Error updating password" });
-        res.json({ message: "Password updated successfully" });
-      }
-    );
-  } catch (err) {
-    res.status(400).json({ message: "Invalid or expired token." });
-  }
-});
+//     connection.query(
+//       "UPDATE users SET password = ? WHERE id = ?",
+//       [hashedPassword, decoded.id],
+//       (error) => {
+//         if (error)
+//           return res.status(500).json({ message: "Error updating password" });
+//         res.json({ message: "Password updated successfully" });
+//       }
+//     );
+//   } catch (err) {
+//     res.status(400).json({ message: "Invalid or expired token." });
+//   }
+// });
 
 // ! ===============================================  Auth ===============================================
 // ! ===============================================  Auth Google ===============================================
@@ -827,31 +854,35 @@ app.get("/api/movies/comments/:id", (req, res) => {
   });
 });
 
-app.post("/api/movies/comments/:movieId", (req, res) => {
-  const { userId, rate, comments } = req.body;
-  const movieId = req.params.movieId;
+app.post(
+  "/api/movies/comments/:movieId",
+  authorize(["admin", "writer"]),
+  (req, res) => {
+    const { userId, rate, comments } = req.body;
+    const movieId = req.params.movieId;
 
-  const query =
-    "INSERT INTO comments (movie_id, user_id, rate, comments, comment_date) VALUES (?, ?, ?, ?, NOW())";
-  connection.query(
-    query,
-    [movieId, userId, rate, comments],
-    (error, result) => {
-      if (error) {
-        return res.status(500).json({ error: "Database error" });
+    const query =
+      "INSERT INTO comments (movie_id, user_id, rate, comments, comment_date) VALUES (?, ?, ?, ?, NOW())";
+    connection.query(
+      query,
+      [movieId, userId, rate, comments],
+      (error, result) => {
+        if (error) {
+          return res.status(500).json({ error: "Database error" });
+        }
+        res.json({
+          comment: {
+            id: result.insertId,
+            userId: userId,
+            rate: rate,
+            comments: comments,
+            comment_date: new Date(),
+          },
+        });
       }
-      res.json({
-        comment: {
-          id: result.insertId,
-          userId: userId,
-          rate: rate,
-          comments: comments,
-          comment_date: new Date(),
-        },
-      });
-    }
-  );
-});
+    );
+  }
+);
 
 app.post("/api/movies/update-view-count/:id", (req, res) => {
   const movieId = req.params.id;
@@ -1017,7 +1048,7 @@ GROUP BY m.id
 
 // ! ===============================================  CMS ===============================================
 
-app.get("/api/cms/comments", (req, res) => {
+app.get("/api/cms/comments", authorize(["admin"]), (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const offset = parseInt(req.query.offset) || 0;
   const search = req.query.search ? `%${req.query.search}%` : "%%";
@@ -1085,7 +1116,7 @@ app.get("/api/cms/comments", (req, res) => {
   );
 });
 
-app.post("/api/cms/comments/action", (req, res) => {
+app.post("/api/cms/comments/action", authorize(["admin"]), (req, res) => {
   const { ids, action } = req.body;
 
   const query = `UPDATE comments SET status = ? WHERE id IN (${ids.join(
@@ -1099,7 +1130,7 @@ app.post("/api/cms/comments/action", (req, res) => {
   });
 });
 
-app.get("/api/cms/users", (req, res) => {
+app.get("/api/cms/users", authorize(["admin"]), (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const offset = parseInt(req.query.offset) || 0;
   const search = req.query.search ? `%${req.query.search}%` : "%%";
@@ -1150,7 +1181,7 @@ app.get("/api/cms/users", (req, res) => {
   });
 });
 
-app.delete("/api/cms/users/:id", (req, res) => {
+app.delete("/api/cms/users/:id", authorize(["admin"]), (req, res) => {
   const userId = req.params.id;
 
   const query = `UPDATE users SET deleted_at = NOW() WHERE id = ?`;
@@ -1162,10 +1193,10 @@ app.delete("/api/cms/users/:id", (req, res) => {
   });
 });
 
-app.post("/api/cms/users", (req, res) => {
+app.post("/api/cms/users", authorize(["admin"]), async (req, res) => {
   const { username, email, role } = req.body;
-
-  const default_password = bcrypt.hashSync("12345", saltRounds);
+  const hashedPassword = await bcrypt.hash("12345", 10);
+  const default_password = hashedPassword;
 
   const query = `INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)`;
 
@@ -1178,12 +1209,47 @@ app.post("/api/cms/users", (req, res) => {
           .status(500)
           .json({ error: "Database error: Failed to create user" });
 
+      const token = jwt.sign({ id: results.insertId }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
+      const confirmUrl = `${domain}/api/confirm-email?token=${token}`;
+
+      transporter.sendMail({
+        to: email,
+        subject: "Confirm Your Email",
+        // html: `<a href="${confirmUrl}">Confirm your email</a>`,
+        html: email_template(
+          username,
+          email,
+          `Hi ${username}! We need to confirm your email address in order to activate
+              your account.`,
+          `Thanks for signing up to Pluto Cinema. Before we can
+                              continue, we need to validate your email address.`,
+          `<p style="margin: 40px 0; color: #fff">
+                              <a
+                                style="
+                                  color: #fff;
+                                  border-radius: 20px;
+                                  border: 10px solid #525c91;
+                                  background-color: #525c91;
+                                  padding: 0 10px;
+                                  text-transform: uppercase;
+                                  text-decoration: none;
+                                  font-weight: 700;
+                                "
+                                href="${confirmUrl}"
+                                >Activate My Account</a
+                              >
+                            </p>`
+        ),
+      });
+
       res.json({ success: true });
     }
   );
 });
 
-app.put("/api/cms/users/:id", (req, res) => {
+app.put("/api/cms/users/:id", authorize(["admin"]), (req, res) => {
   const userId = req.params.id;
   const { username, email } = req.body;
 
@@ -1198,7 +1264,7 @@ app.put("/api/cms/users/:id", (req, res) => {
     res.json({ success: true });
   });
 });
-app.put("/api/cms/users/role/:id", (req, res) => {
+app.put("/api/cms/users/role/:id", authorize(["admin"]), (req, res) => {
   const userId = req.params.id;
   const { role } = req.body;
 
@@ -1256,7 +1322,7 @@ app.get("/api/cms/awardlist", (req, res) => {
   });
 });
 
-app.get("/api/cms/actors", (req, res) => {
+app.get("/api/cms/actors", authorize(["admin", "writer"]), (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const offset = parseInt(req.query.offset) || 0;
   const search = req.query.search ? `%${req.query.search}%` : "%%";
@@ -1308,10 +1374,71 @@ app.get("/api/cms/actors", (req, res) => {
   });
 });
 
-app.post("/api/cms/actors", upload.single("file"), async (req, res) => {
-  try {
-    const { filename } = req.file;
-    var { country, actorName, birthDate } = req.body;
+app.post(
+  "/api/cms/actors",
+  authorize(["admin"]),
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const { filename } = req.file;
+      var { country, actorName, birthDate } = req.body;
+      country = country.toUpperCase();
+      let country_id = 0;
+
+      const countryQuery = `SELECT id FROM countries WHERE UPPER(name) = ?`;
+
+      const queryDatabase = (query, params) => {
+        return new Promise((resolve, reject) => {
+          connection.query(query, params, (err, results) => {
+            if (err) {
+              return reject(err);
+            }
+            resolve(results);
+          });
+        });
+      };
+
+      const results = await queryDatabase(countryQuery, [country]);
+
+      if (results.length === 0) {
+        const countryName = country.charAt(0) + country.slice(1).toLowerCase();
+        const insertCountryQuery = `INSERT INTO countries (name) VALUES (?)`;
+
+        const insertResults = await queryDatabase(insertCountryQuery, [
+          countryName,
+        ]);
+        country_id = insertResults.insertId;
+      } else {
+        country_id = results[0].id;
+      }
+
+      const query = `INSERT INTO actors (countries_id, name, picture_profile, birthdate) VALUES (?, ?, ?, ?)`;
+
+      connection.query(
+        query,
+        [country_id, actorName, `/public/uploads/${filename}`, birthDate],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ message: "Error inserting actor" });
+          }
+
+          res.json({ success: true });
+        }
+      );
+    } catch (error) {
+      res.status(500).json({ message: "Error uploading file" });
+    }
+  }
+);
+
+app.put(
+  "/api/cms/actors/:id",
+  authorize(["admin"]),
+  upload.single("img"),
+  async (req, res) => {
+    const actorId = req.params.id;
+    var { country, name, date } = req.body;
+    const filename = req.file ? req.file.filename : null;
     country = country.toUpperCase();
     let country_id = 0;
 
@@ -1342,96 +1469,45 @@ app.post("/api/cms/actors", upload.single("file"), async (req, res) => {
       country_id = results[0].id;
     }
 
-    const query = `INSERT INTO actors (countries_id, name, picture_profile, birthdate) VALUES (?, ?, ?, ?)`;
+    const actorQuery = `SELECT picture_profile FROM actors WHERE id = ?`;
+
+    const actorResults = await queryDatabase(actorQuery, [actorId]);
+
+    if (actorResults.length === 0) {
+      return res.status(404).json({ message: "Actor not found" });
+    }
+
+    const oldPicture = actorResults[0].picture_profile;
+
+    const query = `UPDATE actors SET countries_id = ?, name = ?, picture_profile = ?, birthdate = ? WHERE id = ?`;
 
     connection.query(
       query,
-      [country_id, actorName, `/public/uploads/${filename}`, birthDate],
+      [
+        country_id,
+        name,
+        filename ? `/public/uploads/${filename}` : oldPicture,
+        date,
+        actorId,
+      ],
       (err, results) => {
         if (err) {
-          return res.status(500).json({ message: "Error inserting actor" });
+          return res.status(500).json({ message: "Error updating actor" });
+        }
+
+        if (filename && oldPicture.includes("/public/uploads/")) {
+          const oldPicturePath = oldPicture.replace("/public", "");
+
+          deleteFile(`public${oldPicturePath}`);
         }
 
         res.json({ success: true });
       }
     );
-  } catch (error) {
-    res.status(500).json({ message: "Error uploading file" });
   }
-});
+);
 
-app.put("/api/cms/actors/:id", upload.single("img"), async (req, res) => {
-  const actorId = req.params.id;
-  var { country, name, date } = req.body;
-  const filename = req.file ? req.file.filename : null;
-  country = country.toUpperCase();
-  let country_id = 0;
-
-  const countryQuery = `SELECT id FROM countries WHERE UPPER(name) = ?`;
-
-  const queryDatabase = (query, params) => {
-    return new Promise((resolve, reject) => {
-      connection.query(query, params, (err, results) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(results);
-      });
-    });
-  };
-
-  const results = await queryDatabase(countryQuery, [country]);
-
-  if (results.length === 0) {
-    const countryName = country.charAt(0) + country.slice(1).toLowerCase();
-    const insertCountryQuery = `INSERT INTO countries (name) VALUES (?)`;
-
-    const insertResults = await queryDatabase(insertCountryQuery, [
-      countryName,
-    ]);
-    country_id = insertResults.insertId;
-  } else {
-    country_id = results[0].id;
-  }
-
-  const actorQuery = `SELECT picture_profile FROM actors WHERE id = ?`;
-
-  const actorResults = await queryDatabase(actorQuery, [actorId]);
-
-  if (actorResults.length === 0) {
-    return res.status(404).json({ message: "Actor not found" });
-  }
-
-  const oldPicture = actorResults[0].picture_profile;
-
-  const query = `UPDATE actors SET countries_id = ?, name = ?, picture_profile = ?, birthdate = ? WHERE id = ?`;
-
-  connection.query(
-    query,
-    [
-      country_id,
-      name,
-      filename ? `/public/uploads/${filename}` : oldPicture,
-      date,
-      actorId,
-    ],
-    (err, results) => {
-      if (err) {
-        return res.status(500).json({ message: "Error updating actor" });
-      }
-
-      if (filename && oldPicture.includes("/public/uploads/")) {
-        const oldPicturePath = oldPicture.replace("/public", "");
-
-        deleteFile(`public${oldPicturePath}`);
-      }
-
-      res.json({ success: true });
-    }
-  );
-});
-
-app.delete("/api/cms/actors/:id", (req, res) => {
+app.delete("/api/cms/actors/:id", authorize(["admin"]), (req, res) => {
   const actorId = req.params.id;
 
   const query = `UPDATE actors SET deleted_at = NOW() WHERE id = ?`;
@@ -1443,152 +1519,164 @@ app.delete("/api/cms/actors/:id", (req, res) => {
   });
 });
 
-app.post("/api/cms/movies", upload.single("poster"), async (req, res) => {
-  try {
-    const { filename } = req.file;
-    var {
-      title,
-      alternative_title,
-      year,
-      country,
-      synopsis,
-      availability,
-      genres,
-      link_trailer,
-      award,
-      actors,
-    } = req.body;
-
-    if (typeof genres === "string") {
-      genres = [genres];
-    }
-    if (typeof award === "string") {
-      award = [award];
-    }
-
-    // ----------------- COUNTRY -----------------
-
-    country = country.toUpperCase();
-    let country_id = 0;
-
-    const countryQuery = `SELECT id FROM countries WHERE UPPER(name) = ?`;
-
-    const queryDatabase = (query, params) => {
-      return new Promise((resolve, reject) => {
-        connection.query(query, params, (err, results) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(results);
-        });
-      });
-    };
-
-    const results = await queryDatabase(countryQuery, [country]);
-
-    if (results.length === 0) {
-      const countryName = country.charAt(0) + country.slice(1).toLowerCase();
-      const insertCountryQuery = `INSERT INTO countries (name) VALUES (?)`;
-
-      const insertResults = await queryDatabase(insertCountryQuery, [
-        countryName,
-      ]);
-      country_id = insertResults.insertId;
-    } else {
-      country_id = results[0].id;
-    }
-    // ----------------- COUNTRY -----------------
-
-    // ----------------- GENRES -----------------
-    var genres_id = [];
-    for (let i = 0; i < genres.length; i++) {
-      if (isNaN(parseInt(genres[i]))) {
-        const genreName =
-          genres[i].charAt(0) + genres[i].slice(1).toLowerCase();
-        const insertGenreQuery = `INSERT INTO genres (name) VALUES (?)`;
-
-        const insertResults = await queryDatabase(insertGenreQuery, [
-          genreName,
-        ]);
-        genres_id.push(insertResults.insertId);
-      } else {
-        genres_id.push(parseInt(genres[i]));
-      }
-    }
-    // ----------------- GENRES -----------------
-
-    // ----------------- AWARD -----------------
-    var award_id = [];
-    for (let i = 0; i < award.length; i++) {
-      if (isNaN(parseInt(award[i]))) {
-        const awardName = award[i].charAt(0) + award[i].slice(1).toLowerCase();
-        const insertAwardQuery = `INSERT INTO awards (name) VALUES (?)`;
-
-        const insertResults = await queryDatabase(insertAwardQuery, [
-          awardName,
-        ]);
-        award_id.push(insertResults.insertId);
-      } else {
-        award_id.push(parseInt(award[i]));
-      }
-    }
-    // ----------------- AWARD -----------------
-
-    const query = `INSERT INTO movies (countries_id, poster, title, alternative_titles, year, synopsis, availability, trailer) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-
-    connection.query(
-      query,
-      [
-        country_id,
-        `/public/uploads/${filename}`,
+app.post(
+  "/api/cms/movies",
+  authorize(["admin", "writer"]),
+  upload.single("poster"),
+  async (req, res) => {
+    try {
+      const { filename } = req.file;
+      var {
         title,
         alternative_title,
         year,
+        country,
         synopsis,
         availability,
+        genres,
         link_trailer,
-      ],
-      (err, results) => {
-        if (err) {
-          return res.status(500).json({ message: "Error inserting movie" });
-        }
+        award,
+        actors,
+      } = req.body;
 
-        const movieId = results.insertId;
-
-        const genresQuery = `INSERT INTO movies_genres (movie_id, genre_id) VALUES ?`;
-        const genresValues = genres_id.map((genreId) => [movieId, genreId]);
-
-        connection.query(genresQuery, [genresValues], (err, results) => {
-          if (err) {
-            return res.status(500).json({ message: "Error inserting genres" });
-          }
-        });
-
-        const awardQuery = `INSERT INTO movies_awards (movie_id, award_id) VALUES ?`;
-        const awardValues = award_id.map((awardId) => [movieId, awardId]);
-
-        connection.query(awardQuery, [awardValues], (err, results) => {
-          if (err) {
-            return res.status(500).json({ message: "Error inserting awards" });
-          }
-        });
-
-        const actorsQuery = `INSERT INTO movies_actors (movie_id, actor_id) VALUES ?`;
-        const actorsValues = actors.map((actorId) => [movieId, actorId]);
-
-        connection.query(actorsQuery, [actorsValues], (err, results) => {
-          if (err) {
-            return res.status(500).json({ message: "Error inserting actors" });
-          }
-        });
-
-        res.json({ success: true });
+      if (typeof genres === "string") {
+        genres = [genres];
       }
-    );
-  } catch (error) {
-    res.status(500).json({ message: "Error uploading file" });
+      if (typeof award === "string") {
+        award = [award];
+      }
+
+      // ----------------- COUNTRY -----------------
+
+      country = country.toUpperCase();
+      let country_id = 0;
+
+      const countryQuery = `SELECT id FROM countries WHERE UPPER(name) = ?`;
+
+      const queryDatabase = (query, params) => {
+        return new Promise((resolve, reject) => {
+          connection.query(query, params, (err, results) => {
+            if (err) {
+              return reject(err);
+            }
+            resolve(results);
+          });
+        });
+      };
+
+      const results = await queryDatabase(countryQuery, [country]);
+
+      if (results.length === 0) {
+        const countryName = country.charAt(0) + country.slice(1).toLowerCase();
+        const insertCountryQuery = `INSERT INTO countries (name) VALUES (?)`;
+
+        const insertResults = await queryDatabase(insertCountryQuery, [
+          countryName,
+        ]);
+        country_id = insertResults.insertId;
+      } else {
+        country_id = results[0].id;
+      }
+      // ----------------- COUNTRY -----------------
+
+      // ----------------- GENRES -----------------
+      var genres_id = [];
+      for (let i = 0; i < genres.length; i++) {
+        if (isNaN(parseInt(genres[i]))) {
+          const genreName =
+            genres[i].charAt(0) + genres[i].slice(1).toLowerCase();
+          const insertGenreQuery = `INSERT INTO genres (name) VALUES (?)`;
+
+          const insertResults = await queryDatabase(insertGenreQuery, [
+            genreName,
+          ]);
+          genres_id.push(insertResults.insertId);
+        } else {
+          genres_id.push(parseInt(genres[i]));
+        }
+      }
+      // ----------------- GENRES -----------------
+
+      // ----------------- AWARD -----------------
+      var award_id = [];
+      for (let i = 0; i < award.length; i++) {
+        if (isNaN(parseInt(award[i]))) {
+          const awardName =
+            award[i].charAt(0) + award[i].slice(1).toLowerCase();
+          const insertAwardQuery = `INSERT INTO awards (name) VALUES (?)`;
+
+          const insertResults = await queryDatabase(insertAwardQuery, [
+            awardName,
+          ]);
+          award_id.push(insertResults.insertId);
+        } else {
+          award_id.push(parseInt(award[i]));
+        }
+      }
+      // ----------------- AWARD -----------------
+
+      const query = `INSERT INTO movies (countries_id, poster, title, alternative_titles, year, synopsis, availability, trailer) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
+      connection.query(
+        query,
+        [
+          country_id,
+          `/public/uploads/${filename}`,
+          title,
+          alternative_title,
+          year,
+          synopsis,
+          availability,
+          link_trailer,
+        ],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ message: "Error inserting movie" });
+          }
+
+          const movieId = results.insertId;
+
+          const genresQuery = `INSERT INTO movies_genres (movie_id, genre_id) VALUES ?`;
+          const genresValues = genres_id.map((genreId) => [movieId, genreId]);
+
+          connection.query(genresQuery, [genresValues], (err, results) => {
+            if (err) {
+              return res
+                .status(500)
+                .json({ message: "Error inserting genres" });
+            }
+          });
+
+          const awardQuery = `INSERT INTO movies_awards (movie_id, award_id) VALUES ?`;
+          const awardValues = award_id.map((awardId) => [movieId, awardId]);
+
+          connection.query(awardQuery, [awardValues], (err, results) => {
+            if (err) {
+              return res
+                .status(500)
+                .json({ message: "Error inserting awards" });
+            }
+          });
+
+          const actorsQuery = `INSERT INTO movies_actors (movie_id, actor_id) VALUES ?`;
+          const actorsValues = actors.map((actorId) => [movieId, actorId]);
+
+          connection.query(actorsQuery, [actorsValues], (err, results) => {
+            if (err) {
+              return res
+                .status(500)
+                .json({ message: "Error inserting actors" });
+            }
+          });
+
+          res.json({ success: true });
+        }
+      );
+    } catch (error) {
+      res.status(500).json({ message: "Error uploading file" });
+    }
   }
-});
+);
 
 // ! ===============================================  CMS ===============================================
 

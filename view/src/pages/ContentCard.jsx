@@ -5,9 +5,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useGlobalState } from "../components/GlobalStateContext";
 import Pagination from "../components/Pagination"; // Import the Pagination component
 import "./pagesStyle/ContentCard.css";
-import AddDrama from "./AddDrama";
+import Shortcut from "./Shortcut";
+import { withConfig } from "../Config";
 
-function ContentCard() {
+function ContentCard({ config }) {
   const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
 
   const [movies, setMovies] = useState([]);
@@ -66,7 +67,11 @@ function ContentCard() {
                   }}
                 >
                   <Image
-                    src={card.poster}
+                    src={
+                      card.poster.includes("/public/uploads/")
+                        ? `${config.server}${card.poster}`
+                        : card.poster
+                    }
                     alt={card.title}
                     loading="lazy"
                     className="content_image p-0 border-0"
@@ -101,7 +106,7 @@ function ContentCard() {
             totalPages={totalPages}
             onPageChange={handlePageChange} // Use the updated handler
           />
-          <AddDrama />
+          <Shortcut />
         </Container>
       ) : (
         <h1>Loading...</h1>
@@ -110,4 +115,4 @@ function ContentCard() {
   );
 }
 
-export default ContentCard;
+export default withConfig(ContentCard);

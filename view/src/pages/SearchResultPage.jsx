@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row, Col, Image } from "react-bootstrap";
 import { withConfig } from "../Config";
 import { Link } from "react-router-dom";
-import AddDrama from "./AddDrama";
+import Shortcut from "./Shortcut";
 
 const MovieCard = (props) => {
   const { id, src, title, year, genre = [], cast = [], views } = props;
@@ -129,7 +129,7 @@ const SearchResultPage = ({ config }) => {
       ) : (
         <p>Tidak ada hasil. Cari dengan kata kunci lain.</p>
       )}
-      <AddDrama />
+      <Shortcut />
     </>
   );
 };

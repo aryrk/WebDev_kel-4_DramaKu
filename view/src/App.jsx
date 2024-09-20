@@ -29,9 +29,11 @@ import "./App.css";
 import { EditProvider } from "./components/cmsEdit";
 import { SwalProvider } from "./components/SweetAlert";
 import EmailVerified from "./pages/EmailVerified";
+import ProtectedRoute from "./ProtectedRoute";
 
 function AppContent() {
   const { showFooter, showNavigation, showSidebar } = useGlobalState();
+
   return (
     <div>
       {showNavigation && <Navigation />}
@@ -59,16 +61,65 @@ function AppContent() {
             <Route path="/detail/:movieId" element={<DetailPage />} />
             <Route path="/home" element={<ContentCard />} />
             <Route path="/search" element={<SearchResultPage />} />
-            <Route path="/cms/actors" element={<Actors />} />
-            <Route path="/cms/comments" element={<Comments />} />
-            <Route path="/cms/users" element={<Users />} />
-            <Route path="/cms/drama/input" element={<DramaInput />} />
-            <Route path="/cms/drama/validate" element={<Dramas />} />
-            <Route path="/cms/countries" element={<Countries />} />
-            <Route path="/cms/awards" element={<Awards />} />
-            <Route path="/cms/genres" element={<Genres />} />
+            <Route
+              path="/cms/actors"
+              element={
+                <ProtectedRoute element={<Actors />} allowedRoles={["admin"]} />
+              }
+            />
+            <Route
+              path="/cms/comments"
+              element={
+                <ProtectedRoute
+                  element={<Comments />}
+                  allowedRoles={["admin"]}
+                />
+              }
+            />
+            <Route
+              path="/cms/users"
+              element={
+                <ProtectedRoute element={<Users />} allowedRoles={["admin"]} />
+              }
+            />
+            <Route
+              path="/cms/drama/input"
+              element={
+                <ProtectedRoute
+                  element={<DramaInput />}
+                  allowedRoles={["admin"]}
+                />
+              }
+            />
+            <Route
+              path="/cms/drama/validate"
+              element={
+                <ProtectedRoute element={<Dramas />} allowedRoles={["admin"]} />
+              }
+            />
+            <Route
+              path="/cms/countries"
+              element={
+                <ProtectedRoute
+                  element={<Countries />}
+                  allowedRoles={["admin"]}
+                />
+              }
+            />
+            <Route
+              path="/cms/awards"
+              element={
+                <ProtectedRoute element={<Awards />} allowedRoles={["admin"]} />
+              }
+            />
+            <Route
+              path="/cms/genres"
+              element={
+                <ProtectedRoute element={<Genres />} allowedRoles={["admin"]} />
+              }
+            />
           </Routes>
-          {/* {showFooter && <Footer />} */}
+          {showFooter && <Footer />}
         </div>
       </div>
     </div>
@@ -87,17 +138,6 @@ function App() {
           </GlobalStateProvider>
         </EditProvider>
       </SwalProvider>
-
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          minHeight: "10vh",
-        }}
-      >
-        <div style={{ flex: 1 }}>{/* Your other components go here */}</div>
-        <Footer />
-      </div>
     </>
   );
 }

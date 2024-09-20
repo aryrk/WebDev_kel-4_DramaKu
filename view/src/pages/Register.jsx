@@ -19,22 +19,31 @@ function RegisterForm() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    const response = await fetch("/api/register", {
+    fetch("/api/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ username, email, password }),
+    }).then((response) => {
+      setUsername("");
+      setEmail("");
+      setPassword("");
+      if (response.status != 500) {
+        alert("success", "success", "Registration successful");
+      } else {
+        alert(
+          "error",
+          "error",
+          "Registration failed, username or email already exists"
+        );
+      }
     });
-
-    const data = await response.json();
-    
-    setUsername("");
-    setEmail("");
-    setPassword("");
-    
-    alert("success", "success", data.message);
   };
+
+  useEffect(() => {
+    sessionStorage.removeItem("token");
+  }, []);
 
   const handleGoogleRegister = () => {
     window.open("/api/auth/google", "_self");

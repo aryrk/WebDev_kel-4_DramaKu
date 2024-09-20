@@ -14,10 +14,16 @@ function Form(props) {
   const { config } = props;
 
   useEffect(() => {
+    sessionStorage.removeItem("token");
+  }, []);
+
+  useEffect(() => {
     setTimeout(() => {
-      window.location.href = "/home";
+      window.location.href = "/login";
     }, 3000);
   }, []);
+
+
 
   return (
     <center

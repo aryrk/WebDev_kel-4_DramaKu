@@ -25,7 +25,10 @@ import { useParams } from "react-router-dom";
 import { useSwal } from "../components/SweetAlert";
 
 import { withConfig } from "../Config";
-import AddDrama from "./AddDrama";
+import Shortcut from "./Shortcut";
+import { jwtDecode } from "jwt-decode";
+
+const token = sessionStorage.getItem("token");
 
 function MovieInfo(props) {
   var {
@@ -624,9 +627,20 @@ function CommentSection() {
 
 function AddComment({ movieId, onNewComment }) {
   const { notification } = useSwal();
+  const [allowed, setAllowed] = useState(false);
+  const [userId, setUserId] = useState(null);
 
-  // ! fix after auth
-  const userId = "1";
+  useEffect(() => {
+    try {
+      const decodedToken = jwtDecode(token);
+      console.log(decodedToken);
+      if (decodedToken.role === "admin" || decodedToken.role === "writer") {
+        setAllowed(true);
+        setUserId(decodedToken.id);
+      }
+    } catch (error) {}
+  }, []);
+
   const [rate, setRate] = useState(0);
   const [thoughts, setThoughts] = useState("");
 
@@ -643,6 +657,7 @@ function AddComment({ movieId, onNewComment }) {
     fetch(`/api/movies/comments/${movieId}`, {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(newComment),
@@ -657,14 +672,16 @@ function AddComment({ movieId, onNewComment }) {
   };
 
   return (
-    <div className="justify-content-start mt-4 fw-normal">
-      <span className="d-flex fs_primary mb-2 ps-2">Add Yours!</span>
-      <div className="justify-content-start">
-        <Form
-          className="bg_pallete_5 p-4 pb-1 rounded-3"
-          onSubmit={handleSubmit}
-        >
-          <Form.Group as={Row} className="mb-3">
+    <>
+      {allowed && (
+        <div className="justify-content-start mt-4 fw-normal">
+          <span className="d-flex fs_primary mb-2 ps-2">Add Yours!</span>
+          <div className="justify-content-start">
+            <Form
+              className="bg_pallete_5 p-4 pb-1 rounded-3"
+              onSubmit={handleSubmit}
+            >
+              {/* <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={3} className="d-flex justify-content-start">
               Username
             </Form.Label>
@@ -678,70 +695,80 @@ function AddComment({ movieId, onNewComment }) {
                 disabled
               />
             </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={3} className="d-flex justify-content-start">
-              Rate
-            </Form.Label>
-            <Col className="d-flex justify-content-start pt-2">
-              <Rating
-                style={{ backgroundColor: "transparent" }}
-                name="rate"
-                value={rate}
-                onChange={(event, newValue) => {
-                  setRate(newValue);
-                }}
-                icon={
-                  <FontAwesomeIcon
-                    icon={faStar}
-                    color="#ffc107"
-                    className="fs-5 pe-1"
+          </Form.Group> */}
+              <Form.Group as={Row} className="mb-3">
+                <Form.Label
+                  column
+                  sm={3}
+                  className="d-flex justify-content-start"
+                >
+                  Rate
+                </Form.Label>
+                <Col className="d-flex justify-content-start pt-2">
+                  <Rating
+                    style={{ backgroundColor: "transparent" }}
+                    name="rate"
+                    value={rate}
+                    onChange={(event, newValue) => {
+                      setRate(newValue);
+                    }}
+                    icon={
+                      <FontAwesomeIcon
+                        icon={faStar}
+                        color="#ffc107"
+                        className="fs-5 pe-1"
+                      />
+                    }
+                    emptyIcon={
+                      <FontAwesomeIcon
+                        icon={faStar}
+                        color="#e4e5e9"
+                        className="fs-5 pe-1"
+                      />
+                    }
                   />
-                }
-                emptyIcon={
-                  <FontAwesomeIcon
-                    icon={faStar}
-                    color="#e4e5e9"
-                    className="fs-5 pe-1"
+                </Col>
+              </Form.Group>
+              <Form.Group as={Row} className="mb-3">
+                <Form.Label
+                  column
+                  sm={3}
+                  className="d-flex justify-content-start"
+                >
+                  Your thoughts
+                </Form.Label>
+                <Col>
+                  <Form.Control
+                    as="textarea"
+                    placeholder="Enter your thoughts"
+                    value={thoughts}
+                    name="comments"
+                    onChange={(e) => setThoughts(e.target.value)}
+                    required
                   />
-                }
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={3} className="d-flex justify-content-start">
-              Your thoughts
-            </Form.Label>
-            <Col>
-              <Form.Control
-                as="textarea"
-                placeholder="Enter your thoughts"
-                value={thoughts}
-                name="comments"
-                onChange={(e) => setThoughts(e.target.value)}
-                required
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Col className="d-flex justify-content-start">
-              <Button
-                className="rounded-4"
-                type="submit"
-                onClick={() =>
-                  notification(
-                    "success",
-                    "Comment added!\nAwaiting admin approval"
-                  )
-                }
-              >
-                Submit
-              </Button>
-            </Col>
-          </Form.Group>
-        </Form>
-      </div>
-    </div>
+                </Col>
+              </Form.Group>
+              <Form.Group as={Row} className="mb-3">
+                <Col className="d-flex justify-content-start">
+                  <Button
+                    className="rounded-4"
+                    type="submit"
+                    onClick={() =>
+                      notification(
+                        "success",
+                        "Comment added!\nAwaiting admin approval"
+                      )
+                    }
+                  >
+                    Submit
+                  </Button>
+                </Col>
+              </Form.Group>
+            </Form>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -863,7 +890,7 @@ function DetailPage({ config }) {
           <p>Loading...</p>
         )}
       </center>
-      <AddDrama />
+      <Shortcut />
     </>
   );
 }

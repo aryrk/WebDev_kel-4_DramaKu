@@ -28,6 +28,8 @@ import { useSwal } from "../../components/SweetAlert";
 import { renderToString } from "react-dom/server";
 import { withConfig } from "../../Config";
 
+const token = sessionStorage.getItem("token");
+
 function AddActor() {
   registerPlugin(
     FilePondPluginImageExifOrientation,
@@ -56,6 +58,9 @@ function AddActor() {
     fetch("/api/cms/actors", {
       method: "POST",
       body: formData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }).then((response) => {
       if (response.status === 200) {
         notification("success", "Actor added successfully");
@@ -210,7 +215,13 @@ function ActorTable(props) {
       const limit = 10;
       const offset = (page - 1) * limit;
       const response = await fetch(
-        `/api/cms/actors?limit=${limit}&offset=${offset}`
+        `/api/cms/actors?limit=${limit}&offset=${offset}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       const data = await response.json();
       setActors(data.actors);
@@ -337,6 +348,9 @@ function ActorTable(props) {
         ajax: {
           url: "/api/cms/actors",
           type: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           data: function (d) {
             const limit = d.length;
             const offset = d.start;
@@ -390,10 +404,10 @@ function ActorTable(props) {
                 td.setAttribute("old", old);
               } catch {}
 
-              try{
+              try {
                 const list = innerElement.getAttribute("list");
                 td.setAttribute("list", list);
-              }catch{}
+              } catch {}
             }
           });
         },
@@ -410,6 +424,9 @@ function ActorTable(props) {
     try {
       const response = await fetch(`/api/cms/actors/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       const data = await response.json();
       if (data.success) {
@@ -435,6 +452,9 @@ function ActorTable(props) {
     try {
       const response = await fetch(`/api/cms/actors/${id}`, {
         method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
       const data = await response.json();

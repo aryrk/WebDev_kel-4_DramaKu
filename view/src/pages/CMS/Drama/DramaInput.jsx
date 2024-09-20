@@ -36,6 +36,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 var GenreRef = null;
 var AwardRef = null;
 
+const token = sessionStorage.getItem("token");
+
 function PosterUpload() {
   registerPlugin(
     FilePondPluginImageExifOrientation,
@@ -67,6 +69,9 @@ function PosterUpload() {
 
     fetch("/api/cms/movies", {
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       body: formData,
     }).then((response) => {
       if (response.status === 200) {
@@ -152,7 +157,13 @@ function AddActor(props) {
       const limit = 10;
       const offset = (page - 1) * limit;
       const response = await fetch(
-        `/api/cms/actors?limit=${limit}&offset=${offset}`
+        `/api/cms/actors?limit=${limit}&offset=${offset}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       const data = await response.json();
       setActors(data.actors);
@@ -245,6 +256,10 @@ function AddActor(props) {
         ajax: {
           url: "/api/cms/actors",
           type: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+
           data: function (d) {
             const limit = d.length;
             const offset = d.start;

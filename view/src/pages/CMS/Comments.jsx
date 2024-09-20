@@ -6,6 +6,8 @@ import "datatables.net-dt/css/dataTables.dataTables.min.css";
 import { useSwal } from "../../components/SweetAlert";
 import { useGlobalState } from "../../components/GlobalStateContext";
 
+const token = sessionStorage.getItem("token");
+
 let selectedComments = [];
 window.update_selected_commennt = function (checkbox, id) {
   if (checkbox.checked) {
@@ -26,7 +28,13 @@ function CommentsTable() {
       const limit = 10;
       const offset = (page - 1) * limit;
       const response = await fetch(
-        `/api/cms/comments?limit=${limit}&offset=${offset}`
+        `/api/cms/comments?limit=${limit}&offset=${offset}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       const data = await response.json();
       setComments(data.comments);
@@ -116,6 +124,9 @@ function CommentsTable() {
         ajax: {
           url: "/api/cms/comments",
           type: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           data: function (d) {
             const limit = d.length;
             const offset = d.start;
@@ -191,7 +202,10 @@ function Footer() {
     try {
       const response = await fetch("/api/cms/comments/action", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ ids: selectedComments, action: "accepted" }),
       });
       const data = await response.json();
@@ -209,7 +223,10 @@ function Footer() {
     try {
       const response = await fetch("/api/cms/comments/action", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({ ids: selectedComments, action: "rejected" }),
       });
       const data = await response.json();

@@ -137,7 +137,8 @@ const Footer = ({ config }) => {
                       activeCountry === country ? "active" : ""
                     }`}
                     onClick={(e) => {
-                      setActiveCountry(countryItem.name); // Set the active country
+                      setActiveCountry(countryItem.name);
+                      setSearchGenre("all");
                       handleSearch(e, searchTerm, countryItem.name); // Trigger search
                     }}
                     style={{ cursor: "pointer" }} // Change cursor on hover

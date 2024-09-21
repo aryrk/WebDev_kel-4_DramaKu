@@ -112,7 +112,7 @@ const CustomNavbar = ({ config }) => {
   return (
     <>
       {/* Top Navbar */}
-      <Navbar sticky="top" expand="lg" className="navbar-custom">
+      <Navbar sticky="top" expand="lg" className="navbar-custom pt-2 pb-0">
         <Container>
           {/* Mobile Navbar Toggle */}
           <div className="d-lg-none d-flex justify-content-between align-items-center w-100">
@@ -249,7 +249,7 @@ const CustomNavbar = ({ config }) => {
       </Navbar>
 
       {/* Bottom Navbar */}
-      <Navbar sticky="top" expand="lg" className="navbar-custom mt-2 p-0">
+      <Navbar sticky="top" expand="lg" className="navbar-custom mt-2 p-2">
         <Container>
           <Navbar.Collapse id="bottom-navbar-nav" className="text-center">
             <Nav className="justify-content-center">

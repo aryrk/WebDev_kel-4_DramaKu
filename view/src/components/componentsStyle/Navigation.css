@@ -2,6 +2,9 @@
 .navbar-custom {
   background-color: #212121 !important;
   color: white;
+  z-index: 1030;
+  position: sticky;
+  top: 0;
 }
 
 .navbar-custom .navbar-brand,

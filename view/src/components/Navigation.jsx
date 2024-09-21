@@ -64,6 +64,7 @@ const CustomNavbar = ({ config }) => {
   }, []);
 
   const [genre, setGenre] = useState([]);
+
   useEffect(() => {
     fetch("/api/cms/genrelist")
       .then((res) => res.json())
@@ -96,10 +97,6 @@ const CustomNavbar = ({ config }) => {
     genre = searchGenre,
     award = searchAward
   ) => {
-    // event.preventDefault(); // Prevent form submission
-    // if (searchTerm.trim()) {
-    // Navigate to the search results page and pass the search term
-
     navigate(
       `/search?query=${encodeURIComponent(title)}&country=${encodeURIComponent(
         country
@@ -108,17 +105,6 @@ const CustomNavbar = ({ config }) => {
       )}&award=${encodeURIComponent(award)}`
     );
     // }
-  };
-
-  const handleClearFilter = (e) => {
-    e.preventDefault();
-    setSearchCountry("all");
-    setSearchYear("all");
-    setSearchGenre("all");
-    setSearchAward("all");
-    setIsFilterDisabled(true);
-    handleSearch(e, searchTerm, "all", "all", "all", "all");
-    navigate("/home"); // Navigate back to the homepage
   };
 
   const remainingCountries = country.slice(5);
@@ -183,12 +169,12 @@ const CustomNavbar = ({ config }) => {
                     <Nav.Link
                       key={countryItem.id}
                       onClick={(e) => {
-                        setActiveCountry(countryItem.name); // Set the active country
+                        setActiveCountry(countryItem.name);
                         handleSearch(e, searchTerm, countryItem.name);
                       }}
                       className={`navbar-custom ${
                         activeCountry === countryItem.name ? "active" : ""
-                      }`} // Apply active class
+                      }`}
                     >
                       {countryItem.name}
                     </Nav.Link>

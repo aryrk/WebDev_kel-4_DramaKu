@@ -31,6 +31,8 @@
   
   .pagination\:active {
     background: lighten(#202020, 10%);
+    background-color: white;
+    color: #202020;
   }
   
   .pagination\:number:hover {

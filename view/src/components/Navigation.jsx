@@ -116,6 +116,15 @@ const CustomNavbar = ({ config }) => {
         <Container>
           {/* Mobile Navbar Toggle */}
           <div className="d-lg-none d-flex justify-content-between align-items-center w-100">
+            {/* Login Button for Mobile */}
+            <Button
+              variant="outline-light"
+              className="me-2"
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </Button>
+
             {/* Search Icon for Mobile */}
             <Button
               variant="link"
@@ -227,13 +236,22 @@ const CustomNavbar = ({ config }) => {
                 handleSearch(e);
               }}
             >
+              {/* Login Button for Desktop */}
+              <Button
+                variant="outline-light"
+                className="me-2"
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </Button>
+
               <Form.Control
                 type="text"
                 placeholder="Search"
                 aria-label="Search"
                 className="me-2"
                 style={{ maxWidth: "280px" }}
-                value={searchTerm != "all" ? searchTerm : ""}
+                value={searchTerm !== "all" ? searchTerm : ""}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
                   // submit search on enter

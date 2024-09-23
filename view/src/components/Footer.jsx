@@ -27,7 +27,6 @@ const Footer = ({ config }) => {
       .then((res) => res.json())
       .then((data) => {
         setCountry(data);
-        console.log(data);
       });
   }, []);
 

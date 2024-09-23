@@ -10,13 +10,16 @@ import {
   Image,
   Modal,
   ListGroup,
+  Dropdown,
+  DropdownButton,
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./componentsStyle/Navigation.css";
 import { withConfig } from "../Config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import $ from "jquery";
+import $, { data } from "jquery";
+import { jwtDecode } from "jwt-decode";
 
 const CustomNavbar = ({ config }) => {
   const [show, setShow] = useState(false);
@@ -107,23 +110,61 @@ const CustomNavbar = ({ config }) => {
     // }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setAllowedLogin(false);
+
+    navigate("/login");
+  };
+
   const remainingCountries = country.slice(5);
+  const token = sessionStorage.getItem("token");
+  const [LoginAllowed, setAllowedLogin] = useState(false);
+  const [Username, setUsername] = useState("");
+
+  useEffect(() => {
+    try {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken.role === "admin" || decodedToken.role === "writer") {
+        setAllowedLogin(true);
+        setUsername(decodedToken.username);
+        console.log(decodedToken.username);
+      }
+    } catch (error) {}
+  }, []);
 
   return (
     <>
       {/* Top Navbar */}
-      <Navbar sticky="top" expand="lg" className="navbar-custom pt-2 pb-0">
+      <Navbar
+        sticky="top"
+        expand="lg"
+        className="navbar-custom pt-2 pb-0"
+        style={{ zIndex: 1000000 }}
+      >
         <Container>
           {/* Mobile Navbar Toggle */}
           <div className="d-lg-none d-flex justify-content-between align-items-center w-100">
             {/* Login Button for Mobile */}
-            <Button
-              variant="outline-light"
-              className="me-2"
-              onClick={() => navigate("/login")}
-            >
-              Login
-            </Button>
+            <div className="dropdown-container">
+              {LoginAllowed ? (
+                <DropdownButton
+                  id="dropdown-basic-button"
+                  title={Username}
+                  className="user-dropdown"
+                >
+                  <Dropdown.Item href="">Log Out</Dropdown.Item>
+                </DropdownButton>
+              ) : (
+                <Button
+                  variant="outline-light"
+                  className="me-2"
+                  onClick={() => navigate("/login")}
+                >
+                  Login
+                </Button>
+              )}
+            </div>
 
             {/* Search Icon for Mobile */}
             <Button
@@ -237,13 +278,27 @@ const CustomNavbar = ({ config }) => {
               }}
             >
               {/* Login Button for Desktop */}
-              <Button
-                variant="outline-light"
-                className="me-2"
-                onClick={() => navigate("/login")}
-              >
-                Login
-              </Button>
+              {LoginAllowed ? (
+                <Dropdown className="user-dropdown">
+                  <Dropdown.Toggle variant="success" id="dropdown-basic">
+                    {Username}
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                    <Dropdown.Item onClick={handleLogout}>
+                      Log Out
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              ) : (
+                <Button
+                  variant="outline-light"
+                  className="me-2"
+                  onClick={() => navigate("/login")}
+                >
+                  Login
+                </Button>
+              )}
 
               <Form.Control
                 type="text"

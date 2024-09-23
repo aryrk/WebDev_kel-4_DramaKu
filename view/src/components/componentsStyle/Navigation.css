@@ -2,7 +2,7 @@
 .navbar-custom {
   background-color: #212121 !important;
   color: white;
-  z-index: 1030;
+  z-index: 1000;
   position: sticky;
   top: 0;
 }
@@ -20,6 +20,7 @@
 
 .dropdown-toggle {
   color: white;
+  position: relative;
 }
 
 .submit {
@@ -49,6 +50,13 @@
   display: flex;
   align-items: center !important;
   justify-content: center !important;
+}
+
+.user-dropdown .dropdown-menu {
+  z-index: 10000000;
+  position: absolute;
+  top: 40px; /* Adjust based on button size */
+  right: 0;
 }
 
 @media (max-width: 991px) {

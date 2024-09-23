@@ -27,7 +27,9 @@ const oAuth2Client = new google.auth.OAuth2(
   client_domain + "/auth/google/callback"
 );
 
-oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
+const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
+
+oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
 const fs = require("fs");
 const dir = "./public/uploads";
@@ -150,7 +152,7 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     clientId: process.env.EMAIL_CLIENT_ID,
     clientSecret: process.env.EMAIL_CLIENT_SECRET,
-    refreshToken: process.env.REFRESH_TOKEN,
+    refreshToken: REFRESH_TOKEN,
     accessToken: accessToken.token,
   },
 });
@@ -752,16 +754,20 @@ app.get(
 );
 
 app.get(
-  "/api/auth/google/callback",
+  "/auth/google/callback",
   passport.authenticate("google", {
     failureRedirect: "/login",
     session: false,
   }),
   (req, res) => {
-    const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-    res.redirect(`${client_domain}/home?token=${token}`);
+    const token = jwt.sign(
+      { id: req.user.id, username: req.user.username, role: req.user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
+    res.redirect(`${client_domain}/login?token=${token}`);
   }
 );
 

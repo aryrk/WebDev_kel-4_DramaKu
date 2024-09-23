@@ -44,7 +44,18 @@ function LoginForm(props) {
   };
 
   useEffect(() => {
-    sessionStorage.removeItem("token");
+    const token_session = sessionStorage.getItem("token");
+    if (token_session) {
+      window.location.href = "/home";
+    }
+
+
+    const url = new URL(window.location.href);
+    const token = url.searchParams.get("token");
+    if (token) {
+      sessionStorage.setItem("token", token);
+      window.location.href = "/home";
+    }
   }, []);
 
   const { config } = props;

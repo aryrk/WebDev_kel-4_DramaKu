@@ -818,13 +818,15 @@ app.get(
     session: false,
   }),
   (req, res) => {
+    const user = req.user;
     const token = jwt.sign(
-      { id: req.user.id, username: req.user.username, role: req.user.role },
+      { id: user.id, username: user.username, role: user.role },
       process.env.JWT_SECRET,
       {
         expiresIn: "1h",
       }
     );
+
     res.redirect(`${client_domain}/login?token=${token}`);
   }
 );

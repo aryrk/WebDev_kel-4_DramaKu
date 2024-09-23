@@ -30,7 +30,7 @@ function RegisterForm() {
       setEmail("");
       setPassword("");
       if (response.status != 500) {
-        alert("success", "success", "Registration successful");
+        alert("success", "success", "Check your email to verify your account");
       } else {
         alert(
           "error",

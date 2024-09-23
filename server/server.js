@@ -27,9 +27,79 @@ const oAuth2Client = new google.auth.OAuth2(
   client_domain + "/auth/google/callback"
 );
 
-const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
+const oAuth2Client_mail = new google.auth.OAuth2(
+  process.env.EMAIL_CLIENT_ID,
+  process.env.EMAIL_CLIENT_SECRET,
+  domain + "/oauth2callback"
+);
 
-oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+const scopes = ["https://mail.google.com/"];
+
+// const { tokens } = await oAuth2Client.getToken(code);
+// wrap in function
+
+var REFRESH_TOKEN = "";
+var accessToken = "";
+var transporter = null;
+
+function setupRefreshToken() {
+  oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+  accessToken = oAuth2Client.getAccessToken();
+  transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      type: "OAuth2",
+      user: process.env.EMAIL_USER,
+      clientId: process.env.EMAIL_CLIENT_ID,
+      clientSecret: process.env.EMAIL_CLIENT_SECRET,
+      refreshToken: REFRESH_TOKEN,
+      accessToken: accessToken.token,
+    },
+  });
+}
+
+async function getAccessToken() {
+  const url = oAuth2Client_mail.generateAuthUrl({
+    access_type: "offline",
+    scope: scopes,
+  });
+  return url;
+}
+
+app.get("/authkey", async (req, res) => {
+  // const url = oAuth2Client_mail.generateAuthUrl({
+  //   access_type: "offline",
+  //   scope: scopes,
+  // });
+  // res.redirect(url);
+
+  res.redirect(await getAccessToken());
+});
+
+// Endpoint untuk callback setelah user login
+// var REFRESH_TOKEN = process.env.REFRESH_TOKEN;
+app.get("/oauth2callback", async (req, res) => {
+  const code = req.query.code;
+  if (code) {
+    try {
+      const { tokens } = await oAuth2Client_mail.getToken(code);
+      oAuth2Client_mail.setCredentials(tokens);
+      res.send("Authentication successful! Tokens received.");
+      console.log("Access Token:", tokens.access_token);
+      if (tokens.refresh_token) {
+        console.log("Refresh Token:", tokens.refresh_token);
+        REFRESH_TOKEN = tokens.refresh_token;
+        setupRefreshToken();
+      }
+    } catch (error) {
+      console.error("Error getting token:", error);
+      res.send("Error during authentication");
+    }
+  }
+});
+
+// oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+// accessToken = oAuth2Client.getAccessToken();
 
 const fs = require("fs");
 const dir = "./public/uploads";
@@ -143,18 +213,6 @@ connection.connect((err) => {
     return;
   }
   console.log("Connected as id " + connection.threadId);
-});
-const accessToken = oAuth2Client.getAccessToken();
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    type: "OAuth2",
-    user: process.env.EMAIL_USER,
-    clientId: process.env.EMAIL_CLIENT_ID,
-    clientSecret: process.env.EMAIL_CLIENT_SECRET,
-    refreshToken: REFRESH_TOKEN,
-    accessToken: accessToken.token,
-  },
 });
 
 const email_template = (username, email, header_text, header, inner) => {
@@ -1688,4 +1746,5 @@ app.post(
 
 app.listen(port, () => {
   console.log("Server is running on " + domain);
+  console.log("Create auth by opening : " + `${domain}/authkey`);
 });

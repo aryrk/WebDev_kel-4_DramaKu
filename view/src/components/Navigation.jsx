@@ -12,6 +12,8 @@ import {
   ListGroup,
   Dropdown,
   DropdownButton,
+  Row,
+  Col,
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./componentsStyle/Navigation.css";
@@ -31,10 +33,18 @@ const CustomNavbar = ({ config }) => {
   const [searchAward, setSearchAward] = useState("all");
   const navigate = useNavigate();
   const [showMore, setShowMore] = useState(false);
-  const handleCloseModal = () => setShowMore(false);
-  const handleShowMore = () => setShowMore(true);
   const [activeCountry, setActiveCountry] = useState("");
   const [isFilterDisabled, setIsFilterDisabled] = useState(false);
+  const handleCloseModal = () => setShowMore(false);
+  const handleShowMore = () => {
+    setShowMore((prevState) => !prevState);
+  };
+  const handleCountryClick = (country) => {
+    setActiveCountry(country);
+    setSearchCountry(country);
+    handleSearch(null, searchTerm, country);
+    setShowMore(false);
+  };
 
   const [country, setCountry] = useState([]);
 
@@ -111,7 +121,7 @@ const CustomNavbar = ({ config }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
     setAllowedLogin(false);
 
     navigate("/login");
@@ -153,7 +163,7 @@ const CustomNavbar = ({ config }) => {
                   title={Username}
                   className="user-dropdown"
                 >
-                  <Dropdown.Item href="">Log Out</Dropdown.Item>
+                  <Dropdown.Item onClick={handleLogout}>Log Out</Dropdown.Item>
                 </DropdownButton>
               ) : (
                 <Button
@@ -229,10 +239,11 @@ const CustomNavbar = ({ config }) => {
                       {countryItem.name}
                     </Nav.Link>
                   ))}
+
                   {remainingCountries.length > 0 && (
                     <Nav.Link
                       onClick={handleShowMore}
-                      className="navbar-custom"
+                      className="navbar-custom show-more"
                     >
                       Show More
                     </Nav.Link>
@@ -241,25 +252,38 @@ const CustomNavbar = ({ config }) => {
               )}
             </Nav>
 
-            <Modal show={showMore} onHide={handleCloseModal}>
-              <Modal.Header closeButton>
-                <Modal.Title>More Countries</Modal.Title>
-              </Modal.Header>
+            <Modal
+              className="customShowMore"
+              show={showMore}
+              onHide={handleCloseModal}
+              fullscreen={true} // This makes the modal full screen on all devices
+            >
               <Modal.Body>
                 <ListGroup>
-                  {remainingCountries.map((countryItem) => (
-                    <ListGroup.Item
-                      key={countryItem.id}
-                      onClick={(e) => {
-                        setSearchCountry(countryItem.name);
-                        handleSearch(e, searchTerm, countryItem.name);
-                        handleCloseModal(); // Tutup modal setelah memilih
-                      }}
-                      style={{ cursor: "pointer" }} // Optional: agar terlihat seperti bisa diklik
-                    >
-                      {countryItem.name}
-                    </ListGroup.Item>
-                  ))}
+                  {remainingCountries
+                    .reduce((rows, country, index) => {
+                      // For every group of 3 countries, create a new row
+                      if (index % 6 === 0) {
+                        rows.push(remainingCountries.slice(index, index + 6));
+                      }
+                      return rows;
+                    }, [])
+                    .map((row, rowIndex) => (
+                      <Row key={rowIndex} className="mb-3">
+                        {row.map((countryItem) => (
+                          <Col key={countryItem.id} xs={12} sm={6} md={2}>
+                            <ListGroup.Item
+                              onClick={() =>
+                                handleCountryClick(countryItem.name)
+                              }
+                              style={{ cursor: "pointer", textAlign: "center" }} // Optional: center alignment
+                            >
+                              {countryItem.name}
+                            </ListGroup.Item>
+                          </Col>
+                        ))}
+                      </Row>
+                    ))}
                 </ListGroup>
               </Modal.Body>
               <Modal.Footer>
@@ -278,27 +302,27 @@ const CustomNavbar = ({ config }) => {
               }}
             >
               {/* Login Button for Desktop */}
-              {LoginAllowed ? (
-                <Dropdown className="user-dropdown">
-                  <Dropdown.Toggle variant="success" id="dropdown-basic">
-                    {Username}
-                  </Dropdown.Toggle>
-
-                  <Dropdown.Menu>
+              <div className="dropdown-container">
+                {LoginAllowed ? (
+                  <DropdownButton
+                    id="dropdown-basic-button"
+                    title={Username}
+                    className="user-dropdown"
+                  >
                     <Dropdown.Item onClick={handleLogout}>
                       Log Out
                     </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
-              ) : (
-                <Button
-                  variant="outline-light"
-                  className="me-2"
-                  onClick={() => navigate("/login")}
-                >
-                  Login
-                </Button>
-              )}
+                  </DropdownButton>
+                ) : (
+                  <Button
+                    variant="outline-light"
+                    className="me-2"
+                    onClick={() => navigate("/login")}
+                  >
+                    Login
+                  </Button>
+                )}
+              </div>
 
               <Form.Control
                 type="text"

@@ -57,7 +57,83 @@
   position: absolute;
   top: 40px; /* Adjust based on button size */
   right: 0;
+  margin-right: 7px;
 }
+
+.dropdown-toggle {
+  margin-right: 7px;
+}
+
+.customShowMore .modal-dialog {
+  width: 100vw; /* Full width of the viewport */
+  height: 100vh; /* Full height of the viewport */
+  margin: 0; /* Remove default margin */
+  padding: 0;
+  top: 35px;
+}
+
+
+
+.modal-header {
+  border-bottom: 1px solid #444;
+}
+
+.modal-header .modal-title {
+  font-size: 1.5rem;
+  color: white;
+}
+
+.modal-body {
+  background-color: #1b1b1b;
+  padding: 20px;
+  color: white;
+}
+
+.modal-body .list-group-item {
+  background-color: #1b1b1b;
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  transition: background-color 0.3s, color 0.3s;
+  cursor: pointer;
+}
+
+.modal-body .list-group-item:hover {
+  background-color: #2e2e2e;
+  color: wheat;
+}
+
+.modal-footer {
+  border-top: 1px solid #444;
+  background-color: #1b1b1b;
+}
+
+.modal-footer .btn {
+  background-color: #525c91;
+  color: white;
+  transition: background-color 0.3s;
+}
+
+.modal-footer .btn:hover {
+  background-color: #676fa3;
+}
+
+.modal-footer .btn:active {
+  background-color: wheat;
+  color: #212121;
+}
+
+/* Close Button */
+.modal-header .close {
+  color: white;
+  opacity: 0.8;
+}
+
+.modal-header .close:hover {
+  color: wheat;
+  opacity: 1;
+}
+
 
 @media (max-width: 991px) {
   .navbar-brand {

@@ -1744,6 +1744,107 @@ app.post(
   }
 );
 
+app.get("/api/cms/countriesList", authorize(["admin"]), (req, res) => {
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = parseInt(req.query.offset) || 0;
+  const search = req.query.search ? `%${req.query.search}%` : "%%";
+  const orderColumnIndex = parseInt(req.query.order) || 0;
+  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
+
+  const orderColumns = [
+    "c.id", // 0
+    "c.name", // 1
+  ];
+
+  const orderColumn = orderColumns[orderColumnIndex] || "c.id";
+
+  const countQuery = `
+    SELECT COUNT(*) as total
+    FROM countries c
+    WHERE c.name LIKE ?
+  `;
+
+  const dataQuery = `
+  SELECT c.id, c.name
+  FROM countries c
+  WHERE c.name LIKE ?
+  ORDER BY ${orderColumn} ${orderDir}
+  LIMIT ? OFFSET ?
+`;
+
+  connection.query(countQuery, [search], (err, countResult) => {
+    if (err) return res.status(500).send(err);
+
+    const totalCountries = countResult[0].total;
+
+    connection.query(dataQuery, [search, limit, offset], (err, dataResults) => {
+      if (err) return res.status(500).send(err);
+
+      res.json({
+        countries: dataResults,
+        recordsTotal: totalCountries,
+        recordsFiltered: totalCountries,
+      });
+    });
+  });
+});
+
+app.get("/api/cms/awardsList", authorize(["admin"]), (req, res) => {
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = parseInt(req.query.offset) || 0;
+  const search = req.query.search ? `%${req.query.search}%` : "%%";
+  const orderColumnIndex = parseInt(req.query.order) || 0;
+  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
+
+  const orderColumns = [
+    "a.id", // 0
+    "a.name",
+    "a.year",
+  ];
+
+  const orderColumn = orderColumns[orderColumnIndex] || "a.id";
+  console.log("Order by column:", orderColumn);
+
+  const countQuery = `
+    SELECT COUNT(*) as total
+    FROM awards a
+    WHERE a.name LIKE ?
+  `;
+
+  const dataQuery = `
+  SELECT a.id, a.name, a.year
+  FROM awards a
+  WHERE a.name LIKE ?
+  ORDER BY ${orderColumn} ${orderDir}
+  LIMIT ? OFFSET ?
+`;
+
+  connection.query(countQuery, [search], (err, countResult) => {
+    if (err) {
+      console.error("Count Query Error:", err);
+      return res.status(500).send(err);
+    }
+
+    const totalAwards = countResult[0].total;
+    console.log("Total awards:", totalAwards);
+
+    connection.query(dataQuery, [search, limit, offset], (err, dataResults) => {
+      if (err) {
+        console.error("Data Query Error:", err);
+        return res.status(500).send(err);
+      }
+
+      console.log("Data Results:", dataResults);
+
+      res.json({
+        awards: dataResults,
+        recordsTotal: totalAwards,
+        recordsFiltered: totalAwards,
+      });
+    });
+  });
+});
+
 // ! ===============================================  CMS ===============================================
 
 app.listen(port, () => {

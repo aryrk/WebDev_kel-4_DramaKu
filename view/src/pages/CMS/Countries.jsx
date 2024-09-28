@@ -148,10 +148,10 @@ function CMSCountries() {
               const no = row.id;
 
               return renderToString(
-                <center>
+                <div className="d-flex justify-content-center">
                   <Button
                     variant="primary"
-                    className="mb-3 mb-sm-4"
+                    className="mx-2"
                     onClick={() => edit(no)}
                     id={`editBtn${no}`}
                   >
@@ -159,26 +159,29 @@ function CMSCountries() {
                   </Button>
                   <Button
                     variant="success"
-                    className="mb-3 mb-sm-4 d-none"
+                    className="d-none mx-2"
                     id={`editSaveBtn${no}`}
                     form="editForm"
                     type="submit"
                   >
                     <FontAwesomeIcon icon={faSave} />
                   </Button>
-                  <br></br>
-                  <Button variant="danger" id={`deleteBtn${no}`}>
+                  <Button
+                    variant="danger"
+                    className="mx-2"
+                    id={`deleteBtn${no}`}
+                  >
                     <FontAwesomeIcon icon={faTrash} />
                   </Button>
                   <Button
                     variant="warning"
                     id={`cancelBtn${no}`}
-                    className="d-none"
+                    className="d-none mx-2"
                     onClick={() => cancelEdit(no)}
                   >
                     <FontAwesomeIcon icon={faTimes} />
                   </Button>
-                </center>
+                </div>
               );
             },
           },

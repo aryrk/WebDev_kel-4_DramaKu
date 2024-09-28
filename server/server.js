@@ -1903,6 +1903,50 @@ app.get("/api/cms/moviesList", authorize(["admin"]), (req, res) => {
   });
 });
 
+app.get("/api/cms/genresList", authorize(["admin"]), (req, res) => {
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = parseInt(req.query.offset) || 0;
+  const search = req.query.search ? `%${req.query.search}%` : "%%";
+  const orderColumnIndex = parseInt(req.query.order) || 0;
+  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
+
+  const orderColumns = [
+    "g.id", // 0
+    "g.name", // 1
+  ];
+
+  const orderColumn = orderColumns[orderColumnIndex] || "g.id";
+
+  const countQuery = `
+    SELECT COUNT(*) as total
+    FROM genres g
+    WHERE g.name LIKE ?
+  `;
+
+  const dataQuery = `
+  SELECT g.id, g.name
+  FROM genres g
+  WHERE g.name LIKE ?
+  ORDER BY ${orderColumn} ${orderDir}
+  LIMIT ? OFFSET ?
+`;
+
+  connection.query(countQuery, [search], (err, countResult) => {
+    if (err) return res.status(500).send(err);
+
+    const totalGenres = countResult[0].total;
+
+    connection.query(dataQuery, [search, limit, offset], (err, dataResults) => {
+      if (err) return res.status(500).send(err);
+
+      res.json({
+        genres: dataResults,
+        recordsTotal: totalGenres,
+        recordsFiltered: totalGenres,
+      });
+    });
+  });
+});
 // ! ===============================================  CMS ===============================================
 
 app.listen(port, () => {

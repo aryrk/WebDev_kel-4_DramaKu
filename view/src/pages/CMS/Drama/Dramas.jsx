@@ -2,12 +2,30 @@ import React, { useState, useEffect } from "react";
 import $ from "jquery";
 import DataTable from "datatables.net-dt";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEdit,
+  faTrash,
+  faSave,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
 import "datatables.net-dt/css/dataTables.dataTables.min.css";
 import "../../pagesStyle/Dramas.css";
-import { Container, Button, Modal, Image } from "react-bootstrap";
+import {
+  Container,
+  Button,
+  Modal,
+  Image,
+  Form,
+  Row,
+  Col,
+} from "react-bootstrap";
 import { useGlobalState } from "../../../components/GlobalStateContext";
 import { Actor, BackgroundPoster, MovieInfo, Trailer } from "../../DetailPage";
+import { useEdit } from "../../../components/cmsEdit";
+import { useSwal } from "../../../components/SweetAlert";
+import { renderToString } from "react-dom/server";
+
+const token = sessionStorage.getItem("token");
 
 function MoviePreview() {
   return (
@@ -135,136 +153,341 @@ function MovieDetailModal(props) {
   );
 }
 
-// Langkah 1: Pisahkan data ke dalam array
-const dramasData = [
-  {
-    id: 1,
-    drama: "The Outsider (2020)",
-    actor: "Ben Mendelsohn",
-    genre: "Crime, Drama, Mystery",
-    synopsis:
-      "A detective investigates a brutal murder that seems to have a supernatural element.",
-    status: "Completed",
-  },
-  {
-    id: 2,
-    drama: "Avatar: The Way of Water (2022)",
-    actor: "Sam Worthington, Zoe Saldana",
-    genre: "Action, Adventure, Fantasy",
-    synopsis:
-      "Jake Sully lives with his newfound family formed on the planet of Pandora. Once a familiar threat returns to finish what was previously started, Jake must work with Neytiri and the army of the Na'vi race to protect their planet.",
-    status: "Completed",
-  },
-  {
-    id: 3,
-    drama: "Shang-Chi and the Legend of the Ten Rings (2021)",
-    actor: "Simu Liu",
-    genre: "Action, Adventure, Fantasy",
-    synopsis:
-      "Shang-Chi, the master of weaponry-based Kung Fu, is forced to confront his past after being drawn into the Ten Rings organization.",
-    status: "Completed",
-  },
-  {
-    id: 4,
-    drama: "Venom: Let There Be Carnage (2021)",
-    actor: "Tom Hardy",
-    genre: "Action, Adventure, Fantasy",
-    synopsis:
-      "Eddie Brock attempts to reignite his career by interviewing serial killer Cletus Kasady, who becomes the host of the symbiote Carnage and escapes prison after a failed execution.",
-    status: "Completed",
-  },
-  {
-    id: 5,
-    drama: "Fast X (2023)",
-    actor: "Vin Diesel",
-    genre: "Action, Adventure",
-    synopsis:
-      "Dom Toretto and his family are targeted by the vengeful son of drug kingpin Hernan Reyes.",
-    status: "Ongoing",
-  },
-  {
-    id: 6,
-    drama: "Minions: The Rise of Gru (2022)",
-    actor: "Steve Carell",
-    genre: "Animation, Adventure, Comedy",
-    synopsis:
-      "The untold story of one twelve-year-old's dream to become the world's greatest supervillain.",
-    status: "Completed",
-  },
-  {
-    id: 7,
-    drama: "Thor: Love and Thunder (2022)",
-    actor: "Chris Hemsworth",
-    genre: "Action, Adventure, Fantasy",
-    synopsis:
-      "Thor enlists the help of Valkyrie, Korg, and ex-girlfriend Jane Foster to fight Gorr the God Butcher, who intends to make the gods extinct.",
-    status: "Completed",
-  },
-  {
-    id: 8,
-    drama: "Doctor Strange in the Multiverse of Madness (2022)",
-    actor: "Benedict Cumberbatch",
-    genre: "Action, Adventure, Fantasy",
-    synopsis:
-      "Doctor Strange, with the help of mystical allies old and new, traverses the mind-bending and dangerous alternate realities of the Multiverse to confront a mysterious new adversary.",
-    status: "Completed",
-  },
-  {
-    id: 9,
-    drama: "Black Panther: Wakanda Forever (2022)",
-    actor: "Letitia Wright",
-    genre: "Action, Adventure, Drama",
-    synopsis:
-      "The people of Wakanda fight to protect their home from intervening world powers as they mourn the death of King T'Challa.",
-    status: "Completed",
-  },
-  {
-    id: 10,
-    drama: "John Wick: Chapter 4 (2023)",
-    actor: "Keanu Reeves",
-    genre: "Action, Crime, Thriller",
-    synopsis:
-      "John Wick uncovers a path to defeating The High Table. But before he can earn his freedom, Wick must face off against a new enemy with powerful alliances across the globe and forces that turn old friends into foes.",
-    status: "Completed",
-  },
-];
+// const dramasData = [
+//   {
+//     id: 1,
+//     drama: "The Outsider (2020)",
+//     actor: "Ben Mendelsohn",
+//     genre: "Crime, Drama, Mystery",
+//     synopsis:
+//       "A detective investigates a brutal murder that seems to have a supernatural element.",
+//     status: "Completed",
+//   },
+//   {
+//     id: 2,
+//     drama: "Avatar: The Way of Water (2022)",
+//     actor: "Sam Worthington, Zoe Saldana",
+//     genre: "Action, Adventure, Fantasy",
+//     synopsis:
+//       "Jake Sully lives with his newfound family formed on the planet of Pandora. Once a familiar threat returns to finish what was previously started, Jake must work with Neytiri and the army of the Na'vi race to protect their planet.",
+//     status: "Completed",
+//   },
+//   {
+//     id: 3,
+//     drama: "Shang-Chi and the Legend of the Ten Rings (2021)",
+//     actor: "Simu Liu",
+//     genre: "Action, Adventure, Fantasy",
+//     synopsis:
+//       "Shang-Chi, the master of weaponry-based Kung Fu, is forced to confront his past after being drawn into the Ten Rings organization.",
+//     status: "Completed",
+//   },
+//   {
+//     id: 4,
+//     drama: "Venom: Let There Be Carnage (2021)",
+//     actor: "Tom Hardy",
+//     genre: "Action, Adventure, Fantasy",
+//     synopsis:
+//       "Eddie Brock attempts to reignite his career by interviewing serial killer Cletus Kasady, who becomes the host of the symbiote Carnage and escapes prison after a failed execution.",
+//     status: "Completed",
+//   },
+//   {
+//     id: 5,
+//     drama: "Fast X (2023)",
+//     actor: "Vin Diesel",
+//     genre: "Action, Adventure",
+//     synopsis:
+//       "Dom Toretto and his family are targeted by the vengeful son of drug kingpin Hernan Reyes.",
+//     status: "Ongoing",
+//   },
+//   {
+//     id: 6,
+//     drama: "Minions: The Rise of Gru (2022)",
+//     actor: "Steve Carell",
+//     genre: "Animation, Adventure, Comedy",
+//     synopsis:
+//       "The untold story of one twelve-year-old's dream to become the world's greatest supervillain.",
+//     status: "Completed",
+//   },
+//   {
+//     id: 7,
+//     drama: "Thor: Love and Thunder (2022)",
+//     actor: "Chris Hemsworth",
+//     genre: "Action, Adventure, Fantasy",
+//     synopsis:
+//       "Thor enlists the help of Valkyrie, Korg, and ex-girlfriend Jane Foster to fight Gorr the God Butcher, who intends to make the gods extinct.",
+//     status: "Completed",
+//   },
+//   {
+//     id: 8,
+//     drama: "Doctor Strange in the Multiverse of Madness (2022)",
+//     actor: "Benedict Cumberbatch",
+//     genre: "Action, Adventure, Fantasy",
+//     synopsis:
+//       "Doctor Strange, with the help of mystical allies old and new, traverses the mind-bending and dangerous alternate realities of the Multiverse to confront a mysterious new adversary.",
+//     status: "Completed",
+//   },
+//   {
+//     id: 9,
+//     drama: "Black Panther: Wakanda Forever (2022)",
+//     actor: "Letitia Wright",
+//     genre: "Action, Adventure, Drama",
+//     synopsis:
+//       "The people of Wakanda fight to protect their home from intervening world powers as they mourn the death of King T'Challa.",
+//     status: "Completed",
+//   },
+//   {
+//     id: 10,
+//     drama: "John Wick: Chapter 4 (2023)",
+//     actor: "Keanu Reeves",
+//     genre: "Action, Crime, Thriller",
+//     synopsis:
+//       "John Wick uncovers a path to defeating The High Table. But before he can earn his freedom, Wick must face off against a new enemy with powerful alliances across the globe and forces that turn old friends into foes.",
+//     status: "Completed",
+//   },
+// ];
 
 function CMSDramas() {
   const { setShowSidebar, setActiveMenu, setShowNavigation, setShowFooter } =
     useGlobalState();
 
-  useEffect(() => {
-    setShowSidebar(true);
-    setActiveMenu("Dramas");
-    setShowNavigation(false);
-    setShowFooter(false);
-
-    $("#dramas").DataTable({
-      pageLength: 10, // Jumlah baris per halaman
-      lengthChange: true, // Izinkan opsi untuk mengubah jumlah baris per halaman
-      searching: true, // Aktifkan pencarian
-      ordering: true, // Aktifkan pengurutan kolom
-      info: true, // Tampilkan info tentang tabel
-      paging: true, // Aktifkan pagination
-      lengthMenu: [10, 25, 50],
-      autoWidth: false,
-    });
-
-    return () => {
-      // Cleanup DataTable saat komponen di-unmount
-      $("#dramas").DataTable().destroy();
-    };
-  }, []);
-  // Initialize DataTable
-
   const [show, setShow] = useState(false);
   const [fullscreen, setFullscreen] = useState(true);
 
+  const [movie, setMovie] = useState([]);
+  const [TotalMovies, setTotalMovies] = useState(0);
+  const [tableInitialized, setTableInitialized] = useState(false);
+
+  const { cancelEdit, edit, last_edit } = useEdit();
+
   const handleClose = () => setShow(false);
-  function handleShow(breakpoint) {
+  const handleShow = (breakpoint) => {
     setFullscreen(breakpoint);
     setShow(true);
-  }
+  };
+
+  const fetchMovie = async (page = 1) => {
+    try {
+      const limit = 10;
+      const offset = (page - 1) * limit;
+      const response = await fetch(
+        `/api/cms/moviesList?limit=${limit}&offset=${offset}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      setMovie(data.movies);
+      console.log(movie);
+      setTotalMovies(data.total);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchMovie();
+  }, []);
+
+  useEffect(() => {
+    setShowSidebar(true);
+    setActiveMenu("Movies");
+    setShowNavigation(false);
+    setShowFooter(false);
+  }, []);
+
+  useEffect(() => {
+    if (!tableInitialized && movie.length > 0) {
+      new DataTable("#movies", {
+        scrollY: "45vh",
+        columnDefs: [
+          {
+            width: "50px",
+            targets: 0,
+          },
+          {
+            width: "80px",
+            targets: 1,
+          },
+          {
+            width: "80px",
+            targets: 2,
+          },
+          {
+            width: "80px",
+            targets: 3,
+          },
+          {
+            width: "100px",
+            targets: 4,
+          },
+          {
+            width: "50px",
+            targets: 5,
+          },
+        ],
+        data: movie,
+        columns: [
+          {
+            render: function (data, type, row, meta) {
+              return `<span>${
+                meta.row + 1 + meta.settings._iDisplayStart
+              }</span>`;
+            },
+          },
+          {
+            data: "title",
+            render: (data) => {
+              return `<span name="title">${data}</span>`;
+            },
+          },
+          {
+            data: "actors",
+            render: (data) => {
+              return `<span name="actors">${data}</span>`;
+            },
+          },
+          {
+            data: "genres",
+            render: (data) => {
+              return `<span name="genres">${data}</span>`;
+            },
+          },
+          {
+            data: "synopsis",
+            render: (data) => {
+              return `<span name="sysnopsis">${data}</span>`;
+            },
+          },
+          {
+            data: "status",
+            render: (data) => {
+              return `<span name="status">${data}</span>`;
+            },
+          },
+          {
+            render: function (data, type, row, meta) {
+              const no = row.id;
+
+              return renderToString(
+                <center>
+                  <Button
+                    variant="primary"
+                    className="mb-3 mb-sm-4"
+                    onClick={() => edit(no)}
+                    id={`editBtn${no}`}
+                  >
+                    <FontAwesomeIcon icon={faEdit} />
+                  </Button>
+                  <Button
+                    variant="success"
+                    className="mb-3 mb-sm-4 d-none"
+                    id={`editSaveBtn${no}`}
+                    form="editForm"
+                    type="submit"
+                  >
+                    <FontAwesomeIcon icon={faSave} />
+                  </Button>
+                  <br></br>
+                  <Button variant="danger" id={`deleteBtn${no}`}>
+                    <FontAwesomeIcon icon={faTrash} />
+                  </Button>
+                  <Button
+                    variant="warning"
+                    id={`cancelBtn${no}`}
+                    className="d-none"
+                    onClick={() => cancelEdit(no)}
+                  >
+                    <FontAwesomeIcon icon={faTimes} />
+                  </Button>
+                </center>
+              );
+            },
+          },
+        ],
+        destroy: true,
+        paging: true,
+        searching: true,
+        ordering: true,
+        serverSide: true,
+        processing: true,
+        ajax: {
+          url: "/api/cms/moviesList",
+          type: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          data: function (d) {
+            const limit = d.length;
+            const offset = d.start;
+            const searchValue = d.search.value;
+            const orderColumn = d.order[0].column;
+            const orderDir = d.order[0].dir;
+
+            return {
+              limit: limit,
+              offset: offset,
+              search: searchValue,
+              page: offset / limit + 1,
+              order: orderColumn,
+              dir: orderDir,
+            };
+          },
+          dataSrc: function (json) {
+            return json.movies;
+          },
+        },
+        drawCallback: function () {
+          const table = $("#movies").DataTable();
+          table.rows().every(function (rowIdx, tableLoop, rowLoop) {
+            const row = this.node();
+            row.id = table.row(row).data().id;
+
+            const editBtn = document.getElementById(`editBtn${row.id}`);
+            editBtn.onclick = () => {
+              edit(row.id);
+            };
+
+            const CancelBtn = document.getElementById(`cancelBtn${row.id}`);
+            CancelBtn.onclick = () => {
+              cancelEdit(row.id);
+            };
+
+            const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
+            deleteBtn.onclick = () => {
+              handleDeleteUser(row.id);
+            };
+
+            const tds = row.getElementsByTagName("td");
+            for (let i = 1; i < tds.length - 1; i++) {
+              const td = tds[i];
+              const innerElement = td.firstChild;
+              const name = innerElement.getAttribute("name");
+              td.setAttribute("name", name);
+
+              try {
+                const old = innerElement.getAttribute("old");
+                td.setAttribute("old", old);
+              } catch {}
+
+              try {
+                const list = innerElement.getAttribute("list");
+                td.setAttribute("list", list);
+              } catch {}
+            }
+          });
+        },
+      });
+      setTableInitialized(true);
+    } else if (tableInitialized) {
+      const table = $("#movies").DataTable();
+      table.clear();
+      table.rows.add(movie);
+      table.draw();
+    }
+  }, [movie, tableInitialized]);
 
   return (
     <>
@@ -275,22 +498,22 @@ function CMSDramas() {
         fullscreen={fullscreen}
       />
       <Container className="tabel">
-        <h1 className="text-center">Dramas</h1>
+        <h1 className="text-center">Movies</h1>
         <div className="table-responsive">
-          <table id="dramas" className="display">
+          <table id="movies" className="display">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Drama</th>
-                <th>Actor</th>
-                <th>Genre</th>
+                <th>Title</th>
+                <th>Actors</th>
+                <th>Genres</th>
                 <th>Synopsis</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {dramasData.map((drama) => (
+              {/* {dramasData.map((drama) => (
                 <tr key={drama.id}>
                   <td>{drama.id}</td>
                   <td>{drama.drama}</td>
@@ -310,7 +533,7 @@ function CMSDramas() {
                     </div>
                   </td>
                 </tr>
-              ))}
+              ))} */}
             </tbody>
           </table>
         </div>

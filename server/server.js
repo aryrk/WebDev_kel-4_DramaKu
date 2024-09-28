@@ -1845,6 +1845,64 @@ app.get("/api/cms/awardsList", authorize(["admin"]), (req, res) => {
   });
 });
 
+app.get("/api/cms/moviesList", authorize(["admin"]), (req, res) => {
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = parseInt(req.query.offset) || 0;
+  const search = req.query.search ? `%${req.query.search}%` : "%%";
+  const orderColumnIndex = parseInt(req.query.order) || 0;
+  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
+
+  const orderColumns = [
+    "m.id", // 0
+    "m.title",
+    "m.synopsis",
+    "m.status",
+  ];
+
+  const orderColumn = orderColumns[orderColumnIndex] || "m.id";
+
+  const countQuery = `
+    SELECT COUNT(*) as total
+    FROM movies m
+    WHERE m.title LIKE ?
+  `;
+
+  const dataQuery = `
+    SELECT 
+      m.id, 
+      m.title, 
+      GROUP_CONCAT(DISTINCT a.name) AS actors, 
+      GROUP_CONCAT(DISTINCT g.name) AS genres,
+      m.synopsis, 
+      m.status
+    FROM movies m
+    LEFT JOIN movies_actors ma ON m.id = ma.movie_id
+    LEFT JOIN actors a ON ma.actor_id = a.id
+    LEFT JOIN movies_genres mg ON m.id = mg.movie_id
+    LEFT JOIN genres g ON mg.genre_id = g.id
+    WHERE m.title LIKE ?
+    GROUP BY m.id
+    ORDER BY ${orderColumn} ${orderDir}
+    LIMIT ? OFFSET ?
+  `;
+
+  connection.query(countQuery, [search], (err, countResult) => {
+    if (err) return res.status(500).send(err);
+
+    const totalMovies = countResult[0].total;
+
+    connection.query(dataQuery, [search, limit, offset], (err, dataResults) => {
+      if (err) return res.status(500).send(err);
+
+      res.json({
+        movies: dataResults,
+        recordsTotal: totalMovies,
+        recordsFiltered: totalMovies,
+      });
+    });
+  });
+});
+
 // ! ===============================================  CMS ===============================================
 
 app.listen(port, () => {

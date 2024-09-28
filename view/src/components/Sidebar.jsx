@@ -68,7 +68,7 @@ const Sidebar = ({ config }) => {
               className="dropdown-toggle"
               onClick={(e) => toggleMenu(e.target)}
             >
-              Dramas
+              Movies
             </a>
             <ul
               className={`ms-0 ${
@@ -90,7 +90,7 @@ const Sidebar = ({ config }) => {
                 }`}
                 onClick={() => handleMenuClick("Input New Drama")}
               >
-                <a href="/cms/drama/input">Input New Drama</a>
+                <a href="/cms/drama/input">Input New Movie</a>
               </li>
             </ul>
           </li>

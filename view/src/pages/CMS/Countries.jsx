@@ -124,7 +124,7 @@ function CMSCountries() {
             targets: 1,
           },
           {
-            width: "100px",
+            width: "50px",
             targets: 2,
           },
         ],
@@ -140,7 +140,7 @@ function CMSCountries() {
           {
             data: "name",
             render: (data) => {
-              return `<span name="country">${data}</span>`;
+              return `<span name="name">${data}</span>`;
             },
           },
           {
@@ -302,7 +302,7 @@ function CMSCountries() {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Name</th>
+              <th>Country</th>
               <th>Actions</th>
             </tr>
           </thead>

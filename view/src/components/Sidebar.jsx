@@ -40,6 +40,13 @@ const Sidebar = ({ config }) => {
     $(`#${menu}`).addClass("active");
   };
 
+  const handleLogout = () => {
+    sessionStorage.removeItem("token");
+    setAllowedLogin(false);
+
+    navigate("/login");
+  };
+
   return (
     <nav id="sidebar" className="js-fullheight">
       <div className="custom-menu">
@@ -143,7 +150,7 @@ const Sidebar = ({ config }) => {
             className={`ps-4 pe-4 ${activeMenu === "Logout" ? "active" : ""}`}
             onClick={() => handleMenuClick("Logout")}
           >
-            <a href="#">Logout</a>
+            <a onClick={handleLogout}>Logout</a>
           </li>
         </ul>
       </div>

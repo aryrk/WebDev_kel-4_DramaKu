@@ -42,13 +42,13 @@ function AddAwards() {
           <Col md={8}>
             <Form.Group as={Row} className="mb-3" controlId="formAward">
               <Form.Label column className="col-4">
-                Award Name
+                Award
               </Form.Label>
               <Col className="col-8">
                 <Form.Control
                   className="bg-black border-0 text-light"
                   type="text"
-                  placeholder="Enter award name"
+                  placeholder="Enter award"
                   required
                 />
               </Col>

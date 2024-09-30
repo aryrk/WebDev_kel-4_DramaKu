@@ -34,6 +34,7 @@ function RegisterForm() {
       setUsername("");
       setEmail("");
       setPassword("");
+      setConfirmPassword("");
       if (response.status != 500) {
         alert("success", "success", "Check your email to verify your account");
       } else {
@@ -213,11 +214,7 @@ function RegisterForm() {
 
           <button
             className="btn border-0 bg_pallete_3 mt-3 rounded-3 w-100"
-            type={
-              !usernameAllowed || !emailAllowed || !passwordAllowed
-                ? "submit"
-                : "button"
-            }
+            type="submit"
             disabled={!usernameAllowed || !emailAllowed || !passwordAllowed}
           >
             Register

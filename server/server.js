@@ -150,8 +150,8 @@ passport.use(
       try {
         const existingUser = await new Promise((resolve, reject) => {
           connection.query(
-            "SELECT * FROM users WHERE google_id = ?",
-            [profile.id],
+            "SELECT * FROM users WHERE google_id = ? or email = ?",
+            [profile.id, profile.emails[0].value],
             (error, results) => {
               if (error) return reject(error);
               resolve(results[0]);
@@ -160,6 +160,16 @@ passport.use(
         });
 
         if (existingUser) {
+          if (!existingUser.google_id) {
+            connection.query(
+              "UPDATE users SET google_id = ? WHERE id = ?",
+              [profile.id, existingUser.id],
+              (error) => {
+                if (error) return done(error);
+              }
+            );
+          }
+
           return done(null, existingUser);
         }
 

@@ -90,6 +90,37 @@ a {
 .bg_pallete_5 {
   background-color: #212121;
 }
+button.bg_pallete_1:hover {
+  background-color: #1b1a54 !important;
+}
+button.bg_pallete_2:hover {
+  background-color: #525c91 !important;
+}
+button.bg_pallete_3:hover {
+  background-color: #9290c2 !important;
+}
+button.bg_pallete_4:hover {
+  background-color: #9290c2 !important;
+}
+button.bg_pallete_5:hover {
+  background-color: #212121 !important;
+}
+button.bg_pallete_1:disabled {
+  background-color: #1b1a54 !important;
+}
+button.bg_pallete_2:disabled {
+  background-color: #525c91 !important;
+}
+button.bg_pallete_3:disabled {
+  background-color: #9290c2 !important;
+}
+button.bg_pallete_4:disabled {
+  background-color: #9290c2 !important;
+}
+button.bg_pallete_5:disabled {
+  background-color: #212121 !important;
+}
+
 
 select {
   background-color: #0078d7 !important;

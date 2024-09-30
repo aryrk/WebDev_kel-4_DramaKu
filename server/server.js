@@ -630,6 +630,44 @@ const email_template = (username, email, header_text, header, inner) => {
   `;
 };
 
+app.get("/api/checkusernames/:username", (req, res) => {
+  const username = req.params.username;
+  const query = "SELECT * FROM users WHERE username = ?";
+
+  connection.query(query, [username], (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    if (results.length > 0) {
+      res.json({
+        username: true,
+      });
+    } else {
+      res.json({
+        username: false,
+      });
+    }
+  });
+});
+
+app.get("/api/checkemails/:email", (req, res) => {
+  const email = req.params.email;
+  const query = "SELECT * FROM users WHERE email = ?";
+
+  connection.query(query, [email], (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    if (results.length > 0) {
+      res.json({
+        email: true,
+      });
+    } else {
+      res.json({
+        email: false,
+      });
+    }
+  });
+});
+
 // ! ===============================================  Auth ===============================================
 const authorize = (allowedRoles = []) => {
   return (req, res, next) => {

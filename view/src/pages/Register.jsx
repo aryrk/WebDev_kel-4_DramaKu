@@ -21,6 +21,16 @@ function RegisterForm() {
   const [usernameAllowed, setUsernameAllowed] = useState(false);
   const [emailAllowed, setEmailAllowed] = useState(false);
   const [passwordAllowed, setPasswordAllowed] = useState(false);
+  const [passwordIsValid, setPasswordIsValid] = useState(true);
+
+  const checkPassword = (password) => {
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+    if (passwordRegex.test(password)) {
+      setPasswordIsValid(true);
+    } else {
+      setPasswordIsValid(false);
+    }
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -171,17 +181,36 @@ function RegisterForm() {
             <Form.Control
               placeholder="Password"
               aria-label="Password"
-              aria-describedby="basic-addon1"
-              className="bg-dark border-0 text-white rounded-end"
+              aria-describedby={`basic-addon1 ${
+                !passwordIsValid && password.length > 0 ? "passwordinvalid" : ""
+              }`}
+              className={`bg-dark border-0 text-white rounded-end ${
+                !passwordIsValid && password.length > 0 ? "is-invalid" : ""
+              }`}
               type="password"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
+                checkPassword(e.target.value);
                 handlePassword(e.target.value, confirmPassword);
               }}
               required
             />
           </InputGroup>
+          <div
+            className={`invalid-feedback text-start ${
+              !passwordIsValid && password.length > 0 ? "d-flex" : "d-none"
+            }`}
+            id="passwordinvalid"
+          >
+            Password must contain at least:
+            <ul>
+              <li>1 lowercase letter</li>
+              <li>1 uppercase letter</li>
+              <li>1 number</li>
+              <li>8 characters</li>
+            </ul>
+          </div>
           <InputGroup className="mb-3">
             <InputGroup.Text
               id="basic-addon1"
@@ -192,8 +221,16 @@ function RegisterForm() {
             <Form.Control
               placeholder="Confirm Password"
               aria-label="Password"
-              aria-describedby="basic-addon1"
-              className="bg-dark border-0 text-white rounded-end"
+              aria-describedby={`basic-addon1 ${
+                !passwordAllowed && password.length && confirmPassword.length
+                  ? "passwordinvalid"
+                  : ""
+              }`}
+              className={`bg-dark border-0 text-white rounded-end ${
+                !passwordAllowed && password.length && confirmPassword.length
+                  ? "is-invalid"
+                  : ""
+              }`}
               type="password"
               onChange={(e) => {
                 setConfirmPassword(e.target.value);
@@ -215,7 +252,12 @@ function RegisterForm() {
           <button
             className="btn border-0 bg_pallete_3 mt-3 rounded-3 w-100"
             type="submit"
-            disabled={!usernameAllowed || !emailAllowed || !passwordAllowed}
+            disabled={
+              !usernameAllowed ||
+              !emailAllowed ||
+              !passwordAllowed ||
+              !passwordIsValid
+            }
           >
             Register
           </button>

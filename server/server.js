@@ -84,12 +84,15 @@ app.get("/oauth2callback", async (req, res) => {
     try {
       const { tokens } = await oAuth2Client_mail.getToken(code);
       oAuth2Client_mail.setCredentials(tokens);
-      res.send("Authentication successful! Tokens received.");
-      console.log("Access Token:", tokens.access_token);
+      // res.send("Authentication successful! Tokens received.");
+      // console.log("Access Token:", tokens.access_token);
+      console.log("Authentication successful! Tokens received.");
       if (tokens.refresh_token) {
-        console.log("Refresh Token:", tokens.refresh_token);
+        // console.log("Refresh Token:", tokens.refresh_token);
         REFRESH_TOKEN = tokens.refresh_token;
         setupRefreshToken();
+
+        res.redirect(client_domain + "/");
       }
     } catch (error) {
       console.error("Error getting token:", error);

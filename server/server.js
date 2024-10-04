@@ -84,12 +84,15 @@ app.get("/oauth2callback", async (req, res) => {
     try {
       const { tokens } = await oAuth2Client_mail.getToken(code);
       oAuth2Client_mail.setCredentials(tokens);
-      res.send("Authentication successful! Tokens received.");
-      console.log("Access Token:", tokens.access_token);
+      // res.send("Authentication successful! Tokens received.");
+      // console.log("Access Token:", tokens.access_token);
+      console.log("Authentication successful! Tokens received.");
       if (tokens.refresh_token) {
-        console.log("Refresh Token:", tokens.refresh_token);
+        // console.log("Refresh Token:", tokens.refresh_token);
         REFRESH_TOKEN = tokens.refresh_token;
         setupRefreshToken();
+
+        res.redirect(client_domain + "/");
       }
     } catch (error) {
       console.error("Error getting token:", error);
@@ -139,16 +142,16 @@ app.use(passport.session());
 passport.use(
   new GoogleStrategy(
     {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientID: process.env.EMAIL_CLIENT_ID,
+      clientSecret: process.env.EMAIL_CLIENT_SECRET,
       callbackURL: "/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
         const existingUser = await new Promise((resolve, reject) => {
           connection.query(
-            "SELECT * FROM users WHERE google_id = ?",
-            [profile.id],
+            "SELECT * FROM users WHERE google_id = ? or email = ?",
+            [profile.id, profile.emails[0].value],
             (error, results) => {
               if (error) return reject(error);
               resolve(results[0]);
@@ -157,6 +160,16 @@ passport.use(
         });
 
         if (existingUser) {
+          if (!existingUser.google_id) {
+            connection.query(
+              "UPDATE users SET google_id = ? WHERE id = ?",
+              [profile.id, existingUser.id],
+              (error) => {
+                if (error) return done(error);
+              }
+            );
+          }
+
           return done(null, existingUser);
         }
 
@@ -629,6 +642,44 @@ const email_template = (username, email, header_text, header, inner) => {
 
   `;
 };
+
+app.get("/api/checkusernames/:username", (req, res) => {
+  const username = req.params.username;
+  const query = "SELECT * FROM users WHERE username = ?";
+
+  connection.query(query, [username], (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    if (results.length > 0) {
+      res.json({
+        username: true,
+      });
+    } else {
+      res.json({
+        username: false,
+      });
+    }
+  });
+});
+
+app.get("/api/checkemails/:email", (req, res) => {
+  const email = req.params.email;
+  const query = "SELECT * FROM users WHERE email = ?";
+
+  connection.query(query, [email], (err, results) => {
+    if (err) return res.status(500).send(err);
+
+    if (results.length > 0) {
+      res.json({
+        email: true,
+      });
+    } else {
+      res.json({
+        email: false,
+      });
+    }
+  });
+});
 
 // ! ===============================================  Auth ===============================================
 const authorize = (allowedRoles = []) => {

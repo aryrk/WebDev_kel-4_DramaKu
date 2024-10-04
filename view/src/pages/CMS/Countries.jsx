@@ -18,43 +18,67 @@ import { useEdit } from "../../components/cmsEdit";
 
 const token = sessionStorage.getItem("token");
 
-function AddCountries() {
+function AddCountries({ fetchCountries }) {
   const { notification } = useSwal();
+  const [country, setCountry] = useState("");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const newCountry = {
+      name: country,
+    };
+
+    try {
+      const response = await fetch("/api/cms/countriesList", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newCountry),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to add country");
+      }
+      console.log("API Response:", data);
+
+      notification("success", "Country added successfully!");
+      setCountry(""); // Reset input field
+      fetchCountries(); // Refresh list of countries
+    } catch (error) {
+      notification("error", error.message || "Error adding country");
+    }
+  };
 
   return (
-    <Form
-      className="bg-dark rounded-3 p-3 justify-content-start text-start mb-4"
-      // onSubmit={handleSubmit}
-    >
-      <Container className="w-100 w-md-100 w-lg-75 m-auto">
-        <Form>
-          <Row className="align-items-center">
-            <Col md={8}>
-              <Form.Group as={Row} className="mb-3" controlId="formCountry">
-                <Form.Label column className="col-4">
-                  Country Name
-                </Form.Label>
-                <Col className="col-8">
-                  <Form.Control
-                    className="bg-black border-0 text-light"
-                    type="text"
-                    placeholder="Enter country name"
-                    required
-                  />
-                </Col>
-              </Form.Group>
-            </Col>
-            <Col md={3} className="text-end">
-              <Button
-                className="rounded-3 w-100"
-                variant="primary"
-                type="submit"
-              >
-                Submit
-              </Button>
-            </Col>
-          </Row>
-        </Form>
+    <Form onSubmit={handleSubmit} className="bg-dark rounded-3 p-3 mb-4">
+      <Container>
+        <Row className="align-items-center">
+          <Col md={8}>
+            <Form.Group as={Row} className="mb-3">
+              <Form.Label column className="col-4">
+                Country Name
+              </Form.Label>
+              <Col className="col-8">
+                <Form.Control
+                  type="text"
+                  placeholder="Enter country name"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  required
+                />
+              </Col>
+            </Form.Group>
+          </Col>
+          <Col md={3}>
+            <Button className="rounded-3 w-100" variant="primary" type="submit">
+              Submit
+            </Button>
+          </Col>
+        </Row>
       </Container>
     </Form>
   );
@@ -63,55 +87,38 @@ function AddCountries() {
 function CMSCountries() {
   const { setShowSidebar, setActiveMenu, setShowNavigation, setShowFooter } =
     useGlobalState();
-  const [show, setShow] = useState(false);
-  const [fullscreen, setFullscreen] = useState(true);
-
-  const [country, setCountry] = useState([]);
-  const [TotalCountries, setTotalCountries] = useState(0);
+  const [countries, setCountries] = useState([]);
   const [tableInitialized, setTableInitialized] = useState(false);
 
-  const { cancelEdit, edit, last_edit } = useEdit();
+  const { cancelEdit, edit } = useEdit();
+  const { notification } = useSwal();
 
-  const handleClose = () => setShow(false);
-  const handleShow = (breakpoint) => {
-    setFullscreen(breakpoint);
-    setShow(true);
-  };
-
-  const fetchCountry = async (page = 1) => {
+  // Function to fetch the list of countries
+  const fetchCountries = async () => {
     try {
-      const limit = 10;
-      const offset = (page - 1) * limit;
-      const response = await fetch(
-        `/api/cms/countriesList?limit=${limit}&offset=${offset}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch("/api/cms/countriesList", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
-      setCountry(data.countries);
-      console.log(country);
-      setTotalCountries(data.total);
+      setCountries(data.countries); // Update the state with fetched countries
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching countries:", error);
     }
   };
-  useEffect(() => {
-    fetchCountry();
-  }, []);
 
   useEffect(() => {
     setShowSidebar(true);
     setActiveMenu("Countries");
     setShowNavigation(false);
     setShowFooter(false);
+    fetchCountries(); // Fetch countries when the component mounts
   }, []);
 
   useEffect(() => {
-    if (!tableInitialized && country.length > 0) {
+    if (!tableInitialized && countries.length > 0) {
       new DataTable("#countries", {
         scrollY: "45vh",
         columnDefs: [
@@ -128,7 +135,7 @@ function CMSCountries() {
             targets: 2,
           },
         ],
-        data: country,
+        data: countries,
         columns: [
           {
             render: function (data, type, row, meta) {
@@ -170,6 +177,7 @@ function CMSCountries() {
                     variant="danger"
                     className="mx-2"
                     id={`deleteBtn${no}`}
+                    onClick={() => handleDeleteCountry(no)}
                   >
                     <FontAwesomeIcon icon={faTrash} />
                   </Button>
@@ -236,7 +244,7 @@ function CMSCountries() {
 
             const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
             deleteBtn.onclick = () => {
-              handleDeleteUser(row.id);
+              handleDeleteCountry(row.id);
             };
 
             const tds = row.getElementsByTagName("td");
@@ -263,71 +271,108 @@ function CMSCountries() {
     } else if (tableInitialized) {
       const table = $("#countries").DataTable();
       table.clear();
-      table.rows.add(country);
+      table.rows.add(countries);
       table.draw();
     }
-  }, [country, tableInitialized]);
+  }, [countries, tableInitialized]);
 
-  // const table = $("#countries").DataTable({
-  //   pageLength: 10,
-  //   lengthChange: true,
-  //   searching: true,
-  //   ordering: true,
-  //   info: true,
-  //   paging: true,
-  //   lengthMenu: [10, 25, 50],
-  //   autoWidth: false,
-  //   columnDefs: [
-  //     {
-  //       width: "50px",
-  //       targets: 0,
-  //     },
-  //     {
-  //       width: "80px",
-  //       targets: 2,
-  //     },
-  //   ],
-  // });
+  const handleDeleteCountry = async (id) => {
+    try {
+      const response = await fetch(`/api/cms/countriesList/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      if (data.success) {
+        notification("success", "Country deleted successfully!");
+        fetchCountries(); // Refresh the list after deletion
+        // Clear and redraw the DataTable
+        const table = $("#countries").DataTable();
+        table.ajax.reload(); // Reload the table data
+      } else {
+        notification("error", "Failed to delete country!");
+      }
+    } catch (error) {
+      notification("error", "An error occurred while deleting the country");
+    }
+  };
 
-  // return () => {
-  //   table.destroy();
-  // };
+  const handleEditCountry = async () => {
+    const form = document.getElementById("editForm");
+    if (!form) {
+      console.error("Form not found");
+      return;
+    }
+
+    const formData = new FormData(form);
+    const id = formData.get("id");
+    const country = formData.get("name");
+
+    if (!id) {
+      notification("error", "No ID found for country");
+      return;
+    }
+
+    if (!country) {
+      notification("error", "Country name is required");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/cms/countriesList/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: country }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        notification("error", errorData.message || "Failed to update country");
+        return;
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        notification("success", "Country updated successfully");
+        fetchCountries(); // Refresh the list after editing
+      } else {
+        notification("error", data.message || "Failed to update country");
+      }
+    } catch (error) {
+      notification("error", "An error occurred while updating the country");
+    }
+  };
 
   return (
-    <Container className="tabel">
-      <h1 className="text-center mb-5">Countries</h1>
-      <AddCountries /> {/* Pindahkan form untuk menambah negara di sini */}
-      <div className="table-responsive">
-        <table id="countries" className="display">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Country</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* {countriesData.map((country) => (
-              <tr key={country.id}>
-                <td>{country.id}</td>
-                <td>{country.name}</td>
-                <td>
-                  <div className="actions">
-                    <Button
-                      onClick={() => handleShow("xl-down")}
-                      className="bg-transparent border-0"
-                    >
-                      <FontAwesomeIcon icon={faEdit} className="edit" />
-                    </Button>
-                    <FontAwesomeIcon icon={faTrash} className="delete" />
-                  </div>
-                </td>
+    <>
+      <form
+        id="editForm"
+        onSubmit={(event) => {
+          event.preventDefault();
+          handleEditCountry();
+        }}
+      ></form>
+      <Container className="tabel">
+        <h1 className="text-center mb-5">Countries</h1>
+        <AddCountries fetchCountries={fetchCountries} />
+        <div className="table-responsive">
+          <table id="countries" className="display">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Country</th>
+                <th>Actions</th>
               </tr>
-            ))} */}
-          </tbody>
-        </table>
-      </div>
-    </Container>
+            </thead>
+          </table>
+        </div>
+      </Container>
+    </>
   );
 }
 

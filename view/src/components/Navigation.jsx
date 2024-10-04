@@ -46,14 +46,30 @@ const CustomNavbar = ({ config }) => {
     setShowMore(false);
   };
 
+  // const [country, setCountry] = useState([]);
+
+  // useEffect(() => {
+  //   fetch("/api/cms/countrylist")
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       setCountry(data);
+  //     });
+  // }, []);
+
   const [country, setCountry] = useState([]);
 
+  const fetchCountries = async () => {
+    try {
+      const response = await fetch("/api/cms/countrylist");
+      const data = await response.json();
+      setCountry(data); // Update the state with fetched countries
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+    }
+  };
+
   useEffect(() => {
-    fetch("/api/cms/countrylist")
-      .then((res) => res.json())
-      .then((data) => {
-        setCountry(data);
-      });
+    fetchCountries(); // Fetch countries when the component mounts
   }, []);
 
   const [year, setYear] = useState([]);
@@ -261,8 +277,9 @@ const CustomNavbar = ({ config }) => {
               <Modal.Body>
                 <ListGroup>
                   {remainingCountries
+                    .sort((a, b) => a.name.localeCompare(b.name)) // Sort alphabetically by name
                     .reduce((rows, country, index) => {
-                      // For every group of 3 countries, create a new row
+                      // For every group of 6 countries, create a new row
                       if (index % 6 === 0) {
                         rows.push(remainingCountries.slice(index, index + 6));
                       }

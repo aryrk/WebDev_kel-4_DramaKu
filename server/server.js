@@ -1347,13 +1347,16 @@ app.put("/api/cms/users/role/:id", authorize(["admin"]), (req, res) => {
 });
 
 app.get("/api/cms/countrylist", (req, res) => {
-  const query = `SELECT id, name FROM countries`;
+  const query = `SELECT id, name FROM countries WHERE deleted_at IS NULL`; // Only select countries that are not deleted
 
   connection.query(query, (err, results) => {
     if (err) return res.status(500).send(err);
 
     // Mengubah format data agar sesuai dengan frontend
-    const formattedResults = results.map((result) => ({ name: result.name }));
+    const formattedResults = results.map((result) => ({
+      id: result.id,
+      name: result.name,
+    })); // Include id for potential use
     res.json(formattedResults);
   });
 });
@@ -1745,8 +1748,8 @@ app.post(
 );
 
 app.get("/api/cms/countriesList", authorize(["admin"]), (req, res) => {
-  const limit = parseInt(req.query.limit) || 10;
-  const offset = parseInt(req.query.offset) || 0;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const offset = parseInt(req.query.offset, 10) || 0;
   const search = req.query.search ? `%${req.query.search}%` : "%%";
   const orderColumnIndex = parseInt(req.query.order) || 0;
   const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
@@ -1767,18 +1770,32 @@ app.get("/api/cms/countriesList", authorize(["admin"]), (req, res) => {
   const dataQuery = `
   SELECT c.id, c.name
   FROM countries c
-  WHERE c.name LIKE ?
+  WHERE c.name LIKE ? AND c.deleted_at IS NULL
   ORDER BY ${orderColumn} ${orderDir}
   LIMIT ? OFFSET ?
 `;
 
   connection.query(countQuery, [search], (err, countResult) => {
-    if (err) return res.status(500).send(err);
+    if (err) {
+      console.error("Error in countQuery:", err); // Log the error
+      return res.status(500).json({
+        success: false,
+        message: "Database error in count query",
+        error: err,
+      });
+    }
 
     const totalCountries = countResult[0].total;
 
     connection.query(dataQuery, [search, limit, offset], (err, dataResults) => {
-      if (err) return res.status(500).send(err);
+      if (err) {
+        console.error("Error in dataQuery:", err); // Log the error
+        return res.status(500).json({
+          success: false,
+          message: "Database error in data query",
+          error: err,
+        });
+      }
 
       res.json({
         countries: dataResults,
@@ -1947,6 +1964,109 @@ app.get("/api/cms/genresList", authorize(["admin"]), (req, res) => {
     });
   });
 });
+
+// ----------------- CMS COUNTRY -----------------
+
+// Menambahkan negara baru
+app.post("/api/cms/countriesList", authorize(["admin"]), (req, res) => {
+  const { name } = req.body;
+
+  if (!name || name.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Country name is required" });
+  }
+
+  console.log("Country to add:", name);
+
+  // Check if the country name already exists and hasn't been deleted
+  const checkQuery = `SELECT * FROM countries WHERE name = ? AND deleted_at IS NULL`;
+
+  connection.query(checkQuery, [name], (err, results) => {
+    if (err) {
+      console.error("Error in checkQuery:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Database error in check query" });
+    }
+
+    if (results.length > 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Country name already exists" });
+    }
+
+    // If the country does not exist, add it to the database
+    const insertQuery = `INSERT INTO countries (name) VALUES (?)`;
+
+    connection.query(insertQuery, [name], (err, results) => {
+      if (err) {
+        console.error("Error in insertQuery:", err);
+        return res
+          .status(500)
+          .json({ success: false, message: "Database error in insert query" });
+      }
+
+      res.json({ success: true, message: "Country added successfully" });
+    });
+  });
+});
+
+app.put("/api/cms/countriesList/:id", authorize(["admin"]), (req, res) => {
+  const countryId = req.params.id;
+  const { name } = req.body;
+
+  if (!name || name.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Country name is required" });
+  }
+
+  const updateQuery = `UPDATE countries SET name = ? WHERE id = ? AND deleted_at IS NULL`;
+
+  connection.query(updateQuery, [name, countryId], (err, results) => {
+    if (err) {
+      console.error("Error in updateQuery:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Database error in update query" });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Country not found or already deleted",
+      });
+    }
+
+    res.json({ success: true, message: "Country updated successfully" });
+  });
+});
+
+app.delete("/api/cms/countriesList/:id", authorize(["admin"]), (req, res) => {
+  const countryId = req.params.id;
+
+  const deleteQuery = `UPDATE countries SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL`;
+
+  connection.query(deleteQuery, [countryId], (err, results) => {
+    if (err) {
+      console.error("Error in deleteQuery:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Database error in delete query" });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Country not found or already deleted",
+      });
+    }
+
+    res.json({ success: true, message: "Country deleted successfully" });
+  });
+});
+
 // ! ===============================================  CMS ===============================================
 
 app.listen(port, () => {

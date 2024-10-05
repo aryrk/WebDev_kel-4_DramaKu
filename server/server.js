@@ -1433,12 +1433,18 @@ app.get("/api/cms/genrelist", (req, res) => {
 });
 
 app.get("/api/cms/awardlist", (req, res) => {
-  const query = `SELECT id, name FROM awards`;
+  const query = `SELECT id, name FROM awards WHERE deleted_at IS NULL`;
 
   connection.query(query, (err, results) => {
     if (err) return res.status(500).send(err);
 
-    res.json(results);
+    const formattedResults = results.map((result) => ({
+      id: result.id,
+      name: result.name,
+      year: result.year,
+    }));
+
+    res.json(formattedResults);
   });
 });
 
@@ -1857,9 +1863,9 @@ app.get("/api/cms/countriesList", authorize(["admin"]), (req, res) => {
   });
 });
 
-app.get("/api/cms/awardsList", authorize(["admin"]), (req, res) => {
-  const limit = parseInt(req.query.limit) || 10;
-  const offset = parseInt(req.query.offset) || 0;
+app.get("/api/cms/awardsList2", authorize(["admin"]), (req, res) => {
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const offset = parseInt(req.query.offset, 10) || 0;
   const search = req.query.search ? `%${req.query.search}%` : "%%";
   const orderColumnIndex = parseInt(req.query.order) || 0;
   const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
@@ -1871,7 +1877,6 @@ app.get("/api/cms/awardsList", authorize(["admin"]), (req, res) => {
   ];
 
   const orderColumn = orderColumns[orderColumnIndex] || "a.id";
-  console.log("Order by column:", orderColumn);
 
   const countQuery = `
     SELECT COUNT(*) as total
@@ -1882,7 +1887,7 @@ app.get("/api/cms/awardsList", authorize(["admin"]), (req, res) => {
   const dataQuery = `
   SELECT a.id, a.name, a.year
   FROM awards a
-  WHERE a.name LIKE ?
+  WHERE a.name LIKE ? AND a.deleted_at IS NULL
   ORDER BY ${orderColumn} ${orderDir}
   LIMIT ? OFFSET ?
 `;
@@ -1890,7 +1895,11 @@ app.get("/api/cms/awardsList", authorize(["admin"]), (req, res) => {
   connection.query(countQuery, [search], (err, countResult) => {
     if (err) {
       console.error("Count Query Error:", err);
-      return res.status(500).send(err);
+      return res.status(500).json({
+        success: false,
+        message: "Database error in count query",
+        error: err,
+      });
     }
 
     const totalAwards = countResult[0].total;
@@ -1899,7 +1908,11 @@ app.get("/api/cms/awardsList", authorize(["admin"]), (req, res) => {
     connection.query(dataQuery, [search, limit, offset], (err, dataResults) => {
       if (err) {
         console.error("Data Query Error:", err);
-        return res.status(500).send(err);
+        return res.status(500).json({
+          success: false,
+          message: "Database error in data query",
+          error: err,
+        });
       }
 
       console.log("Data Results:", dataResults);
@@ -1913,7 +1926,7 @@ app.get("/api/cms/awardsList", authorize(["admin"]), (req, res) => {
   });
 });
 
-app.get("/api/cms/moviesList", authorize(["admin"]), (req, res) => {
+app.get("/api/cms/movielist", authorize(["admin"]), (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const offset = parseInt(req.query.offset) || 0;
   const search = req.query.search ? `%${req.query.search}%` : "%%";
@@ -2115,6 +2128,201 @@ app.delete("/api/cms/countriesList/:id", authorize(["admin"]), (req, res) => {
     }
 
     res.json({ success: true, message: "Country deleted successfully" });
+  });
+});
+
+// ----------------- CMS MOVIE -----------------
+
+app.put("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
+  const movieId = req.params.id;
+  const { title } = req.body;
+  const { synopsis } = req.body;
+  const { status } = req.body;
+
+  if (!title || title.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Movie title is required" });
+  }
+
+  if (!synopsis || synopsis.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Movie synopsis is required" });
+  }
+
+  if (!status || status.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Movie status is required" });
+  }
+
+  const updateQuery = `UPDATE movies SET title = ? synopsis = ? status = ? WHERE id = ? AND deleted_at IS NULL`;
+
+  connection.query(
+    updateQuery,
+    [title, synopsis, status, movieId],
+    (err, results) => {
+      if (err) {
+        console.error("Error in updateQuery:", err);
+        return res
+          .status(500)
+          .json({ success: false, message: "Database error in update query" });
+      }
+
+      if (results.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Movie not found or already deleted",
+        });
+      }
+
+      res.json({ success: true, message: "Movie updated successfully" });
+    }
+  );
+});
+
+app.delete("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
+  const movieId = req.params.id;
+
+  const deleteQuery = `UPDATE movies SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL`;
+
+  connection.query(deleteQuery, [movieId], (err, results) => {
+    if (err) {
+      console.error("Error in deleteQuery:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Database error in delete query" });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found or already deleted",
+      });
+    }
+
+    res.json({ success: true, message: "Movie deleted successfully" });
+  });
+});
+
+// ----------------- CMS AWARD -----------------
+
+app.post("/api/cms/awardsList2", authorize(["admin"]), (req, res) => {
+  const { name, year } = req.body;
+  console.log("Request Body:", req.body);
+
+  if (!name || name.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Award name is required" });
+  }
+
+  console.log("Award name to add:", name);
+
+  if (!year || year.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Award year is required" });
+  }
+
+  console.log("Award year to add:", year);
+
+  // Check if the country name already exists and hasn't been deleted
+  const checkQuery = `SELECT * FROM awards WHERE name = ? AND year = ? AND deleted_at IS NULL`;
+
+  connection.query(checkQuery, [name, year], (err, results) => {
+    if (err) {
+      console.error("Error in checkQuery:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Database error in check query" });
+    }
+
+    if (results.length > 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Award name already exists" });
+    }
+
+    // If the country does not exist, add it to the database
+    const insertQuery = `INSERT INTO awards (name, year) VALUES (?, ?)`;
+
+    connection.query(insertQuery, [name, year], (err, results) => {
+      if (err) {
+        console.error("Error in insertQuery:", err);
+        return res
+          .status(500)
+          .json({ success: false, message: "Database error in insert query" });
+      }
+
+      res.json({ success: true, message: "Award added successfully" });
+    });
+  });
+});
+
+app.put("/api/cms/awardsList2/:id", authorize(["admin"]), (req, res) => {
+  const awardId = req.params.id;
+  const { name, year } = req.body; // Get name and year from the body
+
+  // Validate award name
+  if (!name || name.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Award name is required" });
+  }
+
+  // Validate award year
+  if (!year || year.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Award year is required" });
+  }
+
+  // SQL query to update the award
+  const updateQuery = `UPDATE awards SET name = ?, year = ? WHERE id = ? AND deleted_at IS NULL`;
+
+  // Execute the query
+  connection.query(updateQuery, [name, year, awardId], (err, results) => {
+    if (err) {
+      console.error("Error in updateQuery:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Database error in update query" });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Award not found or already deleted",
+      });
+    }
+
+    res.json({ success: true, message: "Award updated successfully" });
+  });
+});
+
+app.delete("/api/cms/awardsList2/:id", authorize(["admin"]), (req, res) => {
+  const awardId = req.params.id;
+
+  const deleteQuery = `UPDATE awards SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL`;
+
+  connection.query(deleteQuery, [awardId], (err, results) => {
+    if (err) {
+      console.error("Error in deleteQuery:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Database error in delete query" });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Award not found or already deleted",
+      });
+    }
+
+    res.json({ success: true, message: "Award deleted successfully" });
   });
 });
 

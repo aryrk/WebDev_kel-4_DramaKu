@@ -93,7 +93,6 @@ function CMSCountries() {
   const { cancelEdit, edit } = useEdit();
   const { notification } = useSwal();
 
-  // Function to fetch the list of countries
   const fetchCountries = async () => {
     try {
       const response = await fetch("/api/cms/countriesList", {

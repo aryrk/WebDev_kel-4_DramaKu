@@ -270,7 +270,7 @@ function CMSDramas() {
       const limit = 10;
       const offset = (page - 1) * limit;
       const response = await fetch(
-        `/api/cms/moviesList?limit=${limit}&offset=${offset}`,
+        `/api/cms/movielist?limit=${limit}&offset=${offset}`,
         {
           method: "GET",
           headers: {
@@ -417,7 +417,7 @@ function CMSDramas() {
         serverSide: true,
         processing: true,
         ajax: {
-          url: "/api/cms/moviesList",
+          url: "/api/cms/movielist",
           type: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

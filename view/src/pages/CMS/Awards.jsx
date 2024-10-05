@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import $ from "jquery";
+import $, { data } from "jquery";
 import DataTable from "datatables.net-dt";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -16,39 +16,76 @@ import { useEdit } from "../../components/cmsEdit";
 import { useSwal } from "../../components/SweetAlert";
 import { renderToString } from "react-dom/server";
 
-// const awardsData = [
-//   { id: 1, country: "Indonesia", year: 2016, award: "Best Picture" },
-//   { id: 2, country: "Korea", year: 1994, award: "Best Director" },
-//   { id: 3, country: "Jepang", year: 2021, award: "Best Actor" },
-//   { id: 4, country: "Thailand", year: 2003, award: "Best Actress" },
-//   { id: 5, country: "Inggris", year: 1998, award: "Best Supporting Actor" },
-//   { id: 6, country: "Amerika", year: 2010, award: "Best Supporting Actress" },
-//   { id: 7, country: "Spanyol", year: 2007, award: "Best Original Screenplay" },
-//   { id: 8, country: "India", year: 2023, award: "Best Adapted Screenplay" },
-//   { id: 9, country: "Perancis", year: 1992, award: "Best Cinematography" },
-//   { id: 10, country: "Rusia", year: 2019, award: "Best Film Editing" },
-//   { id: 11, country: "Italia", year: 2005, award: "Best Production Design" },
-// ];
-
 const token = sessionStorage.getItem("token");
 
-function AddAwards() {
+function AddAwards({ fetchAwards }) {
   const { notification } = useSwal();
+  const [award, setAward] = useState({ name: "", year: "" });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Use e instead of event
+
+    const newAward = {
+      name: award.name,
+      year: award.year,
+    };
+
+    try {
+      const response = await fetch("/api/cms/awardsList2", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newAward),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to add award");
+      }
+      console.log("API Response:", data);
+
+      notification("success", "Award added successfully!");
+      setAward({ name: "", year: "" }); // Reset the form
+      fetchAwards(); // Fetch updated awards list
+    } catch (error) {
+      notification("error", error.message || "Error adding award");
+    }
+  };
 
   return (
-    <Form className="bg-dark rounded-3 p-3 justify-content-start text-start mb-4">
+    <Form
+      onSubmit={handleSubmit}
+      className="bg-dark rounded-3 p-3 justify-content-start text-start mb-4"
+    >
       <Container className="w-100 w-md-100 w-lg-75 m-auto">
         <Row className="align-items-center">
           <Col md={8}>
             <Form.Group as={Row} className="mb-3" controlId="formAward">
               <Form.Label column className="col-4">
-                Award
+                Name
               </Form.Label>
               <Col className="col-8">
                 <Form.Control
                   className="bg-black border-0 text-light"
                   type="text"
-                  placeholder="Enter award"
+                  placeholder="Enter award name"
+                  value={award.name}
+                  onChange={(e) => setAward({ ...award, name: e.target.value })}
+                  required
+                />
+              </Col>
+              <Form.Label column className="col-4 mt-2">
+                Year
+              </Form.Label>
+              <Col className="col-8">
+                <Form.Control
+                  className="bg-black border-0 text-light mt-2"
+                  type="text"
+                  placeholder="Enter award year"
+                  value={award.year}
+                  onChange={(e) => setAward({ ...award, year: e.target.value })}
                   required
                 />
               </Col>
@@ -68,55 +105,43 @@ function AddAwards() {
 function CMSAwards() {
   const { setShowSidebar, setActiveMenu, setShowNavigation, setShowFooter } =
     useGlobalState();
-  const [show, setShow] = useState(false);
-  const [fullscreen, setFullscreen] = useState(true);
-
-  const [award, setAward] = useState([]);
-  const [TotalAwards, setTotalAwards] = useState(0);
+  const [awards, setAwards] = useState([]);
   const [tableInitialized, setTableInitialized] = useState(false);
+  // const [currentId, setCurrentId] = useState(null); // State to hold the current award ID
+  // const [awardName, setAwardName] = useState(""); // State for award name
+  // const [awardYear, setAwardYear] = useState(""); // State for award year
+  const { notification } = useSwal();
+  const { edit, cancelEdit } = useEdit();
 
-  const { cancelEdit, edit, last_edit } = useEdit();
+  // useEffect(() => {
+  //   console.log("Current ID updated:", currentId);
+  // }, [currentId]);
 
-  const handleClose = () => setShow(false);
-  const handleShow = (breakpoint) => {
-    setFullscreen(breakpoint);
-    setShow(true);
-  };
-
-  const fetchAward = async (page = 1) => {
+  const fetchAwards = async () => {
     try {
-      const limit = 10;
-      const offset = (page - 1) * limit;
-      const response = await fetch(
-        `/api/cms/awardsList?limit=${limit}&offset=${offset}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`/api/cms/awardsList2`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
-      setAward(data.awards);
-      console.log(award);
-      setTotalAwards(data.total);
+      setAwards(data.awards);
     } catch (error) {
-      console.log(error);
+      console.log("Error fetching award:", error);
     }
   };
-  useEffect(() => {
-    fetchAward();
-  }, []);
 
   useEffect(() => {
     setShowSidebar(true);
     setActiveMenu("Awards");
     setShowNavigation(false);
     setShowFooter(false);
+    fetchAwards();
   }, []);
 
   useEffect(() => {
-    if (!tableInitialized && award.length > 0) {
+    if (!tableInitialized && awards.length > 0) {
       new DataTable("#awards", {
         scrollY: "45vh",
         columnDefs: [
@@ -137,7 +162,7 @@ function CMSAwards() {
             targets: 3,
           },
         ],
-        data: award,
+        data: awards,
         columns: [
           {
             render: function (data, type, row, meta) {
@@ -149,7 +174,7 @@ function CMSAwards() {
           {
             data: "name",
             render: (data) => {
-              return `<span name="award">${data}</span>`;
+              return `<span name="name">${data}</span>`;
             },
           },
           {
@@ -167,7 +192,12 @@ function CMSAwards() {
                   <Button
                     variant="primary"
                     className="mx-2"
-                    onClick={() => edit(no)}
+                    onClick={() => {
+                      const awardId = row.id;
+                      const awardName = row.name;
+                      const awardYear = row.year;
+                      handleEditAward(awardId, awardName, awardYear);
+                    }}
                     id={`editBtn${no}`}
                   >
                     <FontAwesomeIcon icon={faEdit} />
@@ -185,6 +215,7 @@ function CMSAwards() {
                     variant="danger"
                     className="mx-2"
                     id={`deleteBtn${no}`}
+                    onClick={() => handleDeleteAward(no)}
                   >
                     <FontAwesomeIcon icon={faTrash} />
                   </Button>
@@ -208,7 +239,7 @@ function CMSAwards() {
         serverSide: true,
         processing: true,
         ajax: {
-          url: "/api/cms/awardsList",
+          url: "/api/cms/awardsList2",
           type: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -237,11 +268,15 @@ function CMSAwards() {
           const table = $("#awards").DataTable();
           table.rows().every(function (rowIdx, tableLoop, rowLoop) {
             const row = this.node();
+            // const awardId = table.row(row).data().id; // Ambil ID award dari row
+
+            // console.log("Award ID from row:", awardId); // Tambahkan log untuk memverifikasi ID
+            // row.id = awardId;
             row.id = table.row(row).data().id;
 
             const editBtn = document.getElementById(`editBtn${row.id}`);
             editBtn.onclick = () => {
-              edit(row.id);
+              edit(row.id); // Panggil fungsi edit dengan ID yang benar
             };
 
             const CancelBtn = document.getElementById(`cancelBtn${row.id}`);
@@ -251,7 +286,7 @@ function CMSAwards() {
 
             const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
             deleteBtn.onclick = () => {
-              handleDeleteUser(row.id);
+              handleDeleteAward(row.id);
             };
 
             const tds = row.getElementsByTagName("td");
@@ -278,55 +313,118 @@ function CMSAwards() {
     } else if (tableInitialized) {
       const table = $("#awards").DataTable();
       table.clear();
-      table.rows.add(award);
+      table.rows.add(awards);
       table.draw();
     }
-  }, [award, tableInitialized]);
+  }, [awards, tableInitialized]);
 
-  // Initialize DataTable
-  // $("#awards").DataTable({
-  //   pageLength: 10, // Jumlah baris per halaman
-  //   lengthChange: true, // Izinkan opsi untuk mengubah jumlah baris per halaman
-  //   searching: true, // Aktifkan pencarian
-  //   ordering: true, // Aktifkan pengurutan kolom
-  //   info: true, // Tampilkan info tentang tabel
-  //   paging: true, // Aktifkan pagination
-  //   lengthMenu: [10, 25, 50],
-  //   autoWidth: false,
-  // });
+  const handleDeleteAward = async (id) => {
+    const awardToDelete = awards.find((award) => award.id === id);
+
+    // Jika award sudah dihapus, hentikan eksekusi delete
+    if (awardToDelete && awardToDelete.deleted_at !== null) {
+      notification("error", "Award already deleted!");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/cms/awardsList2/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        notification("success", "Award deleted successfully!");
+        fetchAwards(); // Refresh awards list
+      } else {
+        notification("error", "Failed to delete award!");
+      }
+    } catch (error) {
+      notification("error", "An error occurred while deleting the award");
+    }
+  };
+
+  const handleEditAward = async () => {
+    const form = document.getElementById("editForm");
+
+    if (!form) {
+      console.error("Form not found");
+      return;
+    }
+
+    const formData = new FormData(form);
+    const id = formData.get("id");
+    const awardName = formData.get("name");
+    const awardYear = formData.get("year");
+
+    if (!id) {
+      notification("error", "No ID found for award");
+      return;
+    }
+
+    if (!awardName && !awardYear) {
+      notification("error", "Award name and year are required");
+      return;
+    }
+
+    console.log("Data to be sent:", { id, name: awardName, year: awardYear });
+
+    try {
+      const response = await fetch(`/api/cms/awardsList2/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: awardName, year: awardYear }),
+      });
+
+      const data = await response.json();
+
+      console.log("Server response:", data);
+
+      if (response.ok && data.success) {
+        notification("success", "Award updated successfully");
+        fetchAwards();
+        table.ajax.reload(null, false);
+      } else {
+        notification("error", data.message || "Failed to update award");
+      }
+    } catch (error) {
+      notification("error", "An error occurred while updating the award");
+    }
+  };
 
   return (
-    <Container className="tabel">
-      <h1 className="text-center">Awards</h1>
-      <AddAwards />
-      <div className="table-responsive">
-        <table id="awards" className="display">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Award</th>
-              <th>Year</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* {awardsData.map((award) => (
-              <tr key={award.id}>
-                <td>{award.id}</td>
-                <td>{award.award}</td>
-                <td>{award.year}</td>
-                <td>
-                  <div className="actions">
-                    <FontAwesomeIcon icon={faEdit} className="edit" />
-                    <FontAwesomeIcon icon={faTrash} className="delete" />
-                  </div>
-                </td>
+    <>
+      <form
+        id="editForm"
+        onSubmit={(event) => {
+          event.preventDefault();
+          handleEditAward();
+        }}
+      ></form>
+      <Container className="tabel">
+        <h1 className="text-center">Awards</h1>
+        <AddAwards fetchAwards={fetchAwards} />
+        <div className="table-responsive">
+          <table id="awards" className="display">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Award</th>
+                <th>Year</th>
+                <th>Actions</th>
               </tr>
-            ))} */}
-          </tbody>
-        </table>
-      </div>
-    </Container>
+            </thead>
+          </table>
+        </div>
+      </Container>
+    </>
   );
 }
 

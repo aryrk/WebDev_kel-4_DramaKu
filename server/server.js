@@ -1423,12 +1423,16 @@ app.get("/api/cms/yearlist", (req, res) => {
 });
 
 app.get("/api/cms/genrelist", (req, res) => {
-  const query = `SELECT id, name FROM genres`;
+  const query = `SELECT id, name FROM genres WHERE deleted_at IS NULL`;
 
   connection.query(query, (err, results) => {
     if (err) return res.status(500).send(err);
 
-    res.json(results);
+    const formattedResults = results.map((result) => ({
+      id: result.id,
+      name: result.name,
+    }));
+    res.json(formattedResults);
   });
 });
 
@@ -1985,8 +1989,8 @@ app.get("/api/cms/movielist", authorize(["admin"]), (req, res) => {
 });
 
 app.get("/api/cms/genresList", authorize(["admin"]), (req, res) => {
-  const limit = parseInt(req.query.limit) || 10;
-  const offset = parseInt(req.query.offset) || 0;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const offset = parseInt(req.query.offset, 10) || 0;
   const search = req.query.search ? `%${req.query.search}%` : "%%";
   const orderColumnIndex = parseInt(req.query.order) || 0;
   const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
@@ -2007,18 +2011,32 @@ app.get("/api/cms/genresList", authorize(["admin"]), (req, res) => {
   const dataQuery = `
   SELECT g.id, g.name
   FROM genres g
-  WHERE g.name LIKE ?
+  WHERE g.name LIKE ? AND g.deleted_at IS NULL
   ORDER BY ${orderColumn} ${orderDir}
   LIMIT ? OFFSET ?
 `;
 
   connection.query(countQuery, [search], (err, countResult) => {
-    if (err) return res.status(500).send(err);
+    if (err) {
+      console.error("Error in countQuery:", err); // Log the error
+      return res.status(500).json({
+        success: false,
+        message: "Database error in count query",
+        error: err,
+      });
+    }
 
     const totalGenres = countResult[0].total;
 
     connection.query(dataQuery, [search, limit, offset], (err, dataResults) => {
-      if (err) return res.status(500).send(err);
+      if (err) {
+        console.error("Error in dataQuery:", err); // Log the error
+        return res.status(500).json({
+          success: false,
+          message: "Database error in data query",
+          error: err,
+        });
+      }
 
       res.json({
         genres: dataResults,
@@ -2323,6 +2341,106 @@ app.delete("/api/cms/awardsList2/:id", authorize(["admin"]), (req, res) => {
     }
 
     res.json({ success: true, message: "Award deleted successfully" });
+  });
+});
+
+// ----------------- CMS GENRE -----------------
+app.post("/api/cms/genresList", authorize(["admin"]), (req, res) => {
+  const { name } = req.body;
+
+  if (!name || name.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Genre name is required" });
+  }
+
+  console.log("Genre to add:", name);
+
+  // Check if the country name already exists and hasn't been deleted
+  const checkQuery = `SELECT * FROM genres WHERE name = ? AND deleted_at IS NULL`;
+
+  connection.query(checkQuery, [name], (err, results) => {
+    if (err) {
+      console.error("Error in checkQuery:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Database error in check query" });
+    }
+
+    if (results.length > 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Genre name already exists" });
+    }
+
+    // If the country does not exist, add it to the database
+    const insertQuery = `INSERT INTO genres (name) VALUES (?)`;
+
+    connection.query(insertQuery, [name], (err, results) => {
+      if (err) {
+        console.error("Error in insertQuery:", err);
+        return res
+          .status(500)
+          .json({ success: false, message: "Database error in insert query" });
+      }
+
+      res.json({ success: true, message: "Genre added successfully" });
+    });
+  });
+});
+
+app.put("/api/cms/genresList/:id", authorize(["admin"]), (req, res) => {
+  const genreId = req.params.id;
+  const { name } = req.body;
+
+  if (!name || name.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Genre name is required" });
+  }
+
+  const updateQuery = `UPDATE genres SET name = ? WHERE id = ? AND deleted_at IS NULL`;
+
+  connection.query(updateQuery, [name, genreId], (err, results) => {
+    if (err) {
+      console.error("Error in updateQuery:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Database error in update query" });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Genre not found or already deleted",
+      });
+    }
+
+    res.json({ success: true, message: "Genre updated successfully" });
+  });
+});
+
+app.delete("/api/cms/genresList/:id", authorize(["admin"]), (req, res) => {
+  const genreId = req.params.id;
+
+  const deleteQuery = `UPDATE genres SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL`;
+
+  connection.query(deleteQuery, [genreId], (err, results) => {
+    if (err) {
+      console.error("Error in deleteQuery:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Database error in delete query" });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Genre not found or already deleted",
+      });
+    }
+
+    res.json({ success: true, message: "Genre deleted successfully" });
   });
 });
 

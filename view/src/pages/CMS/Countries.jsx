@@ -286,8 +286,7 @@ function CMSCountries() {
       const data = await response.json();
       if (data.success) {
         notification("success", "Country deleted successfully!");
-        fetchCountries(); // Refresh the list after deletion
-        // Clear and redraw the DataTable
+        fetchCountries();
         const table = $("#countries").DataTable();
         table.ajax.reload(); // Reload the table data
       } else {

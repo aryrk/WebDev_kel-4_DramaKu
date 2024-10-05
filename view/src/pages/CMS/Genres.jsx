@@ -18,25 +18,46 @@ import { useEdit } from "../../components/cmsEdit";
 
 const token = sessionStorage.getItem("token");
 
-// const genresData = [
-//   { id: 1, genre: "Action" },
-//   { id: 2, genre: "Romance" },
-//   { id: 3, genre: "Horror" },
-//   { id: 4, genre: "Comedy" },
-//   { id: 5, genre: "Sci-Fi" },
-//   { id: 6, genre: "Drama" },
-//   { id: 7, genre: "Thriller" },
-//   { id: 8, genre: "Fantasy" },
-//   { id: 9, genre: "Adventure" },
-//   { id: 10, genre: "Mystery" },
-//   { id: 11, genre: "Documentary" },
-// ];
-
-function AddGenres() {
+function AddGenres({ fetchGenres }) {
   const { notification } = useSwal();
+  const [genre, setGenre] = useState("");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const newGenre = {
+      name: genre,
+    };
+
+    try {
+      const response = await fetch("/api/cms/genresList", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newGenre),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to add genre");
+      }
+      console.log("API Response:", data);
+
+      notification("success", "Genre added successfully!");
+      setGenre(""); // Reset input field
+      fetchGenres();
+    } catch (error) {
+      notification("error", error.message || "Error adding genre");
+    }
+  };
 
   return (
-    <Form className="bg-dark rounded-3 p-3 justify-content-start text-start mb-4">
+    <Form
+      onSubmit={handleSubmit}
+      className="bg-dark rounded-3 p-3 justify-content-start text-start mb-4"
+    >
       <Container className="w-100 w-md-100 w-lg-75 m-auto">
         <Row className="align-items-center">
           <Col md={8}>
@@ -49,6 +70,8 @@ function AddGenres() {
                   className="bg-black border-0 text-light"
                   type="text"
                   placeholder="Enter genre"
+                  value={genre}
+                  onChange={(e) => setGenre(e.target.value)}
                   required
                 />
               </Col>
@@ -68,56 +91,39 @@ function AddGenres() {
 function CMSGenres() {
   const { setShowSidebar, setActiveMenu, setShowNavigation, setShowFooter } =
     useGlobalState();
-
-  const [show, setShow] = useState(false);
-  const [fullscreen, setFullscreen] = useState(true);
-
-  const [genre, setGenre] = useState([]);
-  const [TotalGenres, setTotalGenres] = useState(0);
+  const [genres, setGenres] = useState([]);
   const [tableInitialized, setTableInitialized] = useState(false);
 
-  const { cancelEdit, edit, last_edit } = useEdit();
+  const { cancelEdit, edit } = useEdit();
+  const { notification } = useSwal();
 
-  const handleClose = () => setShow(false);
-  const handleShow = (breakpoint) => {
-    setFullscreen(breakpoint);
-    setShow(true);
-  };
-
-  const fetchGenre = async (page = 1) => {
+  const fetchGenres = async () => {
     try {
-      const limit = 10;
-      const offset = (page - 1) * limit;
-      const response = await fetch(
-        `/api/cms/genresList?limit=${limit}&offset=${offset}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      // const limit = 10;
+      // const offset = (page - 1) * limit;
+      const response = await fetch("/api/cms/genresList", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
-      setGenre(data.genres);
-      console.log(genre);
-      setTotalGenres(data.total);
+      setGenres(data.genres);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching genres:", error);
     }
   };
-  useEffect(() => {
-    fetchGenre();
-  }, []);
 
   useEffect(() => {
     setShowSidebar(true);
     setActiveMenu("Genres");
     setShowNavigation(false);
     setShowFooter(false);
+    fetchGenres();
   }, []);
 
   useEffect(() => {
-    if (!tableInitialized && genre.length > 0) {
+    if (!tableInitialized && genres.length > 0) {
       new DataTable("#genres", {
         scrollY: "45vh",
         columnDefs: [
@@ -134,7 +140,7 @@ function CMSGenres() {
             targets: 2,
           },
         ],
-        data: genre,
+        data: genres,
         columns: [
           {
             render: function (data, type, row, meta) {
@@ -176,6 +182,7 @@ function CMSGenres() {
                     variant="danger"
                     className="mx-2"
                     id={`deleteBtn${no}`}
+                    onClick={() => handleDeleteGenre(no)}
                   >
                     <FontAwesomeIcon icon={faTrash} />
                   </Button>
@@ -242,7 +249,7 @@ function CMSGenres() {
 
             const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
             deleteBtn.onclick = () => {
-              handleDeleteUser(row.id);
+              handleDeleteGenre(row.id);
             };
 
             const tds = row.getElementsByTagName("td");
@@ -269,41 +276,107 @@ function CMSGenres() {
     } else if (tableInitialized) {
       const table = $("#genres").DataTable();
       table.clear();
-      table.rows.add(genre);
+      table.rows.add(genres);
       table.draw();
     }
-  }, [genre, tableInitialized]);
+  }, [genres, tableInitialized]);
+
+  const handleDeleteGenre = async (id) => {
+    try {
+      const response = await fetch(`/api/cms/genresList/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      if (data.success) {
+        notification("success", "Genre deleted successfully!");
+        fetchGenres();
+        const table = $("#genres").DataTable();
+        table.ajax.reload(); // Reload the table data
+      } else {
+        notification("error", "Failed to delete genre!");
+      }
+    } catch (error) {
+      notification("error", "An error occurred while deleting the genre!");
+    }
+  };
+
+  const handleEditGenre = async () => {
+    const form = document.getElementById("editForm");
+    if (!form) {
+      console.error("Form not found");
+      return;
+    }
+
+    const formData = new FormData(form);
+    const id = formData.get("id");
+    const genre = formData.get("name");
+
+    if (!id) {
+      notification("error", "No ID found for genre");
+      return;
+    }
+
+    if (!genre) {
+      notification("error", "Genre is required");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/cms/genresList/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: genre }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        notification("error", errorData.message || "Failed to update genre");
+        return;
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        notification("success", "Genre updated successfully");
+        fetchGenres(); // Refresh the list after editing
+      } else {
+        notification("error", data.message || "Failed to update genre");
+      }
+    } catch (error) {
+      notification("error", "An error occurred while updating the genre");
+    }
+  };
 
   return (
-    <Container className="tabel">
-      <h1 className="text-center">Genres</h1>
-      <AddGenres />
-      <div className="table-responsive">
-        <table id="genres" className="display">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Genres</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* {genresData.map((genre) => (
-              <tr key={genre.id}>
-                <td>{genre.id}</td>
-                <td>{genre.genre}</td>
-                <td>
-                  <div className="actions">
-                    <FontAwesomeIcon icon={faEdit} className="edit" />
-                    <FontAwesomeIcon icon={faTrash} className="delete" />
-                  </div>
-                </td>
+    <>
+      <form
+        id="editForm"
+        onSubmit={(event) => {
+          event.preventDefault();
+          handleEditGenre();
+        }}
+      ></form>
+      <Container className="tabel">
+        <h1 className="text-center">Genres</h1>
+        <AddGenres fetchGenres={fetchGenres} />
+        <div className="table-responsive">
+          <table id="genres" className="display">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Genres</th>
+                <th>Actions</th>
               </tr>
-            ))} */}
-          </tbody>
-        </table>
-      </div>
-    </Container>
+            </thead>
+          </table>
+        </div>
+      </Container>
+    </>
   );
 }
 

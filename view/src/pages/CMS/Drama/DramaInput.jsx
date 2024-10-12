@@ -478,7 +478,7 @@ function DramaForm() {
           <Form.Group as={Col} md="5" lg="6" className="mt-3">
             <Form.Label>Alternative Title</Form.Label>
             <Form.Control
-              required
+              // required
               type="text"
               className="bg_pallete_1 text-light border-0"
               form="form-drama"

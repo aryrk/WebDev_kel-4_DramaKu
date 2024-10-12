@@ -37,7 +37,7 @@ CREATE TABLE movies (
   countries_id INT NOT NULL,
   poster VARCHAR(255) NOT NULL,
   title VARCHAR(255) NOT NULL,
-  alternative_titles VARCHAR(255) NOT NULL,
+  alternative_titles VARCHAR(255) NULL,
   year YEAR NOT NULL,
   synopsis TEXT NOT NULL,
   availability VARCHAR(255) NOT NULL,

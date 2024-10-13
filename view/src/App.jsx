@@ -56,7 +56,7 @@ function AppContent() {
         >
           <Routes>
             <Route path="*" element={<Error404 />} />
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={<ContentCard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgetPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />

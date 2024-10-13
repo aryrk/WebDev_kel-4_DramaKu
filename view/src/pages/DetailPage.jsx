@@ -16,14 +16,10 @@ import {
 import { Rating } from "@mui/material";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 import { useGlobalState } from "../components/GlobalStateContext";
-
 import "bootstrap/dist/css/bootstrap.min.css";
-
 import { useParams } from "react-router-dom";
 import { useSwal } from "../components/SweetAlert";
-
 import { withConfig } from "../Config";
 import Shortcut from "./Shortcut";
 import { jwtDecode } from "jwt-decode";

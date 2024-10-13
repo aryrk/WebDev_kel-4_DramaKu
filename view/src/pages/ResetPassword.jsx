@@ -21,6 +21,12 @@ function ResetPasswordForm() {
 
   const url = new URL(window.location.href);
   const token = url.searchParams.get("token");
+  if (!token) {
+    alert("error", "error", "Invalid token");
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 2000);
+  }
 
   const checkPassword = (password) => {
     if (passwordRegex.test(password)) {

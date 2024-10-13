@@ -25,11 +25,26 @@ import { useEdit } from "../../../components/cmsEdit";
 import { useSwal } from "../../../components/SweetAlert";
 import { renderToString } from "react-dom/server";
 import axios from "axios";
+import { withConfig } from "../../../Config";
 
 const token = sessionStorage.getItem("token");
 
-function MoviePreview({ movie }) {
-  const {
+function MoviePreview(props) {
+  // const {
+  //   title,
+  //   alternative_titles,
+  //   year,
+  //   poster,
+  //   synopsis,
+  //   genres,
+  //   rating,
+  //   availability,
+  //   config
+  // } = movie;
+
+  const { movie, config } = props;
+
+  let {
     title,
     alternative_titles,
     year,
@@ -46,13 +61,27 @@ function MoviePreview({ movie }) {
     synopsis = synopsis.substring(0, 400);
   }
 
+  console.log(movie.actors);
+
   return (
     <center>
-      <BackgroundPoster src={poster} zIndex={0} imgHeight="54vh" />
+      <BackgroundPoster
+        src={
+          poster.includes("/public/uploads/")
+            ? `${config.server}${poster}`
+            : poster
+        }
+        zIndex={0}
+        imgHeight="54vh"
+      />
 
       <div className="w-sm-100 w-xl-90 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
         <MovieInfo
-          poster={poster || "default_poster.jpg"} // Jika poster null, tampilkan poster default
+          poster={
+            poster.includes("/public/uploads/")
+              ? `${config.server}${poster}`
+              : poster
+          }
           judul={title || "No Title Available"}
           otherTitles={
             alternative_titles
@@ -126,7 +155,7 @@ function MoviePreview({ movie }) {
 // }
 
 function MovieDetailModal(props) {
-  const { show, handleClose, movieId } = props;
+  const { show, handleClose, movieId, config } = props;
   const [movieDetails, setMovieDetails] = useState(null);
 
   useEffect(() => {
@@ -224,7 +253,7 @@ function MovieDetailModal(props) {
       <Modal.Body className="bg-dark text-white">
         {/* Tampilkan Movie Preview atau pesan loading */}
         {movieDetails ? (
-          <MoviePreview movie={movieDetails} />
+          <MoviePreview movie={movieDetails} config={config} />
         ) : (
           <p>Loading...</p>
         )}
@@ -233,7 +262,7 @@ function MovieDetailModal(props) {
   );
 }
 
-function CMSDramas() {
+function CMSDramas({ config }) {
   const { setShowSidebar, setActiveMenu, setShowNavigation, setShowFooter } =
     useGlobalState();
   const [show, setShow] = useState(false);
@@ -602,6 +631,7 @@ function CMSDramas() {
   return (
     <>
       <MovieDetailModal
+        config={config}
         show={show}
         handleClose={handleClose}
         // handleShow={handleShow}
@@ -653,4 +683,4 @@ function CMSDramas() {
   );
 }
 
-export default CMSDramas;
+export default withConfig(CMSDramas);

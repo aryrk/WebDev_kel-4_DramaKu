@@ -405,37 +405,34 @@ function CMSDramas({ config }) {
           {
             render: function (data, type, row, meta) {
               const no = row.id;
+              const hideButtons =
+                row.status === "accepted" ||
+                row.status === "rejected" ||
+                row.inDatabase;
 
               return renderToString(
                 <div className="d-flex justify-content-center">
                   <Button
                     variant="primary"
-                    className="mx-2"
+                    className={`mx-2 ${hideButtons ? "d-none" : ""}`} // Perbaiki penggunaan template literal untuk className
                     onClick={() => edit(no)}
-                    id={`editBtn${no}`}
+                    id={`editBtn${no}`} // Perbaiki penggunaan template literal untuk id
                   >
                     <FontAwesomeIcon icon={faEdit} />
                   </Button>
                   <Button
                     variant="success"
-                    className="d-none mx-2"
-                    id={`editSaveBtn${no}`}
+                    className={`d-none mx-2 ${hideButtons ? "d-none" : ""}`} // Perbaiki template literal di className
+                    id={`editSaveBtn${no}`} // Perbaiki penggunaan template literal untuk id
                     form="editForm"
                     type="submit"
                   >
                     <FontAwesomeIcon icon={faSave} />
                   </Button>
                   <Button
-                    variant="danger"
-                    className="mx-2"
-                    id={`deleteBtn${no}`}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </Button>
-                  <Button
                     variant="warning"
-                    id={`cancelBtn${no}`}
-                    className="d-none mx-2"
+                    id={`cancelBtn${no}`} // Perbaiki penggunaan template literal untuk id
+                    className={`d-none mx-2 ${hideButtons ? "d-none" : ""}`} // Perbaiki template literal di className
                     onClick={() => cancelEdit(no)}
                   >
                     <FontAwesomeIcon icon={faTimes} />

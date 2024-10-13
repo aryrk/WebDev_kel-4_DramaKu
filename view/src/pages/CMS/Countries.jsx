@@ -74,7 +74,11 @@ function AddCountries({ fetchCountries }) {
             </Form.Group>
           </Col>
           <Col md={3}>
-            <Button className="rounded-3 w-100" variant="primary" type="submit">
+            <Button
+              className="rounded-3 w-100 mb-3"
+              variant="primary"
+              type="submit"
+            >
               Submit
             </Button>
           </Col>

@@ -2309,13 +2309,12 @@ app.get("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
       m.title, 
       m.synopsis, 
       m.poster,
-      m.alternative_titles,
       m.year,
       m.availability,
       m.trailer,
       m.status, 
-      GROUP_CONCAT(DISTINCT a.name) AS actors, 
-      GROUP_CONCAT(DISTINCT g.name) AS genres
+      COALESCE(GROUP_CONCAT(DISTINCT CONCAT(a.name, ':', a.picture_profile) SEPARATOR ';'), '') AS actors, 
+      COALESCE(GROUP_CONCAT(DISTINCT g.name), '') AS genres
     FROM movies m
     LEFT JOIN movies_actors ma ON m.id = ma.movie_id
     LEFT JOIN actors a ON ma.actor_id = a.id
@@ -2339,7 +2338,23 @@ app.get("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
         .json({ success: false, message: "Movie not found" });
     }
 
-    res.json({ success: true, data: result[0] });
+    const movie = result[0];
+
+    // Parse actors and genres if they are strings, otherwise set them to empty arrays
+    movie.actors =
+      typeof movie.actors === "string" && movie.actors.length
+        ? movie.actors.split(";").map((actor) => {
+            const [name, picture_profile] = actor.split(":");
+            return { name, picture_profile };
+          })
+        : [];
+
+    movie.genres =
+      typeof movie.genres === "string" && movie.genres.length
+        ? movie.genres.split(",")
+        : [];
+
+    res.json({ success: true, data: movie });
   });
 });
 

@@ -90,7 +90,7 @@ function MoviePreview(props) {
           }
           year={year || "Unknown Year"}
           synopsis={synopsis || "No synopsis available"}
-          genres={genres ? genres.split(",") : ["No genres available"]}
+          genres={Array.isArray(genres) ? genres : genres.split(",")} // Perbaikan di sini
           rating={rating || "No rating"}
           availability={availability || "Unknown availability"}
         />
@@ -105,16 +105,17 @@ function MoviePreview(props) {
                 className="justify-content-center"
                 style={{ whiteSpace: "nowrap", overflowX: "scroll" }}
               >
-                {movie.actors &&
-                  movie.actors
-                    .split(",")
-                    .map((actorName, index) => (
-                      <Actor
-                        key={index}
-                        src="default_image.jpg"
-                        name={actorName}
-                      />
-                    ))}
+                {Array.isArray(movie.actors) && movie.actors.length > 0 ? (
+                  movie.actors.map((actor, index) => (
+                    <Actor
+                      key={index}
+                      src={actor.picture_profile || "default_image.jpg"}
+                      name={actor.name || "Unknown Actor"}
+                    />
+                  ))
+                ) : (
+                  <p>No actors available</p>
+                )}
               </div>
             </div>
           </div>
@@ -385,37 +386,34 @@ function CMSDramas({ config }) {
           {
             render: function (data, type, row, meta) {
               const no = row.id;
+              const hideButtons =
+                row.status === "accepted" ||
+                row.status === "rejected" ||
+                row.inDatabase;
 
               return renderToString(
                 <div className="d-flex justify-content-center">
                   <Button
                     variant="primary"
-                    className="mx-2"
+                    className={`mx-2 ${hideButtons ? "d-none" : ""}`} // Perbaiki penggunaan template literal untuk className
                     onClick={() => edit(no)}
-                    id={`editBtn${no}`}
+                    id={`editBtn${no}`} // Perbaiki penggunaan template literal untuk id
                   >
                     <FontAwesomeIcon icon={faEdit} />
                   </Button>
                   <Button
                     variant="success"
-                    className="d-none mx-2"
-                    id={`editSaveBtn${no}`}
+                    className={`d-none mx-2 ${hideButtons ? "d-none" : ""}`} // Perbaiki template literal di className
+                    id={`editSaveBtn${no}`} // Perbaiki penggunaan template literal untuk id
                     form="editForm"
                     type="submit"
                   >
                     <FontAwesomeIcon icon={faSave} />
                   </Button>
                   <Button
-                    variant="danger"
-                    className="mx-2"
-                    id={`deleteBtn${no}`}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </Button>
-                  <Button
                     variant="warning"
-                    id={`cancelBtn${no}`}
-                    className="d-none mx-2"
+                    id={`cancelBtn${no}`} // Perbaiki penggunaan template literal untuk id
+                    className={`d-none mx-2 ${hideButtons ? "d-none" : ""}`} // Perbaiki template literal di className
                     onClick={() => cancelEdit(no)}
                   >
                     <FontAwesomeIcon icon={faTimes} />

@@ -2303,43 +2303,49 @@ app.put("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
 app.get("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
   const movieId = req.params.id;
 
-  const query = `
-    SELECT 
-      m.id, 
-      m.title, 
-      m.synopsis, 
-      m.poster,
-      m.alternative_titles,
-      m.year,
-      m.availability,
-      m.trailer,
-      m.status, 
-      GROUP_CONCAT(DISTINCT a.name) AS actors, 
-      GROUP_CONCAT(DISTINCT g.name) AS genres
-    FROM movies m
-    LEFT JOIN movies_actors ma ON m.id = ma.movie_id
-    LEFT JOIN actors a ON ma.actor_id = a.id
-    LEFT JOIN movies_genres mg ON m.id = mg.movie_id
-    LEFT JOIN genres g ON mg.genre_id = g.id
-    WHERE m.id = ? AND m.deleted_at IS NULL
-    GROUP BY m.id;
+  const movieQuery = `
+  SELECT m.*, c.name AS country_name, IFNULL(AVG(cm.rate), 0) AS rating
+  FROM movies m
+  JOIN countries c ON m.countries_id = c.id
+  LEFT JOIN comments cm ON m.id = cm.movie_id
+  WHERE m.id = ? and m.deleted_at IS NULL and c.deleted_at IS NULL 
+  GROUP BY m.id
   `;
 
-  connection.query(query, [movieId], (err, result) => {
-    if (err) {
-      console.error("Error fetching movie details:", err);
-      return res
-        .status(500)
-        .json({ success: false, message: "Database error" });
-    }
+  const genresQuery = `
+    SELECT g.*
+    FROM genres g
+    JOIN movies_genres mg ON g.id = mg.genre_id
+    JOIN movies m ON mg.movie_id = m.id
+    WHERE mg.movie_id = ? AND m.deleted_at IS NULL AND g.deleted_at IS NULL
+  `;
 
-    if (result.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Movie not found" });
-    }
+  const actorsQuery = `
+    SELECT a.*
+    FROM actors a
+    JOIN movies_actors ma ON a.id = ma.actor_id
+    JOIN movies m ON ma.movie_id = m.id
+    WHERE ma.movie_id = ? AND m.deleted_at IS NULL AND a.deleted_at IS NULL
+  `;
 
-    res.json({ success: true, data: result[0] });
+  connection.query(movieQuery, [movieId], (err, movieResults) => {
+    if (err) return res.status(500).send(err);
+
+    const movie = movieResults[0];
+
+    connection.query(genresQuery, [movieId], (err, genresResults) => {
+      if (err) return res.status(500).send(err);
+
+      connection.query(actorsQuery, [movieId], (err, actorsResults) => {
+        if (err) return res.status(500).send(err);
+
+        res.json({
+          ...movie,
+          genres: genresResults,
+          actors: actorsResults,
+        });
+      });
+    });
   });
 });
 

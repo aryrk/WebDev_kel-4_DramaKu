@@ -61,8 +61,6 @@ function MoviePreview(props) {
     synopsis = synopsis.substring(0, 400);
   }
 
-  console.log(movie.actors);
-
   return (
     <center>
       <BackgroundPoster
@@ -90,7 +88,7 @@ function MoviePreview(props) {
           }
           year={year || "Unknown Year"}
           synopsis={synopsis || "No synopsis available"}
-          genres={genres ? genres.split(",") : ["No genres available"]}
+          genres={movie.genres.map((genre) => genre.name)}
           rating={rating || "No rating"}
           availability={availability || "Unknown availability"}
         />
@@ -105,16 +103,22 @@ function MoviePreview(props) {
                 className="justify-content-center"
                 style={{ whiteSpace: "nowrap", overflowX: "scroll" }}
               >
-                {movie.actors &&
-                  movie.actors
-                    .split(",")
-                    .map((actorName, index) => (
-                      <Actor
-                        key={index}
-                        src="default_image.jpg"
-                        name={actorName}
-                      />
-                    ))}
+                {movie.actors.map((actor) => (
+                  // if (data.includes("/public/uploads/")) {
+                  //   img = `${config.server}${data}`;
+                  // }
+                  <Actor
+                    key={actor.id}
+                    src={
+                      actor.picture_profile != ""
+                        ? actor.picture_profile.includes("/public/uploads/")
+                          ? `${config.server}${actor.picture_profile}`
+                          : actor.picture_profile
+                        : "/images/empty_profile.jpg"
+                    }
+                    name={actor.name}
+                  />
+                ))}
               </div>
             </div>
           </div>
@@ -159,28 +163,40 @@ function MovieDetailModal(props) {
   const [movieDetails, setMovieDetails] = useState(null);
 
   useEffect(() => {
+    // if (show && movieId) {
+    //   axios
+    //     .get(`/api/cms/moviesList/${movieId}`, {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     })
+    //     .then((response) => {
+    //       if (response.data.success) {
+    //         setMovieDetails(response.data);
+    //       } else {
+    //         console.error(
+    //           "Failed to fetch movie details:",
+    //           response.data.message
+    //         );
+    //       }
+    //     })
+    //     .catch((error) => console.error("Error:", error));
+    // } else {
+    //   setMovieDetails(null);
+    // }
+
     if (show && movieId) {
-      axios
-        .get(`/api/cms/moviesList/${movieId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      fetch(`/api/cms/moviesList/${movieId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setMovieDetails(data);
         })
-        .then((response) => {
-          if (response.data.success) {
-            setMovieDetails(response.data.data);
-          } else {
-            console.error(
-              "Failed to fetch movie details:",
-              response.data.message
-            );
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching movie details:", error);
-        });
-    } else {
-      setMovieDetails(null);
+        .catch((error) => console.error("Error:", error));
     }
   }, [show, movieId]);
 
@@ -341,6 +357,10 @@ function CMSDramas({ config }) {
           {
             width: "50px",
             targets: 5,
+          },
+          {
+            width: "80px",
+            targets: 6,
           },
         ],
         data: movie,

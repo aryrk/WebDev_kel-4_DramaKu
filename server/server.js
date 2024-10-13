@@ -2203,6 +2203,12 @@ app.put("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
   const { title } = req.body;
   const { synopsis } = req.body;
   const { status } = req.body;
+  const { poster } = req.body;
+  const { year } = req.body;
+  const { availability } = req.body;
+  const { trailer } = req.body;
+  const { actors } = req.body;
+  const { genres } = req.body;
 
   if (!title || title.trim() === "") {
     return res
@@ -2222,11 +2228,58 @@ app.put("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
       .json({ success: false, message: "Movie status is required" });
   }
 
-  const updateQuery = `UPDATE movies SET title = ? synopsis = ? status = ? WHERE id = ? AND deleted_at IS NULL`;
+  if (!poster || poster.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Movie poster is required" });
+  }
+
+  if (!year || year.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Movie year is required" });
+  }
+
+  if (!availability || availability.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Movie availability is required" });
+  }
+
+  if (!trailer || trailer.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Movie trailer is required" });
+  }
+
+  if (!actors || actors.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Movie actors is required" });
+  }
+
+  if (!genres || genres.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Movie genres is required" });
+  }
+
+  const updateQuery = `UPDATE movies SET title = ? synopsis = ? status = ? poster = ? year = ? availability = ? trailer = ? actors = ? genres = ? WHERE id = ? AND deleted_at IS NULL`;
 
   connection.query(
     updateQuery,
-    [title, synopsis, status, movieId],
+    [
+      title,
+      synopsis,
+      status,
+      poster,
+      year,
+      availability,
+      trailer,
+      actors,
+      genres,
+      movieId,
+    ],
     (err, results) => {
       if (err) {
         console.error("Error in updateQuery:", err);
@@ -2245,6 +2298,49 @@ app.put("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
       res.json({ success: true, message: "Movie updated successfully" });
     }
   );
+});
+
+app.get("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
+  const movieId = req.params.id;
+
+  const query = `
+    SELECT 
+      m.id, 
+      m.title, 
+      m.synopsis, 
+      m.poster,
+      m.alternative_titles,
+      m.year,
+      m.availability,
+      m.trailer,
+      m.status, 
+      GROUP_CONCAT(DISTINCT a.name) AS actors, 
+      GROUP_CONCAT(DISTINCT g.name) AS genres
+    FROM movies m
+    LEFT JOIN movies_actors ma ON m.id = ma.movie_id
+    LEFT JOIN actors a ON ma.actor_id = a.id
+    LEFT JOIN movies_genres mg ON m.id = mg.movie_id
+    LEFT JOIN genres g ON mg.genre_id = g.id
+    WHERE m.id = ? AND m.deleted_at IS NULL
+    GROUP BY m.id;
+  `;
+
+  connection.query(query, [movieId], (err, result) => {
+    if (err) {
+      console.error("Error fetching movie details:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Database error" });
+    }
+
+    if (result.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Movie not found" });
+    }
+
+    res.json({ success: true, data: result[0] });
+  });
 });
 
 app.delete("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
@@ -2268,6 +2364,68 @@ app.delete("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
     }
 
     res.json({ success: true, message: "Movie deleted successfully" });
+  });
+});
+
+// ----------------- UNTUK APPROVE MOVIE -----------------
+app.post(
+  "/api/cms/moviesList/approve/:id",
+  authorize(["admin"]),
+  (req, res) => {
+    const movieId = req.params.id;
+
+    // Query untuk memperbarui status menjadi 'accepted'
+    const updateQuery = `
+    UPDATE movies
+    SET status = 'accepted'
+    WHERE id = ? AND status != 'accepted'`;
+
+    connection.query(updateQuery, [movieId], (err, result) => {
+      if (err) {
+        console.error("Error approving movie:", err);
+        return res
+          .status(500)
+          .json({ success: false, message: "Database error" });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Movie not found or already accepted",
+        });
+      }
+
+      res.json({ success: true, message: "Movie approved successfully" });
+    });
+  }
+);
+
+// ----------------- UNTUK REJECT MOVIE -----------------
+app.put("/api/cms/moviesList/reject/:id", authorize(["admin"]), (req, res) => {
+  const movieId = req.params.id;
+
+  // Query untuk memperbarui status menjadi 'rejected'
+  const updateQuery = `
+    UPDATE movies
+    SET status = 'rejected'
+    WHERE id = ? AND status != 'rejected'`;
+
+  connection.query(updateQuery, [movieId], (err, result) => {
+    if (err) {
+      console.error("Error rejecting movie:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Database error" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found or already rejected",
+      });
+    }
+
+    res.json({ success: true, message: "Movie rejected successfully" });
   });
 });
 

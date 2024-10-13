@@ -24,28 +24,46 @@ import { Actor, BackgroundPoster, MovieInfo, Trailer } from "../../DetailPage";
 import { useEdit } from "../../../components/cmsEdit";
 import { useSwal } from "../../../components/SweetAlert";
 import { renderToString } from "react-dom/server";
+import axios from "axios";
 
 const token = sessionStorage.getItem("token");
 
-function MoviePreview() {
+function MoviePreview({ movie }) {
+  const {
+    title,
+    alternative_titles,
+    year,
+    poster,
+    synopsis,
+    genres,
+    rating,
+    availability,
+  } = movie;
+
+  let synopsis_cut = false;
+  if (synopsis.length > 400) {
+    synopsis_cut = true;
+    synopsis = synopsis.substring(0, 400);
+  }
+
   return (
     <center>
-      <BackgroundPoster
-        src="https://d1csarkz8obe9u.cloudfront.net/posterpreviews/action-mistery-movie-poster-design-template-2ec690d65c22aa12e437d765dbf7e4af_screen.jpg?ts=1680854635"
-        zIndex={0}
-        imgHeight="54vh"
-      />
+      <BackgroundPoster src={poster} zIndex={0} imgHeight="54vh" />
 
       <div className="w-sm-100 w-xl-90 ps-3 pe-3 ps-lg-0 pe-lg-0 mt-4 mb-4">
         <MovieInfo
-          poster="https://d1csarkz8obe9u.cloudfront.net/posterpreviews/action-mistery-movie-poster-design-template-2ec690d65c22aa12e437d765dbf7e4af_screen.jpg?ts=1680854635"
-          judul="The OUTSIDER"
-          otherTitles={["The OUTSIDER", "B"]}
-          year="2024"
-          synopsis="Synopsis sometimes unhelpful. I don't read it throughly. But what helps me is the henres. I need to see the genres and actors. That is what i want."
-          genres={["Gendre 1", "Gendre 2", "Gendre 3"]}
-          rating="3.5"
-          availability="Fansub bla bla"
+          poster={poster || "default_poster.jpg"} // Jika poster null, tampilkan poster default
+          judul={title || "No Title Available"}
+          otherTitles={
+            alternative_titles
+              ? alternative_titles.split(",")
+              : ["No Alternative Titles"]
+          }
+          year={year || "Unknown Year"}
+          synopsis={synopsis || "No synopsis available"}
+          genres={genres ? genres.split(",") : ["No genres available"]}
+          rating={rating || "No rating"}
+          availability={availability || "Unknown availability"}
         />
 
         <div
@@ -58,210 +76,178 @@ function MoviePreview() {
                 className="justify-content-center"
                 style={{ whiteSpace: "nowrap", overflowX: "scroll" }}
               >
-                <Actor
-                  src="https://m.media-amazon.com/images/M/MV5BMjA3NzcyMDcyMF5BMl5BanBnXkFtZTcwNjQwMTczMQ@@._V1_.jpg"
-                  name="Ben Mendelsohn"
-                />
-                <Actor
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz8Yx4CXaaAUDw_hLZSz7AojAoVahex0PKAg&s"
-                  name="Bill Camp"
-                />
-                <Actor
-                  src="https://m.media-amazon.com/images/M/MV5BYzk2ZTQwNTgtZTAxMy00ZTY3LTlkZTctMWE1NTNkNTk1MjA4XkEyXkFqcGdeQXVyMjQwMDg0Ng@@._V1_QL75_UY207_CR86,0,140,207_.jpg"
-                  name="Jeremy bobb"
-                />
-                <Actor
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSX3Ihna-KxO6oHbpPpANr5gFIqsjKnQ7W3kQ&s"
-                  name="mare winningham"
-                />
-                <Actor
-                  src="https://m.media-amazon.com/images/M/MV5BNDU1ODIxMzgyMF5BMl5BanBnXkFtZTYwMTU1NzE1._V1_FMjpg_UX1000_.jpg"
-                  name="paddy considine"
-                />
-                <Actor
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4Y0zsQI4X3znM-wlz57c8NOFjSkQPRbJ8Yw&s"
-                  name="yul vazquez"
-                />
-                <Actor
-                  src="https://m.media-amazon.com/images/M/MV5BMjM1NDk3MTQ1N15BMl5BanBnXkFtZTgwMDMwODEyMDE@._V1_.jpg"
-                  name="julianne nicholson"
-                />
-                <Actor
-                  src="https://m.media-amazon.com/images/M/MV5BZTVhOTg1ZWMtNDVlMC00M2YwLThiZjMtMTgxOWU1ZTk4ZjQ3XkEyXkFqcGdeQXVyNDM5MjI4OA@@._V1_FMjpg_UX1000_.jpg"
-                  name="marc menchaca"
-                />
-                <Actor
-                  src="https://m.media-amazon.com/images/M/MV5BMTcyMTI3NzI1Nl5BMl5BanBnXkFtZTgwNjQ3Njk2NjM@._V1_.jpg"
-                  name="cynthia erivo"
-                />
-                <Actor
-                  src="https://m.media-amazon.com/images/M/MV5BMjI2MzA0ODYyMV5BMl5BanBnXkFtZTgwNzU0NTEyNzE@._V1_.jpg"
-                  name="derek cecil"
-                />
-                <Actor
-                  src="https://m.media-amazon.com/images/M/MV5BMTQyOTEyNTE3M15BMl5BanBnXkFtZTcwNjYyODUzMQ@@._V1_FMjpg_UX1000_.jpg"
-                  name="hettienne park"
-                />
-                <Actor
-                  src="https://m.media-amazon.com/images/M/MV5BYTgzZWUyOTItZjMwNy00NjhiLWIzMGEtZjFjMDdlNDM3YTZhXkEyXkFqcGdeQXVyOTc3ODMwODk@._V1_.jpg"
-                  name="scarlett blum"
-                />
-                <Actor
-                  src="https://m.media-amazon.com/images/M/MV5BYzg2Mzc5NjEtYjY5My00YWFhLWFjZTYtYTM0MmZkZDE5YzZlXkEyXkFqcGdeQXVyNjk2Nzg2MTE@._V1_FMjpg_UX1000_.jpg"
-                  name="summer fontana"
-                />
-                <Actor
-                  src="https://m.media-amazon.com/images/M/MV5BMTMwOTQ0MDUyNF5BMl5BanBnXkFtZTcwNTQ1MzY1Mw@@._V1_.jpg"
-                  name="jason baterman"
-                />
+                {movie.actors &&
+                  movie.actors
+                    .split(",")
+                    .map((actorName, index) => (
+                      <Actor
+                        key={index}
+                        src="default_image.jpg"
+                        name={actorName}
+                      />
+                    ))}
               </div>
             </div>
           </div>
         </div>
 
-        <Trailer src="https://youtu.be/eNDKWr3Xmjk" />
+        <Trailer src={movie.trailer} />
       </div>
     </center>
   );
 }
 
+// function MovieDetailModal(props) {
+//   const { show, handleClose, handleShow, fullscreen } = props;
+
+//   return (
+//     <Modal
+//       size="xl"
+//       show={show}
+//       fullscreen={fullscreen}
+//       onHide={handleClose}
+//       centered
+//     >
+//       <Modal.Header closeButton className="bg-dark text-white">
+//         <center>
+//           <Button className="bg_pallete_3 border-0 me-3" onClick={handleClose}>
+//             Approve
+//           </Button>
+//           <Button variant="danger" onClick={handleClose}>
+//             Delete
+//           </Button>
+//         </center>
+//       </Modal.Header>
+//       <Modal.Body className="bg-dark text-white">
+//         <MoviePreview />
+//       </Modal.Body>
+//     </Modal>
+//   );
+// }
+
 function MovieDetailModal(props) {
-  const { show, handleClose, handleShow, fullscreen } = props;
+  const { show, handleClose, movieId } = props;
+  const [movieDetails, setMovieDetails] = useState(null);
+
+  useEffect(() => {
+    if (show && movieId) {
+      axios
+        .get(`/api/cms/moviesList/${movieId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          if (response.data.success) {
+            setMovieDetails(response.data.data);
+          } else {
+            console.error(
+              "Failed to fetch movie details:",
+              response.data.message
+            );
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching movie details:", error);
+        });
+    } else {
+      setMovieDetails(null);
+    }
+  }, [show, movieId]);
+
+  const handleApprove = () => {
+    axios
+      .post(
+        `/api/cms/moviesList/approve/${movieId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
+      .then((response) => {
+        if (response.data.success) {
+          handleClose();
+          window.location.reload();
+        } else {
+          console.error("Failed to approve movie:", response.data.message);
+        }
+      })
+      .catch((error) => {
+        console.error("Error approving movie:", error);
+      });
+  };
+
+  const handleReject = () => {
+    axios
+      .put(
+        `/api/cms/moviesList/reject/${movieId}`,
+        {
+          status: "rejected",
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
+      .then((response) => {
+        if (response.data.success) {
+          handleClose();
+          window.location.reload();
+        } else {
+          console.error("Failed to reject movie:", response.data.message);
+        }
+      })
+      .catch((error) => {
+        console.error("Error rejecting movie:", error);
+      });
+  };
 
   return (
-    <Modal
-      size="xl"
-      show={show}
-      fullscreen={fullscreen}
-      onHide={handleClose}
-      centered
-    >
+    <Modal size="xl" show={show} onHide={handleClose} centered>
       <Modal.Header closeButton className="bg-dark text-white">
-        <center>
-          <Button className="bg_pallete_3 border-0 me-3" onClick={handleClose}>
-            Approve
-          </Button>
-          <Button variant="danger" onClick={handleClose}>
-            Delete
-          </Button>
-        </center>
+        {/* Tampilkan tombol approve/reject hanya jika status bukan "accepted" atau "rejected" */}
+        {movieDetails &&
+          movieDetails.status !== "accepted" &&
+          movieDetails.status !== "rejected" && (
+            <center>
+              <Button
+                className="bg_pallete_3 border-0 me-3"
+                onClick={handleApprove}
+              >
+                Approve
+              </Button>
+              <Button variant="danger" onClick={handleReject}>
+                Delete
+              </Button>
+            </center>
+          )}
       </Modal.Header>
       <Modal.Body className="bg-dark text-white">
-        <MoviePreview />
+        {/* Tampilkan Movie Preview atau pesan loading */}
+        {movieDetails ? (
+          <MoviePreview movie={movieDetails} />
+        ) : (
+          <p>Loading...</p>
+        )}
       </Modal.Body>
     </Modal>
   );
 }
 
-// const dramasData = [
-//   {
-//     id: 1,
-//     drama: "The Outsider (2020)",
-//     actor: "Ben Mendelsohn",
-//     genre: "Crime, Drama, Mystery",
-//     synopsis:
-//       "A detective investigates a brutal murder that seems to have a supernatural element.",
-//     status: "Completed",
-//   },
-//   {
-//     id: 2,
-//     drama: "Avatar: The Way of Water (2022)",
-//     actor: "Sam Worthington, Zoe Saldana",
-//     genre: "Action, Adventure, Fantasy",
-//     synopsis:
-//       "Jake Sully lives with his newfound family formed on the planet of Pandora. Once a familiar threat returns to finish what was previously started, Jake must work with Neytiri and the army of the Na'vi race to protect their planet.",
-//     status: "Completed",
-//   },
-//   {
-//     id: 3,
-//     drama: "Shang-Chi and the Legend of the Ten Rings (2021)",
-//     actor: "Simu Liu",
-//     genre: "Action, Adventure, Fantasy",
-//     synopsis:
-//       "Shang-Chi, the master of weaponry-based Kung Fu, is forced to confront his past after being drawn into the Ten Rings organization.",
-//     status: "Completed",
-//   },
-//   {
-//     id: 4,
-//     drama: "Venom: Let There Be Carnage (2021)",
-//     actor: "Tom Hardy",
-//     genre: "Action, Adventure, Fantasy",
-//     synopsis:
-//       "Eddie Brock attempts to reignite his career by interviewing serial killer Cletus Kasady, who becomes the host of the symbiote Carnage and escapes prison after a failed execution.",
-//     status: "Completed",
-//   },
-//   {
-//     id: 5,
-//     drama: "Fast X (2023)",
-//     actor: "Vin Diesel",
-//     genre: "Action, Adventure",
-//     synopsis:
-//       "Dom Toretto and his family are targeted by the vengeful son of drug kingpin Hernan Reyes.",
-//     status: "Ongoing",
-//   },
-//   {
-//     id: 6,
-//     drama: "Minions: The Rise of Gru (2022)",
-//     actor: "Steve Carell",
-//     genre: "Animation, Adventure, Comedy",
-//     synopsis:
-//       "The untold story of one twelve-year-old's dream to become the world's greatest supervillain.",
-//     status: "Completed",
-//   },
-//   {
-//     id: 7,
-//     drama: "Thor: Love and Thunder (2022)",
-//     actor: "Chris Hemsworth",
-//     genre: "Action, Adventure, Fantasy",
-//     synopsis:
-//       "Thor enlists the help of Valkyrie, Korg, and ex-girlfriend Jane Foster to fight Gorr the God Butcher, who intends to make the gods extinct.",
-//     status: "Completed",
-//   },
-//   {
-//     id: 8,
-//     drama: "Doctor Strange in the Multiverse of Madness (2022)",
-//     actor: "Benedict Cumberbatch",
-//     genre: "Action, Adventure, Fantasy",
-//     synopsis:
-//       "Doctor Strange, with the help of mystical allies old and new, traverses the mind-bending and dangerous alternate realities of the Multiverse to confront a mysterious new adversary.",
-//     status: "Completed",
-//   },
-//   {
-//     id: 9,
-//     drama: "Black Panther: Wakanda Forever (2022)",
-//     actor: "Letitia Wright",
-//     genre: "Action, Adventure, Drama",
-//     synopsis:
-//       "The people of Wakanda fight to protect their home from intervening world powers as they mourn the death of King T'Challa.",
-//     status: "Completed",
-//   },
-//   {
-//     id: 10,
-//     drama: "John Wick: Chapter 4 (2023)",
-//     actor: "Keanu Reeves",
-//     genre: "Action, Crime, Thriller",
-//     synopsis:
-//       "John Wick uncovers a path to defeating The High Table. But before he can earn his freedom, Wick must face off against a new enemy with powerful alliances across the globe and forces that turn old friends into foes.",
-//     status: "Completed",
-//   },
-// ];
-
 function CMSDramas() {
   const { setShowSidebar, setActiveMenu, setShowNavigation, setShowFooter } =
     useGlobalState();
-
   const [show, setShow] = useState(false);
   const [fullscreen, setFullscreen] = useState(true);
-
   const [movie, setMovie] = useState([]);
   const [TotalMovies, setTotalMovies] = useState(0);
   const [tableInitialized, setTableInitialized] = useState(false);
-
+  const [selectedMovieId, setSelectedMovieId] = useState(null);
   const { cancelEdit, edit, last_edit } = useEdit();
 
   const handleClose = () => setShow(false);
-  const handleShow = (breakpoint) => {
+  const handleShow = (breakpoint, movieId) => {
     setFullscreen(breakpoint);
+    setSelectedMovieId(movieId);
     setShow(true);
   };
 
@@ -450,7 +436,7 @@ function CMSDramas() {
 
             const editBtn = document.getElementById(`editBtn${row.id}`);
             editBtn.onclick = () => {
-              edit(row.id);
+              handleShow("xl-down", row.id);
             };
 
             const CancelBtn = document.getElementById(`cancelBtn${row.id}`);
@@ -460,7 +446,7 @@ function CMSDramas() {
 
             const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
             deleteBtn.onclick = () => {
-              handleDeleteUser(row.id);
+              handleDeleteStatusMovie(row.id);
             };
 
             const tds = row.getElementsByTagName("td");
@@ -492,12 +478,134 @@ function CMSDramas() {
     }
   }, [movie, tableInitialized]);
 
+  const handleDeleteMovie = async (id) => {
+    const movieToDelete = movies.find((movie) => movie.id === id);
+
+    if (movieToDelete && movieToDelete.deleted_at !== null) {
+      notification("error", "Movie already deleted!");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/cms/movieList/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        notification("success", "Movie deleted successfully!");
+        fetchMovies();
+      } else {
+        notification("error", "Failed to delete movie!");
+      }
+    } catch (error) {
+      notification("error", "An error occurred while deleting the movie");
+    }
+  };
+
+  const handleEditMovie = async () => {
+    const form = document.getElementById("editForm");
+
+    if (!form) {
+      console.error("Form not found");
+      return;
+    }
+
+    const formData = new FormData(form);
+    const id = formData.get("id");
+    const movieTitle = formData.get("title");
+    const movieSynopsis = formData.get("synopsis");
+    const moviePoster = formData.get("poster");
+    const movieAlternativeTitles = formData.get("alternative_titles");
+    const movieYear = formData.get("year");
+    const movieAvailability = formData.get("availability");
+    const movieTrailers = formData.get("trailer");
+    const movieStatus = formData.get("status");
+    const movieActors = formData.get("actors")?.split(",");
+    const movieGenres = formData.get("genres")?.split(",");
+
+    if (!id) {
+      notification("error", "No ID found for movie");
+      return;
+    }
+
+    if (
+      !movieTitle &&
+      !movieSynopsis &&
+      !moviePoster &&
+      !movieYear &&
+      !movieAvailability &&
+      !movieTrailers &&
+      !movieStatus &&
+      !movieActors &&
+      !movieGenres
+    ) {
+      notification("error", "Movie data cannot be empty");
+      return;
+    }
+
+    console.log("Data to be sent:", {
+      id,
+      title: movieTitle,
+      synopsis: movieSynopsis,
+      poster: moviePoster,
+      alternative_titles: movieAlternativeTitles,
+      year: movieYear,
+      availability: movieAvailability,
+      trailer: movieTrailers,
+      status: movieStatus,
+      actors: movieActors,
+      genres: movieGenres,
+    });
+
+    try {
+      const response = await fetch(`/api/cms/moviesList/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: movieTitle,
+          synopsis: movieSynopsis,
+          poster: moviePoster,
+          alternative_titles: movieAlternativeTitles,
+          year: movieYear,
+          availability: movieAvailability,
+          trailer: movieTrailers,
+          status: movieStatus,
+          actors: movieActors,
+          genres: movieGenres,
+        }),
+      });
+
+      const data = await response.json();
+
+      console.log("Server response:", data);
+
+      if (response.ok && data.success) {
+        notification("success", "Movie updated successfully");
+        fetchAwards();
+        table.ajax.reload(null, false);
+      } else {
+        notification("error", data.message || "Failed to update movie");
+      }
+    } catch (error) {
+      notification("error", "An error occurred while updating the movie");
+    }
+  };
+
   return (
     <>
       <MovieDetailModal
         show={show}
         handleClose={handleClose}
-        handleShow={handleShow}
+        // handleShow={handleShow}
+        movieId={selectedMovieId}
         fullscreen={fullscreen}
       />
       <Container className="tabel">

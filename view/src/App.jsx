@@ -30,6 +30,8 @@ import { EditProvider } from "./components/cmsEdit";
 import { SwalProvider } from "./components/SweetAlert";
 import EmailVerified from "./pages/EmailVerified";
 import ProtectedRoute from "./ProtectedRoute";
+import ForgetPassword from "./pages/ForgetPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function AppContent() {
   const { showFooter, showNavigation, showSidebar } = useGlobalState();
@@ -56,6 +58,8 @@ function AppContent() {
             <Route path="*" element={<Error404 />} />
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgetPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/register" element={<Register />} />
             <Route path="/email-confirmed" element={<EmailVerified />} />
             <Route path="/detail/:movieId" element={<DetailPage />} />

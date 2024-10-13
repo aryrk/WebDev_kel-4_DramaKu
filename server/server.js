@@ -806,54 +806,101 @@ app.post("/api/login", async (req, res) => {
   );
 });
 
-// app.post("/api/forgot-password", async (req, res) => {
-//   const { email } = req.body;
+app.post("/api/forgot-password", async (req, res) => {
+  const { email } = req.body;
 
-//   connection.query(
-//     "SELECT * FROM users WHERE email = ?",
-//     [email],
-//     (error, results) => {
-//       if (error)
-//         return res.status(500).json({ message: "Error fetching user" });
-//       if (results.length === 0)
-//         return res.status(404).json({ message: "User not found" });
+  connection.query(
+    "SELECT * FROM users WHERE email = ?",
+    [email],
+    (error, results) => {
+      if (error)
+        return res.status(500).json({ message: "Error fetching user" });
+      if (results.length === 0)
+        return res.status(404).json({ message: "User not found" });
 
-//       const user = results[0];
-//       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-//         expiresIn: "1h",
-//       });
-//       const resetUrl = `${domain}/reset-password?token=${token}`;
+      const user = results[0];
 
-//       transporter.sendMail({
-//         to: email,
-//         subject: "Reset Your Password",
-//         html: `<a href="${resetUrl}">Reset your password</a>`,
-//       });
+      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
 
-//       res.json({ message: "Password reset link sent to your email." });
-//     }
-//   );
-// });
+      connection.query(
+        "UPDATE users SET reset_password_token = ?, reset_password_expires = ? WHERE id = ?",
+        [token, new Date(Date.now() + 3600000), user.id],
+        (error) => {
+          if (error)
+            return res
+              .status(500)
+              .json({ message: "Error updating reset token" });
+        }
+      );
 
-// app.post("/api/reset-password", async (req, res) => {
-//   const { token, newPassword } = req.body;
-//   try {
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//     const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const resetUrl = `${client_domain}/reset-password?token=${token}`;
 
-//     connection.query(
-//       "UPDATE users SET password = ? WHERE id = ?",
-//       [hashedPassword, decoded.id],
-//       (error) => {
-//         if (error)
-//           return res.status(500).json({ message: "Error updating password" });
-//         res.json({ message: "Password updated successfully" });
-//       }
-//     );
-//   } catch (err) {
-//     res.status(400).json({ message: "Invalid or expired token." });
-//   }
-// });
+      transporter.sendMail({
+        to: email,
+        subject: "Reset Your Password",
+        html: email_template(
+          user.username,
+          email,
+          `Hi ${user.username}! You requested to reset your password.`,
+          `We received a request to reset your password. If you did not make this request, simply ignore this email.`,
+          `<p style="margin: 40px 0; color: #fff">
+          <a
+            style="
+              color: #fff;
+              border-radius: 20px;
+              border: 10px solid #525c91;
+              background-color: #525c91;
+              padding: 0 10px;
+              text-transform: uppercase;
+              text-decoration: none;
+              font-weight: 700;
+            "
+            href="${resetUrl}"
+            >Reset Password</a
+          >
+        </p>`
+        ),
+      });
+
+      res.json({ message: "Password reset link sent to your email." });
+    }
+  );
+});
+
+app.post("/api/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    connection.query(
+      "SELECT * FROM users WHERE id = ? and reset_password_token = ? and reset_password_expires > ?",
+      [decoded.id, token, new Date()],
+      (error, results) => {
+        if (error)
+          return res.status(500).json({ message: "Error fetching user" });
+        if (results.length === 0)
+          return res.status(400).json({ message: "Invalid or expired token" });
+
+        connection.query(
+          "UPDATE users SET password = ?, reset_password_token = NULL, reset_password_expires = NULL WHERE id = ?",
+          [hashedPassword, decoded.id],
+          (error) => {
+            if (error)
+              return res
+                .status(500)
+                .json({ message: "Error updating password" });
+            res.json({ message: "Password updated successfully" });
+          }
+        );
+      }
+    );
+  } catch (err) {
+    res.status(400).json({ message: "Invalid or expired token." });
+  }
+});
 
 // ! ===============================================  Auth ===============================================
 // ! ===============================================  Auth Google ===============================================

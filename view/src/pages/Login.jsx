@@ -49,7 +49,6 @@ function LoginForm(props) {
       window.location.href = "/home";
     }
 
-
     const url = new URL(window.location.href);
     const token = url.searchParams.get("token");
     if (token) {
@@ -75,7 +74,7 @@ function LoginForm(props) {
               @
             </InputGroup.Text>
             <Form.Control
-              placeholder="Username"
+              placeholder="Username / Email"
               aria-label="Username"
               aria-describedby="basic-addon1"
               className="bg-dark border-0 text-white rounded-end"
@@ -83,7 +82,7 @@ function LoginForm(props) {
               onChange={(e) => setEmail(e.target.value)}
             />
           </InputGroup>
-          <InputGroup className="mb-3">
+          <InputGroup className="mb-1">
             <InputGroup.Text
               id="basic-addon1"
               className="bg_pallete_3 border-0"
@@ -100,6 +99,9 @@ function LoginForm(props) {
               required
             />
           </InputGroup>
+          <a href="/forgot-password" className="link d-block text-start">
+            Forgot password?
+          </a>
           <button
             className="btn border-0 bg_pallete_3 mt-3 rounded-3 w-100"
             type="submit"

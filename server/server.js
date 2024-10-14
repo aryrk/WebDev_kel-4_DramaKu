@@ -170,6 +170,7 @@ passport.use(
             );
           }
 
+          console.log(existingUser);
           return done(null, existingUser);
         }
 
@@ -180,19 +181,31 @@ passport.use(
           profile_picture: profile.photos[0].value,
         };
 
+        const password = Math.random().toString(36).slice(-8);
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         connection.query(
-          "INSERT INTO users (google_id, username, email, profile_picture, is_verified) VALUES (?, ?, ?, ?, ?)",
+          "INSERT INTO users (google_id, username, email, profile_picture, is_verified, password) VALUES (?, ?, ?, ?, ?, ?)",
           [
             newUser.google_id,
             newUser.username,
             newUser.email,
             newUser.profile_picture,
             true,
+            hashedPassword,
           ],
           (error, results) => {
             if (error) return done(error);
-            newUser.id = results.insertId;
-            done(null, newUser);
+
+            const user = {
+              id: results.insertId,
+              username: newUser.username,
+              email: newUser.email,
+              profile_picture: newUser.profile_picture,
+              role: "writer",
+            };
+
+            done(null, user);
           }
         );
       } catch (error) {
@@ -816,7 +829,7 @@ app.post("/api/forgot-password", async (req, res) => {
       if (error)
         return res.status(500).json({ message: "Error fetching user" });
       if (results.length === 0)
-        return res.status(404).json({ message: "User not found" });
+        return res.status(500).json({ message: "User not found" });
 
       const user = results[0];
 

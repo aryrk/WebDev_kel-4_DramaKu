@@ -2,12 +2,7 @@ import React, { useState, useEffect } from "react";
 import $ from "jquery";
 import DataTable from "datatables.net-dt";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faEdit,
-  faTrash,
-  faSave,
-  faTimes,
-} from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faSave, faTimes } from "@fortawesome/free-solid-svg-icons";
 import "datatables.net-dt/css/dataTables.dataTables.min.css";
 import "../../pagesStyle/Dramas.css";
 import {
@@ -405,10 +400,10 @@ function CMSDramas({ config }) {
           {
             render: function (data, type, row, meta) {
               const no = row.id;
-              const hideButtons = 
-              row.status === "accepted" ||
-              row.status === "rejected" ||
-              row.inDatabase;
+              const hideButtons =
+                row.status === "accepted" ||
+                row.status === "rejected" ||
+                row.inDatabase;
 
               return renderToString(
                 <div className="d-flex justify-content-center">
@@ -437,13 +432,13 @@ function CMSDramas({ config }) {
                   >
                     <FontAwesomeIcon icon={faTimes} />
                   </Button>
-                  <Button
+                  {/* <Button
                     variant="danger"
                     className={`mx-2 ${hideButtons ? "d-none" : ""}`} // Perbaiki template literal di className
                     id={`deleteBtn${no}`}
                   >
                     <FontAwesomeIcon icon={faTrash} />
-                  </Button>
+                  </Button> */}
                 </div>
               );
             },
@@ -497,10 +492,10 @@ function CMSDramas({ config }) {
               cancelEdit(row.id);
             };
 
-            const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
-            deleteBtn.onclick = () => {
-              handleDeleteStatusMovie(row.id);
-            };
+            // const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
+            // deleteBtn.onclick = () => {
+            //   handleDeleteStatusMovie(row.id);
+            // };
 
             const tds = row.getElementsByTagName("td");
             for (let i = 1; i < tds.length - 1; i++) {
@@ -531,34 +526,34 @@ function CMSDramas({ config }) {
     }
   }, [movie, tableInitialized]);
 
-  const handleDeleteMovie = async (id) => {
-    const movieToDelete = movies.find((movie) => movie.id === id);
+  // const handleDeleteMovie = async (id) => {
+  //   const movieToDelete = movies.find((movie) => movie.id === id);
 
-    if (movieToDelete && movieToDelete.deleted_at !== null) {
-      notification("error", "Movie already deleted!");
-      return;
-    }
+  //   if (movieToDelete && movieToDelete.deleted_at !== null) {
+  //     notification("error", "Movie already deleted!");
+  //     return;
+  //   }
 
-    try {
-      const response = await fetch(`/api/cms/movieList/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  //   try {
+  //     const response = await fetch(`/api/cms/movieList/${id}`, {
+  //       method: "DELETE",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (data.success) {
-        notification("success", "Movie deleted successfully!");
-        fetchMovies();
-      } else {
-        notification("error", "Failed to delete movie!");
-      }
-    } catch (error) {
-      notification("error", "An error occurred while deleting the movie");
-    }
-  };
+  //     if (data.success) {
+  //       notification("success", "Movie deleted successfully!");
+  //       fetchMovies();
+  //     } else {
+  //       notification("error", "Failed to delete movie!");
+  //     }
+  //   } catch (error) {
+  //     notification("error", "An error occurred while deleting the movie");
+  //   }
+  // };
 
   const handleEditMovie = async () => {
     const form = document.getElementById("editForm");

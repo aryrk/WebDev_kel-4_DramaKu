@@ -2116,7 +2116,7 @@ app.post("/api/cms/countriesList", authorize(["admin"]), (req, res) => {
       console.error("Error in checkQuery:", err);
       return res
         .status(500)
-        .json({ success: false, message: "Database error in check query" });
+        .json({ success: false, message: "Country name already exists" });
     }
 
     if (results.length > 0) {
@@ -2133,7 +2133,7 @@ app.post("/api/cms/countriesList", authorize(["admin"]), (req, res) => {
         console.error("Error in insertQuery:", err);
         return res
           .status(500)
-          .json({ success: false, message: "Database error in insert query" });
+          .json({ success: false, message: "Country name already exists" });
       }
 
       res.json({ success: true, message: "Country added successfully" });

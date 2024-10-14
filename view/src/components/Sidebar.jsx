@@ -62,7 +62,7 @@ const Sidebar = ({ config }) => {
       </div>
       <div className="ps-0 pe-0 pt-5">
         <h2>
-          <a href="index.html" className="logo ps-4 pe-4">
+          <a href="/cms/drama/validate" className="logo ps-4 pe-4">
             {config.short_name}
           </a>
         </h2>

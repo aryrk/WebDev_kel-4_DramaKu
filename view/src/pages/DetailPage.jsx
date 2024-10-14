@@ -792,6 +792,7 @@ function BackgroundPoster(props) {
 
 function DetailPage({ config }) {
   const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
+
   useEffect(() => {
     setShowNavigation(true);
     setShowFooter(true);
@@ -807,9 +808,17 @@ function DetailPage({ config }) {
       .then((data) => {
         setMovie(data);
 
-        fetch(`/api/movies/update-view-count/${movieId}`, {
-          method: "POST",
-        });
+        if (sessionStorage.getItem(movieId) === null) {
+          sessionStorage.setItem(movieId, "true");
+
+          fetch(`/api/movies/update-view-count/${movieId}`, {
+            method: "POST",
+          }).then(() => {
+            setTimeout(() => {
+              sessionStorage.removeItem(movieId);
+            }, 2000);
+          });
+        }
       })
       .catch((error) => console.error("Error:", error));
   }, [movieId]);

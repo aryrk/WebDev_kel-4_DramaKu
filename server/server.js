@@ -2302,6 +2302,16 @@ app.put("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
 
 app.get("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
   const movieId = req.params.id;
+  console.log("Movie ID:", movieId);
+
+  const movieQuery = `
+  SELECT m.*, c.name AS country_name, IFNULL(AVG(cm.rate), 0) AS rating
+  FROM movies m
+  JOIN countries c ON m.countries_id = c.id
+  LEFT JOIN comments cm ON m.id = cm.movie_id
+  WHERE m.id = ? and m.deleted_at IS NULL and c.deleted_at IS NULL 
+  GROUP BY m.id
+  `;
 
   const genresQuery = `
     SELECT g.*

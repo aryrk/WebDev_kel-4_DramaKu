@@ -504,7 +504,6 @@ function DramaForm() {
               type="text"
               className="bg_pallete_1 text-light border-0"
               list="countries"
-              autoComplete="off"
               form="form-drama"
               name="country"
               onChange={(e) => {
@@ -514,7 +513,9 @@ function DramaForm() {
             />
             <datalist id="countries">
               {countries.map((country, index) => (
-                <option key={index} value={country.name} />
+                <option key={index} value={country.name}>
+                  {country.name}
+                </option>
               ))}
             </datalist>
           </Form.Group>

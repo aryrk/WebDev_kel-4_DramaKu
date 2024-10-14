@@ -405,10 +405,10 @@ function CMSDramas({ config }) {
           {
             render: function (data, type, row, meta) {
               const no = row.id;
-              const hideButtons =
-                row.status === "accepted" ||
-                row.status === "rejected" ||
-                row.inDatabase;
+              const hideButtons = 
+              row.status === "accepted" ||
+              row.status === "rejected" ||
+              row.inDatabase;
 
               return renderToString(
                 <div className="d-flex justify-content-center">
@@ -436,6 +436,13 @@ function CMSDramas({ config }) {
                     onClick={() => cancelEdit(no)}
                   >
                     <FontAwesomeIcon icon={faTimes} />
+                  </Button>
+                  <Button
+                    variant="danger"
+                    className={`mx-2 ${hideButtons ? "d-none" : ""}`} // Perbaiki template literal di className
+                    id={`deleteBtn${no}`}
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
                   </Button>
                 </div>
               );

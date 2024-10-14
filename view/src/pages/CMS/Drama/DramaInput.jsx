@@ -504,6 +504,7 @@ function DramaForm() {
               type="text"
               className="bg_pallete_1 text-light border-0"
               list="countries"
+              autoComplete="off"
               form="form-drama"
               name="country"
               onChange={(e) => {

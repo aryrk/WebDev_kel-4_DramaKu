@@ -61,7 +61,7 @@ function AddUser() {
 
           fetchUsers();
         } else {
-          notification("error", "Failed to add user!");
+          notification("error", "Failed to add user!, username or email already exist");
         }
       })
       .catch((error) => {

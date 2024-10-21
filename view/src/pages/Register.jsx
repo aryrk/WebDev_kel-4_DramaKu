@@ -232,6 +232,7 @@ function RegisterForm() {
                   : ""
               }`}
               type="password"
+              value={confirmPassword}
               onChange={(e) => {
                 setConfirmPassword(e.target.value);
                 handlePassword(password, e.target.value);

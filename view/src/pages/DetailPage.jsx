@@ -794,6 +794,7 @@ function DetailPage({ config }) {
   const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
 
   useEffect(() => {
+    document.title = `Movie Detail - ${config.short_name}`;
     setShowNavigation(true);
     setShowFooter(true);
     setShowSidebar(false);

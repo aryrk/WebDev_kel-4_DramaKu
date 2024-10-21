@@ -17,10 +17,12 @@ function ContentCard({ config }) {
   const limit = 32;
 
   useEffect(() => {
+    document.title = `Movie List - ${config.short_name}`;
+
     setShowNavigation(true);
     setShowFooter(true);
     setShowSidebar(false);
-  }, [setShowNavigation]);
+  }, [setShowNavigation, config]);
 
   useEffect(() => {
     const offset = (currentPage - 1) * limit;

@@ -150,7 +150,7 @@ passport.use(
       try {
         const existingUser = await new Promise((resolve, reject) => {
           connection.query(
-            "SELECT * FROM users WHERE google_id = ? or email = ?",
+            "SELECT * FROM users WHERE (google_id = ? or email = ?) AND deleted_at IS NULL",
             [profile.id, profile.emails[0].value],
             (error, results) => {
               if (error) return reject(error);
@@ -162,7 +162,7 @@ passport.use(
         if (existingUser) {
           if (!existingUser.google_id) {
             connection.query(
-              "UPDATE users SET google_id = ? WHERE id = ?",
+              "UPDATE users SET google_id = ? WHERE id = ? AND deleted_at IS NULL",
               [profile.id, existingUser.id],
               (error) => {
                 if (error) return done(error);
@@ -170,7 +170,6 @@ passport.use(
             );
           }
 
-          console.log(existingUser);
           return done(null, existingUser);
         }
 
@@ -195,7 +194,9 @@ passport.use(
             hashedPassword,
           ],
           (error, results) => {
-            if (error) return done(error);
+            // if (error) return done(error);
+            // if error, return to fallback page
+            if (error) return done(null, false, { message: "Error" });
 
             const user = {
               id: results.insertId,
@@ -792,7 +793,7 @@ app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
 
   connection.query(
-    "SELECT * FROM users WHERE email = ? or username = ?",
+    "SELECT * FROM users WHERE (email = ? or username = ?) AND is_verified = 1 AND deleted_at IS NULL",
     [email, email],
     async (error, results) => {
       if (error) return res.status(500).json({ message: "Error logging in" });
@@ -1326,13 +1327,13 @@ app.get("/api/cms/users", authorize(["admin"]), (req, res) => {
   const countQuery = `
     SELECT COUNT(*) as total 
     FROM users
-    WHERE (username LIKE ? OR email LIKE ?) AND deleted_at IS NULL
+    WHERE username LIKE ? OR email LIKE ?
   `;
 
   const dataQuery = `
   SELECT *
   FROM users
-  WHERE (username LIKE ? OR email LIKE ?) AND deleted_at IS NULL
+  WHERE username LIKE ? OR email LIKE ?
   ORDER BY ${orderColumn} ${orderDir}
   LIMIT ? OFFSET ?
 `;
@@ -1424,6 +1425,20 @@ app.post("/api/cms/users", authorize(["admin"]), async (req, res) => {
       res.json({ success: true });
     }
   );
+});
+
+app.put("/api/cms/users/revert/:id", authorize(["admin"]), (req, res) => {
+  const userId = req.params.id;
+  const query = `UPDATE users SET deleted_at = NULL WHERE id = ?`;
+
+  connection.query(query, [userId], (err, results) => {
+    if (err)
+      return res
+        .status(500)
+        .json({ error: "Database error: Failed to revert user" });
+
+    res.json({ success: true });
+  });
 });
 
 app.put("/api/cms/users/:id", authorize(["admin"]), (req, res) => {

@@ -8,6 +8,7 @@ import { Button, Col, Container, Form, Row, Table } from "react-bootstrap";
 
 import {
   faPencil,
+  faRotateLeft,
   faSave,
   faTimes,
   faTrash,
@@ -61,7 +62,10 @@ function AddUser() {
 
           fetchUsers();
         } else {
-          notification("error", "Failed to add user!, username or email already exist");
+          notification(
+            "error",
+            "Failed to add user!, username or email already exist"
+          );
         }
       })
       .catch((error) => {
@@ -194,14 +198,42 @@ function UserTable() {
       const data = await response.json();
       if (data.success) {
         $(`#${id}`).css("text-decoration", "line-through");
-        $(`#editBtn${id}`).addClass("d-none");
-        $(`#deleteBtn${id}`).addClass("d-none");
+        // $(`#editBtn${id}`).addClass("d-none");
+        // $(`#deleteBtn${id}`).addClass("d-none");
+        $(`#actions${id}`).addClass("d-none");
+        $(`#revert${id}`).removeClass("d-none");
+        $(`#role-${id}`).addClass("d-none");
 
         notification("success", "User deleted successfully!");
       } else {
         notification("error", "Failed to delete user!");
       }
     } catch (error) {}
+  };
+
+  const handleRevert = async (id) => {
+    try {
+      const response = await fetch(`/api/cms/users/revert/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      if (data.success) {
+        $(`#username${id}`).removeClass("text-decoration-line-through");
+        $(`#username${id}`).removeClass("text-danger");
+        $(`#actions${id}`).removeClass("d-none");
+        $(`#revert${id}`).addClass("d-none");
+        $(`#role-${id}`).removeClass("d-none");
+
+        notification("success", "User reverted successfully!");
+      } else {
+        notification("error", "Failed to revert user!");
+      }
+    } catch (error) {
+      console.error("Error reverting user:", error);
+    }
   };
 
   const fetchUsers = async (page = 1) => {
@@ -251,8 +283,12 @@ function UserTable() {
           },
           {
             data: "username",
-            render: function (data) {
-              return `<span name="username">${data}</span>`;
+            render: function (data, type, row) {
+              if (row.deleted_at != null) {
+                return `<span class="text-decoration-line-through text-danger" id="username${row.id}">${data}</span>`;
+              } else {
+                return `<span name="username">${data}</span>`;
+              }
             },
           },
           {
@@ -265,6 +301,10 @@ function UserTable() {
             data: "role",
             render: function (data, type, row) {
               const id = row.id;
+              var view = "";
+              if (row.deleted_at != null) {
+                view = "d-none";
+              }
               var type = "primary";
               if (data === "admin") {
                 type = "danger";
@@ -272,7 +312,7 @@ function UserTable() {
               return renderToString(
                 <Button
                   name="undefined"
-                  className={`border-0 badge bg-${type}`}
+                  className={`border-0 badge bg-${type} ${view}`}
                   id={`role-${id}`}
                 >
                   <span id={`spanrole-${id}`}>{data}</span>{" "}
@@ -282,46 +322,60 @@ function UserTable() {
             },
           },
           {
+            data: "deleted_at",
             render: function (data, type, row) {
               const no = row.id;
+              type = "";
+              var revert = "d-none";
+              if (data != null) {
+                type = "d-none";
+                revert = "";
+              }
               return renderToString(
                 <center>
-                  <a href="#" className="me-2 link">
-                    Send first email
-                  </a>
-                  |
-                  <Button
-                    variant="primary"
-                    className="ms-2 me-2"
-                    id={`editBtn${no}`}
-                  >
-                    <FontAwesomeIcon icon={faEdit} />
-                  </Button>
-                  <Button
-                    variant="success"
-                    className="ms-2 me-2 d-none"
-                    id={`editSaveBtn${no}`}
-                    form="editForm"
-                    type="submit"
-                  >
-                    <FontAwesomeIcon icon={faSave} />
-                  </Button>
-                  |
-                  <Button
-                    variant="danger"
-                    className="ms-2"
-                    id={`deleteBtn${no}`}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </Button>
-                  <Button
-                    variant="danger"
-                    className="ms-2 d-none"
-                    id={`cancelBtn${no}`}
-                    onClick={() => cancelEdit(no)}
-                  >
-                    <FontAwesomeIcon icon={faTimes} />
-                  </Button>
+                  <div className={`${type} d-inline`} id={`actions${no}`}>
+                    <Button
+                      variant="primary"
+                      className="ms-2 me-2"
+                      id={`editBtn${no}`}
+                    >
+                      <FontAwesomeIcon icon={faEdit} />
+                    </Button>
+                    <Button
+                      variant="success"
+                      className="ms-2 me-2 d-none"
+                      id={`editSaveBtn${no}`}
+                      form="editForm"
+                      type="submit"
+                    >
+                      <FontAwesomeIcon icon={faSave} />
+                    </Button>
+                    |
+                    <Button
+                      variant="danger"
+                      className="ms-2"
+                      id={`deleteBtn${no}`}
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                    <Button
+                      variant="danger"
+                      className="ms-2 d-none"
+                      id={`cancelBtn${no}`}
+                      onClick={() => cancelEdit(no)}
+                    >
+                      <FontAwesomeIcon icon={faTimes} />
+                    </Button>
+                  </div>
+                  <div className={`${revert} d-inline`} id={`revert${no}`}>
+                    <Button
+                      variant="primary"
+                      className="ms-2 me-2"
+                      id={`revertBtn${no}`}
+                    >
+                      <FontAwesomeIcon icon={faRotateLeft} />
+                    </Button>
+                  </div>
                 </center>
               );
             },
@@ -378,6 +432,11 @@ function UserTable() {
             const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
             deleteBtn.onclick = () => {
               handleDeleteUser(row.id);
+            };
+
+            const revertBtn = document.getElementById(`revertBtn${row.id}`);
+            revertBtn.onclick = () => {
+              handleRevert(row.id);
             };
 
             const roleBtn = document.getElementById(`role-${row.id}`);

@@ -42,6 +42,14 @@ var REFRESH_TOKEN = "";
 var accessToken = "";
 var transporter = null;
 
+transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
 function setupRefreshToken() {
   oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
   accessToken = oAuth2Client.getAccessToken();
@@ -2716,5 +2724,5 @@ app.delete("/api/cms/genresList/:id", authorize(["admin"]), (req, res) => {
 
 app.listen(port, () => {
   console.log("Server is running on " + domain);
-  console.log("Create auth by opening : " + `${domain}/authkey`);
+  // console.log("Create auth by opening : " + `${domain}/authkey`);
 });

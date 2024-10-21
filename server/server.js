@@ -925,7 +925,7 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "/login",
+    failureRedirect: `${client_domain}/login`,
     session: false,
   }),
   (req, res) => {
@@ -1375,11 +1375,11 @@ app.post("/api/cms/users", authorize(["admin"]), async (req, res) => {
   const hashedPassword = await bcrypt.hash("12345", 10);
   const default_password = hashedPassword;
 
-  const query = `INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)`;
+  const query = `INSERT INTO users (username, email, password, role, is_verified) VALUES (?, ?, ?, ?, ?)`;
 
   connection.query(
     query,
-    [username, email, default_password, role],
+    [username, email, default_password, role, "1"],
     (err, results) => {
       if (err)
         return res

@@ -47,8 +47,11 @@ export const SwalProvider = ({ children }) => {
       color: "#fff",
     });
   };
+
+  const [allowedLogin, setAllowedLogin] = useState(false);
+
   return (
-    <swalFun.Provider value={{ notification, alert }}>
+    <swalFun.Provider value={{ notification, alert, setAllowedLogin }}>
       {children}
     </swalFun.Provider>
   );

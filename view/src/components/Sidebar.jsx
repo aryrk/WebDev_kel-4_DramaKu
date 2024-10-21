@@ -1,10 +1,13 @@
 import React from "react";
+import Swal from "sweetalert2";
 import $ from "jquery";
 import "./componentsStyle/sidebar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { useGlobalState } from "./GlobalStateContext";
 import { withConfig } from "../Config";
+import { useSwal } from "./SweetAlert";
+import { useNavigate } from "react-router-dom";
 
 var fullHeight = function () {
   $(".js-fullheight").css("height", $(window).height());
@@ -33,6 +36,8 @@ var toggleMenu = function (self) {
 
 const Sidebar = ({ config }) => {
   const { activeMenu, setActiveMenu } = useGlobalState();
+  const { alert } = useSwal();
+  const navigate = useNavigate();
 
   const handleMenuClick = (menu) => {
     setActiveMenu(menu);
@@ -41,10 +46,37 @@ const Sidebar = ({ config }) => {
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem("token");
-    setAllowedLogin(false);
+    // Tampilkan alert konfirmasi logout menggunakan SweetAlert
+    Swal.fire({
+      icon: "warning",
+      title: "Are you sure?",
+      text: "You will be logged out!",
+      showCancelButton: true,
+      confirmButtonColor: "#ffcc00",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, log me out!",
+      background: "#1c1c1c",
+      color: "#fff",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        console.log("Logging out...");
+        sessionStorage.removeItem("token");
 
-    navigate("/login");
+        // Redirect ke login page setelah logout
+        console.log("Redirecting to login...");
+        navigate("/login");
+
+        // Tampilkan alert setelah logout berhasil
+        Swal.fire({
+          icon: "success",
+          title: "Logged Out!",
+          text: "You have been successfully logged out.",
+          background: "#1c1c1c",
+          color: "#fff",
+          confirmButtonColor: "#a5dc86",
+        });
+      }
+    });
   };
 
   return (

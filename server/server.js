@@ -706,13 +706,41 @@ const authorize = (allowedRoles = []) => {
       if (allowedRoles.length && !allowedRoles.includes(decoded.role)) {
         return res.status(403).json({ message: "Forbidden" });
       }
-      req.user = decoded;
-      next();
+
+      connection.query(
+        "SELECT * FROM users WHERE id = ? AND deleted_at IS NULL",
+        [decoded.id],
+        (error, results) => {
+          if (error) return res.status(500).json({ message: "Database error" });
+          if (results.length === 0)
+            // return res.status(403).json({ message: "User not found" });
+            // clear token
+            return res.status(403).json({ message: "Access denied" });
+          else {
+            req.user = decoded;
+            next();
+          }
+        }
+      );
     } catch (err) {
       res.status(401).json({ message: "Invalid token" });
     }
   };
 };
+
+app.get("/api/is_username_exist/:username", (req, res) => {
+  const { username } = req.params;
+  connection.query(
+    "SELECT * FROM users WHERE username = ? AND deleted_at IS NULL",
+    [username],
+    (error, results) => {
+      if (error)
+        return res.status(500).json({ message: "Error checking username" });
+
+      res.json({ isExist: results.length > 0 });
+    }
+  );
+});
 
 app.post("/api/register", async (req, res) => {
   const { username, email, password } = req.body;

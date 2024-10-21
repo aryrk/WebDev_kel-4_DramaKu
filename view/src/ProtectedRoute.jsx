@@ -12,6 +12,15 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
   try {
     const decodedToken = jwtDecode(token);
 
+    fetch(`/api/is_username_exist/${decodedToken.username}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data.isExist) {
+          sessionStorage.removeItem("token");
+          return <Navigate to="/login" />;
+        }
+      });
+
     const currentTime = Date.now() / 1000;
     if (decodedToken.exp < currentTime) {
       sessionStorage.removeItem("token");

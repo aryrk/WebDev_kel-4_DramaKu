@@ -24,6 +24,8 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.min.css";
 import { useSwal } from "../../components/SweetAlert";
 
+import { jwtDecode } from "jwt-decode";
+
 const token = sessionStorage.getItem("token");
 
 function AddUser() {
@@ -31,6 +33,54 @@ function AddUser() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("writer");
+
+  const [usernameAvailable, setUsernameAvailable] = useState(true);
+  const [emailAvailable, setEmailAvailable] = useState(true);
+
+  const checkUsername = async (username) => {
+    if (username.length <= 0) {
+      setUsernameAvailable(true);
+      return;
+    }
+    fetch(`/api/checkusernames/${username}`, {
+      mode: "cors",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.username) {
+          setUsernameAvailable(false);
+        } else {
+          setUsernameAvailable(true);
+        }
+      });
+  };
+
+  const checkEmail = async (email) => {
+    if (email.length <= 0) {
+      setEmailAvailable(true);
+      return;
+    }
+    fetch(`/api/checkemails/${email}`, {
+      mode: "cors",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.email) {
+          setEmailAvailable(false);
+        } else {
+          setEmailAvailable(true);
+        }
+      });
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -90,13 +140,34 @@ function AddUser() {
               </Form.Label>
               <Col sm="9" md="8" lg="9">
                 <Form.Control
-                  className="bg-black border-0 text-light"
+                  className={`bg-black border-0 text-light ${
+                    !usernameAvailable && username.length > 0
+                      ? "is-invalid"
+                      : ""
+                  }
+                    `}
                   name="username"
                   id="username"
                   placeholder="username"
-                  onChange={(event) => setUsername(event.target.value)}
+                  onChange={(event) => {
+                    setUsername(event.target.value);
+                    checkUsername(event.target.value);
+                  }}
                   required
+                  aria-describedby={
+                    !usernameAvailable && username.length > 0
+                      ? "usernameFeedback"
+                      : ""
+                  }
                 />
+                <div
+                  id="usernameFeedback"
+                  className={`invalid-feedback ${
+                    !usernameAvailable && username.length > 0 ? "" : "d-none"
+                  }`}
+                >
+                  Username already exists
+                </div>
               </Col>
             </Form.Group>
 
@@ -113,10 +184,25 @@ function AddUser() {
                   placeholder="email"
                   name="email"
                   id="email"
-                  className="bg-black border-0 text-light"
-                  onChange={(event) => setEmail(event.target.value)}
+                  aria-describedby="emailFeedback"
+                  className={`bg-black border-0 text-light ${
+                    !emailAvailable && email.length > 0 ? "is-invalid" : ""
+                  }
+                    `}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    checkEmail(event.target.value);
+                  }}
                   required
                 />
+                <div
+                  id="emailFeedback"
+                  className={`invalid-feedback ${
+                    !emailAvailable && email.length > 0 ? "" : "d-none"
+                  }`}
+                >
+                  Email already exists
+                </div>
               </Col>
             </Form.Group>
             <Form.Group
@@ -145,6 +231,9 @@ function AddUser() {
           className="rounded-3 mt-4 mt-sm-0 w-sm-100"
           variant="primary"
           type="submit"
+          disabled={
+            !usernameAvailable || !emailAvailable || username.length <= 0
+          }
         >
           Submit
         </Button>
@@ -154,6 +243,8 @@ function AddUser() {
 }
 
 function UserTable() {
+  const decodedToken = jwtDecode(token);
+
   const [users, setUsers] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
   const [tableInitialized, setTableInitialized] = useState(false);
@@ -304,6 +395,10 @@ function UserTable() {
             data: "role",
             render: function (data, type, row) {
               const id = row.id;
+              var self = false;
+              if (row.username == decodedToken.username) {
+                self = true;
+              }
               var view = "";
               if (row.deleted_at != null) {
                 view = "d-none";
@@ -315,7 +410,9 @@ function UserTable() {
               return renderToString(
                 <Button
                   name="undefined"
-                  className={`border-0 badge bg-${type} ${view}`}
+                  className={`border-0 badge bg-${type} ${view} ${
+                    self ? "d-none" : ""
+                  }`}
                   id={`role-${id}`}
                 >
                   <span id={`spanrole-${id}`}>{data}</span>{" "}
@@ -328,14 +425,19 @@ function UserTable() {
             data: "deleted_at",
             render: function (data, type, row) {
               const no = row.id;
+              const username = row.username;
               type = "";
               var revert = "d-none";
               if (data != null) {
                 type = "d-none";
                 revert = "";
               }
+              self = false;
+              if (username == decodedToken.username) {
+                self = true;
+              }
               return renderToString(
-                <center>
+                <center className={self == true ? "d-none" : ""}>
                   <div className={`${type} d-inline`} id={`actions${no}`}>
                     <Button
                       variant="primary"

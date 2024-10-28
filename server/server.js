@@ -29,8 +29,6 @@ const allowedDomains = [client_domain, domain + "/auth/google/callback"];
 const corsOptions = {
   AccessControlAllowOrigin: "*",
   origin: function (origin, callback) {
-    console.log("origin", origin);
-    console.log("callback", callback);
     if (allowedDomains.includes(origin)) {
       callback(null, true);
     } else {
@@ -1722,6 +1720,8 @@ app.post(
         });
       };
 
+      await queryDatabase("START TRANSACTION");
+
       const results = await queryDatabase(countryQuery, [country]);
 
       if (results.length === 0) {
@@ -1749,7 +1749,10 @@ app.post(
           res.json({ success: true });
         }
       );
+
+      await queryDatabase("COMMIT");
     } catch (error) {
+      await queryDatabase("ROLLBACK");
       res.status(500).json({ message: "Error uploading file" });
     }
   }
@@ -1779,6 +1782,8 @@ app.put(
         });
       });
     };
+
+    await queryDatabase("START TRANSACTION");
 
     const results = await queryDatabase(countryQuery, [country]);
 
@@ -1817,6 +1822,7 @@ app.put(
       ],
       (err, results) => {
         if (err) {
+          queryDatabase("ROLLBACK");
           return res.status(500).json({ message: "Error updating actor" });
         }
 
@@ -1829,6 +1835,8 @@ app.put(
         res.json({ success: true });
       }
     );
+
+    await queryDatabase("COMMIT");
   }
 );
 
@@ -1894,6 +1902,8 @@ app.post(
           });
         });
       };
+
+      await queryDatabase("START TRANSACTION");
 
       const results = await queryDatabase(countryQuery, [country]);
 
@@ -1962,6 +1972,7 @@ app.post(
         ],
         (err, results) => {
           if (err) {
+            queryDatabase("ROLLBACK");
             return res.status(500).json({ message: "Error inserting movie" });
           }
 
@@ -1972,6 +1983,7 @@ app.post(
 
           connection.query(genresQuery, [genresValues], (err, results) => {
             if (err) {
+              queryDatabase("ROLLBACK");
               return res
                 .status(500)
                 .json({ message: "Error inserting genres" });
@@ -1983,6 +1995,7 @@ app.post(
 
           connection.query(awardQuery, [awardValues], (err, results) => {
             if (err) {
+              queryDatabase("ROLLBACK");
               return res
                 .status(500)
                 .json({ message: "Error inserting awards" });
@@ -1994,6 +2007,7 @@ app.post(
 
           connection.query(actorsQuery, [actorsValues], (err, results) => {
             if (err) {
+              queryDatabase("ROLLBACK");
               return res
                 .status(500)
                 .json({ message: "Error inserting actors" });
@@ -2001,9 +2015,11 @@ app.post(
           });
 
           res.json({ success: true });
+          queryDatabase("COMMIT");
         }
       );
     } catch (error) {
+      await queryDatabase("ROLLBACK");
       res.status(500).json({ message: "Error uploading file" });
     }
   }
@@ -2300,20 +2316,24 @@ app.post(
         .json({ success: false, message: "Country name is required" });
     }
 
-    console.log("Country to add:", name);
+    // console.log("Country to add:", name);
+
+    connection.query("START TRANSACTION");
 
     // Check if the country name already exists and hasn't been deleted
     const checkQuery = `SELECT * FROM countries WHERE name = ? AND deleted_at IS NULL`;
 
     connection.query(checkQuery, [name], (err, results) => {
       if (err) {
-        console.error("Error in checkQuery:", err);
+        // console.error("Error in checkQuery:", err);
+        connection.query("ROLLBACK");
         return res
           .status(500)
           .json({ success: false, message: "Country name already exists" });
       }
 
       if (results.length > 0) {
+        connection.query("ROLLBACK");
         return res
           .status(400)
           .json({ success: false, message: "Country name already exists" });
@@ -2324,13 +2344,15 @@ app.post(
 
       connection.query(insertQuery, [name], (err, results) => {
         if (err) {
-          console.error("Error in insertQuery:", err);
+          connection.query("ROLLBACK");
+          // console.error("Error in insertQuery:", err);
           return res
             .status(500)
             .json({ success: false, message: "Country name already exists" });
         }
 
         res.json({ success: true, message: "Country added successfully" });
+        connection.query("COMMIT");
       });
     });
   }
@@ -2350,17 +2372,21 @@ app.put(
         .json({ success: false, message: "Country name is required" });
     }
 
+    connection.query("START TRANSACTION");
+
     const updateQuery = `UPDATE countries SET name = ? WHERE id = ? AND deleted_at IS NULL`;
 
     connection.query(updateQuery, [name, countryId], (err, results) => {
       if (err) {
-        console.error("Error in updateQuery:", err);
+        // console.error("Error in updateQuery:", err);
+        connection.query("ROLLBACK");
         return res
           .status(500)
           .json({ success: false, message: "Database error in update query" });
       }
 
       if (results.affectedRows === 0) {
+        connection.query("ROLLBACK");
         return res.status(404).json({
           success: false,
           message: "Country not found or already deleted",
@@ -2368,6 +2394,7 @@ app.put(
       }
 
       res.json({ success: true, message: "Country updated successfully" });
+      connection.query("COMMIT");
     });
   }
 );

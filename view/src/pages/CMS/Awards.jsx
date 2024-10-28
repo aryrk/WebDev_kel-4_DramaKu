@@ -354,7 +354,7 @@ function CMSAwards() {
     }
   };
 
-  const handleEditAward = async () => {
+  const handleEditAward = async (table) => {
     const form = document.getElementById("editForm");
 
     if (!form) {
@@ -379,30 +379,27 @@ function CMSAwards() {
 
     console.log("Data to be sent:", { id, name: awardName, year: awardYear });
 
-    try {
-      const response = await fetch(`/api/cms/awardsList2/${id}`, {
-        method: "PUT",
-        mode: "cors",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: awardName, year: awardYear }),
-      });
+    const response = await fetch(`/api/cms/awardsList2/${id}`, {
+      method: "PUT",
+      mode: "cors",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name: awardName, year: awardYear }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
+    console.log("Server response:", data);
 
-      console.log("Server response:", data);
-
-      if (response.ok && data.success) {
-        notification("success", "Award updated successfully");
-        fetchAwards();
+    if (response.ok && data.success) {
+      notification("success", "Award updated successfully");
+      fetchAwards();
+      if (table && table.ajax) {
         table.ajax.reload(null, false);
-      } else {
-        notification("error", data.message || "Failed to update award");
       }
-    } catch (error) {
-      notification("error", "An error occurred while updating the award");
+    } else {
+      notification("error", data.message || "Failed to update award");
     }
   };
 

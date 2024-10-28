@@ -14,9 +14,13 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const { google } = require("googleapis");
 require("dotenv").config();
 
-const client_domain = "http://localhost:5173";
-const port = 5000;
-const domain = "http://localhost:" + port;
+// const client_domain = "http://localhost:5173";
+// const port = 5000;
+// const domain = "http://localhost:" + port;
+
+const client_domain = process.env.CLIENT_URL;
+const port = process.env.SERVER_PORT;
+const domain = process.env.SERVER_URL;
 
 // const corsOptions = {
 //   origin: client_domain,
@@ -264,11 +268,18 @@ passport.deserializeUser((obj, done) => {
 app.use(express.urlencoded({ extended: true }));
 app.use("/public", express.static("public"));
 
+// const connection = mysql.createConnection({
+//   host: "localhost",
+//   user: "root",
+//   password: "",
+//   database: "plutocinema",
+// });
+
 const connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "plutocinema",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
 });
 
 connection.connect((err) => {

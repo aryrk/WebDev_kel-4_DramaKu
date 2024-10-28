@@ -283,6 +283,7 @@ function CMSCountries() {
     try {
       const response = await fetch(`/api/cms/countriesList/${id}`, {
         method: "DELETE",
+        mode: "cors",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -325,6 +326,7 @@ function CMSCountries() {
     try {
       const response = await fetch(`/api/cms/countriesList/${id}`, {
         method: "PUT",
+        mode: "cors",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

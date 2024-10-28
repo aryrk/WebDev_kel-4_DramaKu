@@ -424,6 +424,7 @@ function ActorTable(props) {
     try {
       const response = await fetch(`/api/cms/actors/${id}`, {
         method: "DELETE",
+        mode: "cors",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -452,6 +453,7 @@ function ActorTable(props) {
     try {
       const response = await fetch(`/api/cms/actors/${id}`, {
         method: "PUT",
+        mode: "cors",
         headers: {
           Authorization: `Bearer ${token}`,
         },

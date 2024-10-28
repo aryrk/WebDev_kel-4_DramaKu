@@ -411,7 +411,13 @@ window.loadMoreComments = function (movieId, limit = 3) {
   if (limit === 0) {
     limit = commentHidden;
   }
-  fetch(`/api/movies/comments/${movieId}?limit=${limit}&offset=${offset}`)
+  fetch(`/api/movies/comments/${movieId}?limit=${limit}&offset=${offset}`, {
+    mode: "cors",
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
     .then((response) => response.json())
     .then((data) => {
       totalComments = data.total;
@@ -499,7 +505,13 @@ function CommentSection() {
   const [comment, setComment] = useState([]);
 
   useEffect(() => {
-    fetch(`/api/movies/comments/${movieId}?limit=3&offset=0`)
+    fetch(`/api/movies/comments/${movieId}?limit=3&offset=0`, {
+      mode: "cors",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         setComment(data.comments);
@@ -652,6 +664,7 @@ function AddComment({ movieId, onNewComment }) {
 
     fetch(`/api/movies/comments/${movieId}`, {
       method: "POST",
+      mode: "cors",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -804,7 +817,13 @@ function DetailPage({ config }) {
   const [movie, setMovie] = useState(null);
 
   useEffect(() => {
-    fetch(`/api/movie-details/${movieId}`)
+    fetch(`/api/movie-details/${movieId}`, {
+      mode: "cors",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         setMovie(data);
@@ -813,6 +832,10 @@ function DetailPage({ config }) {
           sessionStorage.setItem(movieId, "true");
 
           fetch(`/api/movies/update-view-count/${movieId}`, {
+            mode: "cors",
+            headers: {
+              "Content-Type": "application/json",
+            },
             method: "POST",
           }).then(() => {
             setTimeout(() => {

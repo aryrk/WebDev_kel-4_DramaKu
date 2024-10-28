@@ -26,7 +26,13 @@ function ContentCard({ config }) {
 
   useEffect(() => {
     const offset = (currentPage - 1) * limit;
-    fetch(`/api/all-movies?limit=${limit}&offset=${offset}`)
+    fetch(`/api/all-movies?limit=${limit}&offset=${offset}`, {
+      mode: "cors",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         setMovies(data.movies);

@@ -289,6 +289,7 @@ function CMSGenres() {
     try {
       const response = await fetch(`/api/cms/genresList/${id}`, {
         method: "DELETE",
+        mode: "cors",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -331,6 +332,7 @@ function CMSGenres() {
     try {
       const response = await fetch(`/api/cms/genresList/${id}`, {
         method: "PUT",
+        mode: "cors",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

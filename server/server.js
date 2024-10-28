@@ -13,13 +13,44 @@ const session = require("express-session");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const { google } = require("googleapis");
 require("dotenv").config();
-app.use(cors());
-app.use(express.json());
 
+const client_domain = "http://localhost:5173";
 const port = 5000;
 const domain = "http://localhost:" + port;
 
-const client_domain = "http://localhost:5173";
+// const corsOptions = {
+//   origin: client_domain,
+//   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//   credentials: true,
+//   optionsSuccessStatus: 204,
+// };
+
+const allowedDomains = [client_domain, domain + "/auth/google/callback"];
+const corsOptions = {
+  AccessControlAllowOrigin: "*",
+  origin: function (origin, callback) {
+    console.log("origin", origin);
+    console.log("callback", callback);
+    if (allowedDomains.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+};
+
+const openCorsOptions = {
+  origin: "*",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+};
+
+// app.use(cors(corsOptions));
+
+app.use(cors());
+app.use(express.json());
 
 const oAuth2Client = new google.auth.OAuth2(
   process.env.EMAIL_CLIENT_ID,
@@ -152,7 +183,7 @@ passport.use(
     {
       clientID: process.env.EMAIL_CLIENT_ID,
       clientSecret: process.env.EMAIL_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
+      callbackURL: domain + "/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -665,7 +696,7 @@ const email_template = (username, email, header_text, header, inner) => {
   `;
 };
 
-app.get("/api/checkusernames/:username", (req, res) => {
+app.get("/api/checkusernames/:username", cors(corsOptions), (req, res) => {
   const username = req.params.username;
   const query = "SELECT * FROM users WHERE username = ?";
 
@@ -684,7 +715,7 @@ app.get("/api/checkusernames/:username", (req, res) => {
   });
 });
 
-app.get("/api/checkemails/:email", (req, res) => {
+app.get("/api/checkemails/:email", cors(corsOptions), (req, res) => {
   const email = req.params.email;
   const query = "SELECT * FROM users WHERE email = ?";
 
@@ -736,7 +767,7 @@ const authorize = (allowedRoles = []) => {
   };
 };
 
-app.get("/api/is_username_exist/:username", (req, res) => {
+app.get("/api/is_username_exist/:username", cors(corsOptions), (req, res) => {
   const { username } = req.params;
   connection.query(
     "SELECT * FROM users WHERE username = ? AND deleted_at IS NULL",
@@ -750,7 +781,7 @@ app.get("/api/is_username_exist/:username", (req, res) => {
   );
 });
 
-app.post("/api/register", async (req, res) => {
+app.post("/api/register", cors(corsOptions), async (req, res) => {
   const { username, email, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -825,7 +856,7 @@ app.get("/api/confirm-email", async (req, res) => {
   }
 });
 
-app.post("/api/login", async (req, res) => {
+app.post("/api/login", cors(corsOptions), async (req, res) => {
   const { email, password } = req.body;
 
   connection.query(
@@ -856,7 +887,7 @@ app.post("/api/login", async (req, res) => {
   );
 });
 
-app.post("/api/forgot-password", async (req, res) => {
+app.post("/api/forgot-password", cors(corsOptions), async (req, res) => {
   const { email } = req.body;
 
   connection.query(
@@ -919,7 +950,7 @@ app.post("/api/forgot-password", async (req, res) => {
   );
 });
 
-app.post("/api/reset-password", async (req, res) => {
+app.post("/api/reset-password", cors(corsOptions), async (req, res) => {
   const { token, newPassword } = req.body;
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -961,6 +992,7 @@ app.get(
 
 app.get(
   "/auth/google/callback",
+  cors(openCorsOptions),
   passport.authenticate("google", {
     failureRedirect: `${client_domain}/login`,
     session: false,
@@ -981,7 +1013,7 @@ app.get(
 
 // ! ===============================================  Auth Google ===============================================
 
-app.get("/api/all-movies", (req, res) => {
+app.get("/api/all-movies", cors(corsOptions), (req, res) => {
   // Get limit and offset from query parameters (default: limit = 10, offset = 0)
   const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 movies per page
   const offset = parseInt(req.query.offset, 10) || 0; // Default to start from the first record
@@ -1019,7 +1051,7 @@ app.get("/api/all-movies", (req, res) => {
   });
 });
 
-app.get("/api/get-movies-poster/:limit", (req, res) => {
+app.get("/api/get-movies-poster/:limit", cors(corsOptions), (req, res) => {
   const limit = req.params.limit;
   const query = `SELECT movies.poster FROM movies ORDER BY created_at DESC LIMIT ${limit}`;
   connection.query(query, (err, results) => {
@@ -1029,7 +1061,7 @@ app.get("/api/get-movies-poster/:limit", (req, res) => {
   });
 });
 
-app.get("/api/movies/comments/:id", (req, res) => {
+app.get("/api/movies/comments/:id", cors(corsOptions), (req, res) => {
   const movieId = req.params.id;
   const limit = parseInt(req.query.limit) || 3;
   const offset = parseInt(req.query.offset) || 0;
@@ -1070,6 +1102,7 @@ app.get("/api/movies/comments/:id", (req, res) => {
 
 app.post(
   "/api/movies/comments/:movieId",
+  cors(corsOptions),
   authorize(["admin", "writer"]),
   (req, res) => {
     const { userId, rate, comments } = req.body;
@@ -1098,7 +1131,7 @@ app.post(
   }
 );
 
-app.post("/api/movies/update-view-count/:id", (req, res) => {
+app.post("/api/movies/update-view-count/:id", cors(corsOptions), (req, res) => {
   const movieId = req.params.id;
 
   const query = `
@@ -1114,7 +1147,7 @@ app.post("/api/movies/update-view-count/:id", (req, res) => {
   });
 });
 
-app.get("/api/movies-search", (req, res) => {
+app.get("/api/movies-search", cors(corsOptions), (req, res) => {
   const search = req.query.search || ""; // Get search term from query
   const limit = parseInt(req.query.limit, 10) || 10;
   const offset = parseInt(req.query.offset, 10) || 0;
@@ -1202,7 +1235,7 @@ app.get("/api/movies-search", (req, res) => {
   );
 });
 
-app.get("/api/movie-details/:id", (req, res) => {
+app.get("/api/movie-details/:id", cors(corsOptions), (req, res) => {
   const movieId = req.params.id;
 
   //   const movieQuery = `
@@ -1262,27 +1295,31 @@ GROUP BY m.id
 
 // ! ===============================================  CMS ===============================================
 
-app.get("/api/cms/comments", authorize(["admin"]), (req, res) => {
-  const limit = parseInt(req.query.limit) || 10;
-  const offset = parseInt(req.query.offset) || 0;
-  const search = req.query.search ? `%${req.query.search}%` : "%%";
-  const orderColumnIndex = parseInt(req.query.order) || 0;
-  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
+app.get(
+  "/api/cms/comments",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = parseInt(req.query.offset) || 0;
+    const search = req.query.search ? `%${req.query.search}%` : "%%";
+    const orderColumnIndex = parseInt(req.query.order) || 0;
+    const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
 
-  const orderColumns = [
-    "c.id", // 0
-    "u.username", // 1
-    "c.rate", // 2
-    "m.title", // 3
-    "c.comments", // 4
-    "c.status", // 5
-  ];
+    const orderColumns = [
+      "c.id", // 0
+      "u.username", // 1
+      "c.rate", // 2
+      "m.title", // 3
+      "c.comments", // 4
+      "c.status", // 5
+    ];
 
-  const orderColumn = orderColumns[orderColumnIndex] || "c.comment_date";
+    const orderColumn = orderColumns[orderColumnIndex] || "c.comment_date";
 
-  console.log(search, orderColumn, orderDir);
+    console.log(search, orderColumn, orderDir);
 
-  const countQuery = `
+    const countQuery = `
     SELECT COUNT(*) as total 
     FROM comments c
     LEFT JOIN users u ON c.user_id = u.id AND u.deleted_at IS NULL
@@ -1290,7 +1327,7 @@ app.get("/api/cms/comments", authorize(["admin"]), (req, res) => {
     WHERE (u.username LIKE ? OR c.rate LIKE ? OR m.title LIKE ? OR c.comments LIKE ? or c.status LIKE ?) AND c.deleted_at IS NULL AND m.deleted_at IS NULL
   `;
 
-  const dataQuery = `
+    const dataQuery = `
   SELECT c.*, u.username, m.title
   FROM comments c
   LEFT JOIN users u ON c.user_id = u.id AND u.deleted_at IS NULL
@@ -1305,68 +1342,78 @@ app.get("/api/cms/comments", authorize(["admin"]), (req, res) => {
   LIMIT ? OFFSET ?
 `;
 
-  connection.query(
-    countQuery,
-    [search, search, search, search, search],
-    (err, countResult) => {
+    connection.query(
+      countQuery,
+      [search, search, search, search, search],
+      (err, countResult) => {
+        if (err) return res.status(500).send(err);
+
+        const totalComments = countResult[0].total;
+
+        connection.query(
+          dataQuery,
+          [search, search, search, search, search, limit, offset],
+          (err, dataResults) => {
+            if (err) return res.status(500).send(err);
+
+            res.json({
+              comments: dataResults,
+              recordsTotal: totalComments,
+              recordsFiltered: totalComments,
+            });
+          }
+        );
+      }
+    );
+  }
+);
+
+app.post(
+  "/api/cms/comments/action",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const { ids, action } = req.body;
+
+    const query = `UPDATE comments SET status = ? WHERE id IN (${ids.join(
+      ","
+    )}) AND deleted_at IS NULL`;
+
+    connection.query(query, [action], (err, results) => {
       if (err) return res.status(500).send(err);
 
-      const totalComments = countResult[0].total;
+      res.json({ success: true });
+    });
+  }
+);
 
-      connection.query(
-        dataQuery,
-        [search, search, search, search, search, limit, offset],
-        (err, dataResults) => {
-          if (err) return res.status(500).send(err);
+app.get(
+  "/api/cms/users",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = parseInt(req.query.offset) || 0;
+    const search = req.query.search ? `%${req.query.search}%` : "%%";
+    const orderColumnIndex = parseInt(req.query.order) || 0;
+    const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
 
-          res.json({
-            comments: dataResults,
-            recordsTotal: totalComments,
-            recordsFiltered: totalComments,
-          });
-        }
-      );
-    }
-  );
-});
+    const orderColumns = [
+      "id", // 0
+      "username", // 1
+      "email", // 2
+      "role", // 3
+    ];
 
-app.post("/api/cms/comments/action", authorize(["admin"]), (req, res) => {
-  const { ids, action } = req.body;
+    const orderColumn = orderColumns[orderColumnIndex] || "id";
 
-  const query = `UPDATE comments SET status = ? WHERE id IN (${ids.join(
-    ","
-  )}) AND deleted_at IS NULL`;
-
-  connection.query(query, [action], (err, results) => {
-    if (err) return res.status(500).send(err);
-
-    res.json({ success: true });
-  });
-});
-
-app.get("/api/cms/users", authorize(["admin"]), (req, res) => {
-  const limit = parseInt(req.query.limit) || 10;
-  const offset = parseInt(req.query.offset) || 0;
-  const search = req.query.search ? `%${req.query.search}%` : "%%";
-  const orderColumnIndex = parseInt(req.query.order) || 0;
-  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
-
-  const orderColumns = [
-    "id", // 0
-    "username", // 1
-    "email", // 2
-    "role", // 3
-  ];
-
-  const orderColumn = orderColumns[orderColumnIndex] || "id";
-
-  const countQuery = `
+    const countQuery = `
     SELECT COUNT(*) as total 
     FROM users
     WHERE username LIKE ? OR email LIKE ?
   `;
 
-  const dataQuery = `
+    const dataQuery = `
   SELECT *
   FROM users
   WHERE username LIKE ? OR email LIKE ?
@@ -1374,72 +1421,86 @@ app.get("/api/cms/users", authorize(["admin"]), (req, res) => {
   LIMIT ? OFFSET ?
 `;
 
-  connection.query(countQuery, [search, search], (err, countResult) => {
-    if (err) return res.status(500).send(err);
+    connection.query(countQuery, [search, search], (err, countResult) => {
+      if (err) return res.status(500).send(err);
 
-    const totalUsers = countResult[0].total;
+      const totalUsers = countResult[0].total;
+
+      connection.query(
+        dataQuery,
+        [search, search, limit, offset],
+        (err, dataResults) => {
+          if (err) return res.status(500).send(err);
+
+          res.json({
+            users: dataResults,
+            recordsTotal: totalUsers,
+            recordsFiltered: totalUsers,
+          });
+        }
+      );
+    });
+  }
+);
+
+app.delete(
+  "/api/cms/users/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const userId = req.params.id;
+
+    const query = `UPDATE users SET deleted_at = NOW() WHERE id = ?`;
+
+    connection.query(query, [userId], (err, results) => {
+      if (err) return res.status(500).send(err);
+
+      res.json({ success: true });
+    });
+  }
+);
+
+app.post(
+  "/api/cms/users",
+  cors(corsOptions),
+  authorize(["admin"]),
+  async (req, res) => {
+    const { username, email, role } = req.body;
+    const hashedPassword = await bcrypt.hash("12345", 10);
+    const default_password = hashedPassword;
+
+    const query = `INSERT INTO users (username, email, password, role, is_verified) VALUES (?, ?, ?, ?, ?)`;
 
     connection.query(
-      dataQuery,
-      [search, search, limit, offset],
-      (err, dataResults) => {
-        if (err) return res.status(500).send(err);
+      query,
+      [username, email, default_password, role, "1"],
+      (err, results) => {
+        if (err)
+          return res
+            .status(500)
+            .json({ error: "Database error: Failed to create user" });
 
-        res.json({
-          users: dataResults,
-          recordsTotal: totalUsers,
-          recordsFiltered: totalUsers,
-        });
-      }
-    );
-  });
-});
+        const token = jwt.sign(
+          { id: results.insertId },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "1h",
+          }
+        );
+        const confirmUrl = `${domain}/api/confirm-email?token=${token}`;
 
-app.delete("/api/cms/users/:id", authorize(["admin"]), (req, res) => {
-  const userId = req.params.id;
-
-  const query = `UPDATE users SET deleted_at = NOW() WHERE id = ?`;
-
-  connection.query(query, [userId], (err, results) => {
-    if (err) return res.status(500).send(err);
-
-    res.json({ success: true });
-  });
-});
-
-app.post("/api/cms/users", authorize(["admin"]), async (req, res) => {
-  const { username, email, role } = req.body;
-  const hashedPassword = await bcrypt.hash("12345", 10);
-  const default_password = hashedPassword;
-
-  const query = `INSERT INTO users (username, email, password, role, is_verified) VALUES (?, ?, ?, ?, ?)`;
-
-  connection.query(
-    query,
-    [username, email, default_password, role, "1"],
-    (err, results) => {
-      if (err)
-        return res
-          .status(500)
-          .json({ error: "Database error: Failed to create user" });
-
-      const token = jwt.sign({ id: results.insertId }, process.env.JWT_SECRET, {
-        expiresIn: "1h",
-      });
-      const confirmUrl = `${domain}/api/confirm-email?token=${token}`;
-
-      transporter.sendMail({
-        to: email,
-        subject: "Confirm Your Email",
-        // html: `<a href="${confirmUrl}">Confirm your email</a>`,
-        html: email_template(
-          username,
-          email,
-          `Hi ${username}! We need to confirm your email address in order to activate
+        transporter.sendMail({
+          to: email,
+          subject: "Confirm Your Email",
+          // html: `<a href="${confirmUrl}">Confirm your email</a>`,
+          html: email_template(
+            username,
+            email,
+            `Hi ${username}! We need to confirm your email address in order to activate
               your account.`,
-          `Thanks for signing up to Pluto Cinema. Before we can
+            `Thanks for signing up to Pluto Cinema. Before we can
                               continue, we need to validate your email address.`,
-          `<p style="margin: 40px 0; color: #fff">
+            `<p style="margin: 40px 0; color: #fff">
                               <a
                                 style="
                                   color: #fff;
@@ -1455,60 +1516,76 @@ app.post("/api/cms/users", authorize(["admin"]), async (req, res) => {
                                 >Activate My Account</a
                               >
                             </p>`
-        ),
-      });
+          ),
+        });
+
+        res.json({ success: true });
+      }
+    );
+  }
+);
+
+app.put(
+  "/api/cms/users/revert/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const userId = req.params.id;
+    const query = `UPDATE users SET deleted_at = NULL WHERE id = ?`;
+
+    connection.query(query, [userId], (err, results) => {
+      if (err)
+        return res
+          .status(500)
+          .json({ error: "Database error: Failed to revert user" });
 
       res.json({ success: true });
-    }
-  );
-});
+    });
+  }
+);
 
-app.put("/api/cms/users/revert/:id", authorize(["admin"]), (req, res) => {
-  const userId = req.params.id;
-  const query = `UPDATE users SET deleted_at = NULL WHERE id = ?`;
+app.put(
+  "/api/cms/users/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const userId = req.params.id;
+    const { username, email } = req.body;
 
-  connection.query(query, [userId], (err, results) => {
-    if (err)
-      return res
-        .status(500)
-        .json({ error: "Database error: Failed to revert user" });
+    const query = `UPDATE users SET username = ?, email = ? WHERE id = ?`;
 
-    res.json({ success: true });
-  });
-});
+    connection.query(query, [username, email, userId], (err, results) => {
+      if (err)
+        return res
+          .status(500)
+          .json({ error: "Database error: Failed to update user" });
 
-app.put("/api/cms/users/:id", authorize(["admin"]), (req, res) => {
-  const userId = req.params.id;
-  const { username, email } = req.body;
+      res.json({ success: true });
+    });
+  }
+);
+app.put(
+  "/api/cms/users/role/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const userId = req.params.id;
+    const { role } = req.body;
 
-  const query = `UPDATE users SET username = ?, email = ? WHERE id = ?`;
+    const query = `UPDATE users SET role = ? WHERE id = ?`;
 
-  connection.query(query, [username, email, userId], (err, results) => {
-    if (err)
-      return res
-        .status(500)
-        .json({ error: "Database error: Failed to update user" });
+    connection.query(query, [role, userId], (err, results) => {
+      if (err)
+        return res
+          .status(500)
+          .json({ error: "Database error: Failed to update user" });
 
-    res.json({ success: true });
-  });
-});
-app.put("/api/cms/users/role/:id", authorize(["admin"]), (req, res) => {
-  const userId = req.params.id;
-  const { role } = req.body;
+      res.json({ success: true });
+    });
+  }
+);
 
-  const query = `UPDATE users SET role = ? WHERE id = ?`;
-
-  connection.query(query, [role, userId], (err, results) => {
-    if (err)
-      return res
-        .status(500)
-        .json({ error: "Database error: Failed to update user" });
-
-    res.json({ success: true });
-  });
-});
-
-app.get("/api/cms/countrylist", (req, res) => {
+app.get("/api/cms/countrylist", cors(corsOptions), (req, res) => {
   const query = `SELECT id, name FROM countries WHERE deleted_at IS NULL`; // Only select countries that are not deleted
 
   connection.query(query, (err, results) => {
@@ -1523,7 +1600,7 @@ app.get("/api/cms/countrylist", (req, res) => {
   });
 });
 
-app.get("/api/cms/yearlist", (req, res) => {
+app.get("/api/cms/yearlist", cors(corsOptions), (req, res) => {
   const query = "SELECT DISTINCT year FROM movies ORDER BY year DESC";
 
   connection.query(query, (err, results) => {
@@ -1533,7 +1610,7 @@ app.get("/api/cms/yearlist", (req, res) => {
   });
 });
 
-app.get("/api/cms/genrelist", (req, res) => {
+app.get("/api/cms/genrelist", cors(corsOptions), (req, res) => {
   const query = `SELECT id, name FROM genres WHERE deleted_at IS NULL`;
 
   connection.query(query, (err, results) => {
@@ -1547,7 +1624,7 @@ app.get("/api/cms/genrelist", (req, res) => {
   });
 });
 
-app.get("/api/cms/awardlist", (req, res) => {
+app.get("/api/cms/awardlist", cors(corsOptions), (req, res) => {
   const query = `SELECT id, name FROM awards WHERE deleted_at IS NULL`;
 
   connection.query(query, (err, results) => {
@@ -1563,29 +1640,33 @@ app.get("/api/cms/awardlist", (req, res) => {
   });
 });
 
-app.get("/api/cms/actors", authorize(["admin", "writer"]), (req, res) => {
-  const limit = parseInt(req.query.limit) || 10;
-  const offset = parseInt(req.query.offset) || 0;
-  const search = req.query.search ? `%${req.query.search}%` : "%%";
-  const orderColumnIndex = parseInt(req.query.order) || 0;
-  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
+app.get(
+  "/api/cms/actors",
+  cors(corsOptions),
+  authorize(["admin", "writer"]),
+  (req, res) => {
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = parseInt(req.query.offset) || 0;
+    const search = req.query.search ? `%${req.query.search}%` : "%%";
+    const orderColumnIndex = parseInt(req.query.order) || 0;
+    const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
 
-  const orderColumns = [
-    "a.id", // 0
-    "c.name", // 1
-    "a.name", // 2
-    "a.birthdate", // 3
-    "a.picture_profile", // 4
-  ];
+    const orderColumns = [
+      "a.id", // 0
+      "c.name", // 1
+      "a.name", // 2
+      "a.birthdate", // 3
+      "a.picture_profile", // 4
+    ];
 
-  const orderColumn = orderColumns[orderColumnIndex] || "a.id";
+    const orderColumn = orderColumns[orderColumnIndex] || "a.id";
 
-  const countQuery = `
+    const countQuery = `
     SELECT COUNT(*) as total
     FROM actors
     WHERE (name LIKE ? OR birthdate LIKE ?) AND deleted_at IS NULL
   `;
-  const dataQuery = `
+    const dataQuery = `
   SELECT a.*, c.name AS country_name
   FROM actors a
   JOIN countries c ON a.countries_id = c.id
@@ -1594,29 +1675,31 @@ app.get("/api/cms/actors", authorize(["admin", "writer"]), (req, res) => {
   LIMIT ? OFFSET ?
 `;
 
-  connection.query(countQuery, [search, search], (err, countResult) => {
-    if (err) return res.status(500).send(err);
+    connection.query(countQuery, [search, search], (err, countResult) => {
+      if (err) return res.status(500).send(err);
 
-    const totalActors = countResult[0].total;
+      const totalActors = countResult[0].total;
 
-    connection.query(
-      dataQuery,
-      [search, search, limit, offset],
-      (err, dataResults) => {
-        if (err) return res.status(500).send(err);
+      connection.query(
+        dataQuery,
+        [search, search, limit, offset],
+        (err, dataResults) => {
+          if (err) return res.status(500).send(err);
 
-        res.json({
-          actors: dataResults,
-          recordsTotal: totalActors,
-          recordsFiltered: totalActors,
-        });
-      }
-    );
-  });
-});
+          res.json({
+            actors: dataResults,
+            recordsTotal: totalActors,
+            recordsFiltered: totalActors,
+          });
+        }
+      );
+    });
+  }
+);
 
 app.post(
   "/api/cms/actors",
+  cors(corsOptions),
   authorize(["admin"]),
   upload.single("file"),
   async (req, res) => {
@@ -1674,6 +1757,7 @@ app.post(
 
 app.put(
   "/api/cms/actors/:id",
+  cors(corsOptions),
   authorize(["admin"]),
   upload.single("img"),
   async (req, res) => {
@@ -1748,20 +1832,26 @@ app.put(
   }
 );
 
-app.delete("/api/cms/actors/:id", authorize(["admin"]), (req, res) => {
-  const actorId = req.params.id;
+app.delete(
+  "/api/cms/actors/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const actorId = req.params.id;
 
-  const query = `UPDATE actors SET deleted_at = NOW() WHERE id = ?`;
+    const query = `UPDATE actors SET deleted_at = NOW() WHERE id = ?`;
 
-  connection.query(query, [actorId], (err, results) => {
-    if (err) return res.status(500).send(err);
+    connection.query(query, [actorId], (err, results) => {
+      if (err) return res.status(500).send(err);
 
-    res.json({ success: true });
-  });
-});
+      res.json({ success: true });
+    });
+  }
+);
 
 app.post(
   "/api/cms/movies",
+  cors(corsOptions),
   authorize(["admin", "writer"]),
   upload.single("poster"),
   async (req, res) => {
@@ -1919,27 +2009,31 @@ app.post(
   }
 );
 
-app.get("/api/cms/countriesList", authorize(["admin"]), (req, res) => {
-  const limit = parseInt(req.query.limit, 10) || 10;
-  const offset = parseInt(req.query.offset, 10) || 0;
-  const search = req.query.search ? `%${req.query.search}%` : "%%";
-  const orderColumnIndex = parseInt(req.query.order) || 0;
-  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
+app.get(
+  "/api/cms/countriesList",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const offset = parseInt(req.query.offset, 10) || 0;
+    const search = req.query.search ? `%${req.query.search}%` : "%%";
+    const orderColumnIndex = parseInt(req.query.order) || 0;
+    const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
 
-  const orderColumns = [
-    "c.id", // 0
-    "c.name", // 1
-  ];
+    const orderColumns = [
+      "c.id", // 0
+      "c.name", // 1
+    ];
 
-  const orderColumn = orderColumns[orderColumnIndex] || "c.id";
+    const orderColumn = orderColumns[orderColumnIndex] || "c.id";
 
-  const countQuery = `
+    const countQuery = `
     SELECT COUNT(*) as total
     FROM countries c
     WHERE c.name LIKE ?
   `;
 
-  const dataQuery = `
+    const dataQuery = `
   SELECT c.id, c.name
   FROM countries c
   WHERE c.name LIKE ? AND c.deleted_at IS NULL
@@ -1947,59 +2041,68 @@ app.get("/api/cms/countriesList", authorize(["admin"]), (req, res) => {
   LIMIT ? OFFSET ?
 `;
 
-  connection.query(countQuery, [search], (err, countResult) => {
-    if (err) {
-      console.error("Error in countQuery:", err); // Log the error
-      return res.status(500).json({
-        success: false,
-        message: "Database error in count query",
-        error: err,
-      });
-    }
-
-    const totalCountries = countResult[0].total;
-
-    connection.query(dataQuery, [search, limit, offset], (err, dataResults) => {
+    connection.query(countQuery, [search], (err, countResult) => {
       if (err) {
-        console.error("Error in dataQuery:", err); // Log the error
+        console.error("Error in countQuery:", err); // Log the error
         return res.status(500).json({
           success: false,
-          message: "Database error in data query",
+          message: "Database error in count query",
           error: err,
         });
       }
 
-      res.json({
-        countries: dataResults,
-        recordsTotal: totalCountries,
-        recordsFiltered: totalCountries,
-      });
+      const totalCountries = countResult[0].total;
+
+      connection.query(
+        dataQuery,
+        [search, limit, offset],
+        (err, dataResults) => {
+          if (err) {
+            console.error("Error in dataQuery:", err); // Log the error
+            return res.status(500).json({
+              success: false,
+              message: "Database error in data query",
+              error: err,
+            });
+          }
+
+          res.json({
+            countries: dataResults,
+            recordsTotal: totalCountries,
+            recordsFiltered: totalCountries,
+          });
+        }
+      );
     });
-  });
-});
+  }
+);
 
-app.get("/api/cms/awardsList2", authorize(["admin"]), (req, res) => {
-  const limit = parseInt(req.query.limit, 10) || 10;
-  const offset = parseInt(req.query.offset, 10) || 0;
-  const search = req.query.search ? `%${req.query.search}%` : "%%";
-  const orderColumnIndex = parseInt(req.query.order) || 0;
-  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
+app.get(
+  "/api/cms/awardsList2",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const offset = parseInt(req.query.offset, 10) || 0;
+    const search = req.query.search ? `%${req.query.search}%` : "%%";
+    const orderColumnIndex = parseInt(req.query.order) || 0;
+    const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
 
-  const orderColumns = [
-    "a.id", // 0
-    "a.name",
-    "a.year",
-  ];
+    const orderColumns = [
+      "a.id", // 0
+      "a.name",
+      "a.year",
+    ];
 
-  const orderColumn = orderColumns[orderColumnIndex] || "a.id";
+    const orderColumn = orderColumns[orderColumnIndex] || "a.id";
 
-  const countQuery = `
+    const countQuery = `
     SELECT COUNT(*) as total
     FROM awards a
     WHERE a.name LIKE ?
   `;
 
-  const dataQuery = `
+    const dataQuery = `
   SELECT a.id, a.name, a.year
   FROM awards a
   WHERE a.name LIKE ? AND a.deleted_at IS NULL
@@ -2007,63 +2110,72 @@ app.get("/api/cms/awardsList2", authorize(["admin"]), (req, res) => {
   LIMIT ? OFFSET ?
 `;
 
-  connection.query(countQuery, [search], (err, countResult) => {
-    if (err) {
-      console.error("Count Query Error:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Database error in count query",
-        error: err,
-      });
-    }
-
-    const totalAwards = countResult[0].total;
-    console.log("Total awards:", totalAwards);
-
-    connection.query(dataQuery, [search, limit, offset], (err, dataResults) => {
+    connection.query(countQuery, [search], (err, countResult) => {
       if (err) {
-        console.error("Data Query Error:", err);
+        console.error("Count Query Error:", err);
         return res.status(500).json({
           success: false,
-          message: "Database error in data query",
+          message: "Database error in count query",
           error: err,
         });
       }
 
-      console.log("Data Results:", dataResults);
+      const totalAwards = countResult[0].total;
+      console.log("Total awards:", totalAwards);
 
-      res.json({
-        awards: dataResults,
-        recordsTotal: totalAwards,
-        recordsFiltered: totalAwards,
-      });
+      connection.query(
+        dataQuery,
+        [search, limit, offset],
+        (err, dataResults) => {
+          if (err) {
+            console.error("Data Query Error:", err);
+            return res.status(500).json({
+              success: false,
+              message: "Database error in data query",
+              error: err,
+            });
+          }
+
+          console.log("Data Results:", dataResults);
+
+          res.json({
+            awards: dataResults,
+            recordsTotal: totalAwards,
+            recordsFiltered: totalAwards,
+          });
+        }
+      );
     });
-  });
-});
+  }
+);
 
-app.get("/api/cms/movielist", authorize(["admin"]), (req, res) => {
-  const limit = parseInt(req.query.limit) || 10;
-  const offset = parseInt(req.query.offset) || 0;
-  const search = req.query.search ? `%${req.query.search}%` : "%%";
-  const orderColumnIndex = parseInt(req.query.order) || 0;
-  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
+app.get(
+  "/api/cms/movielist",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = parseInt(req.query.offset) || 0;
+    const search = req.query.search ? `%${req.query.search}%` : "%%";
+    const orderColumnIndex = parseInt(req.query.order) || 0;
+    const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
 
-  const orderColumns = [
-    "m.id", // 0
-    "m.title",
-    "m.synopsis",
-    "m.status",
-  ];
+    const orderColumns = [
+      "m.id", // 0
+      "m.title",
+      "m.synopsis",
+      "m.status",
+    ];
 
-  const orderColumn = orderColumns[orderColumnIndex] || "m.id";
+    const orderColumn = orderColumns[orderColumnIndex] || "m.id";
 
-  const countQuery = `
+    const countQuery = `
     SELECT COUNT(*) as total
     FROM movies m
     WHERE m.title LIKE ?
   `;
 
-  const dataQuery = `
+    const dataQuery = `
     SELECT 
       m.id, 
       m.title, 
@@ -2082,44 +2194,53 @@ app.get("/api/cms/movielist", authorize(["admin"]), (req, res) => {
     LIMIT ? OFFSET ?
   `;
 
-  connection.query(countQuery, [search], (err, countResult) => {
-    if (err) return res.status(500).send(err);
-
-    const totalMovies = countResult[0].total;
-
-    connection.query(dataQuery, [search, limit, offset], (err, dataResults) => {
+    connection.query(countQuery, [search], (err, countResult) => {
       if (err) return res.status(500).send(err);
 
-      res.json({
-        movies: dataResults,
-        recordsTotal: totalMovies,
-        recordsFiltered: totalMovies,
-      });
+      const totalMovies = countResult[0].total;
+
+      connection.query(
+        dataQuery,
+        [search, limit, offset],
+        (err, dataResults) => {
+          if (err) return res.status(500).send(err);
+
+          res.json({
+            movies: dataResults,
+            recordsTotal: totalMovies,
+            recordsFiltered: totalMovies,
+          });
+        }
+      );
     });
-  });
-});
+  }
+);
 
-app.get("/api/cms/genresList", authorize(["admin"]), (req, res) => {
-  const limit = parseInt(req.query.limit, 10) || 10;
-  const offset = parseInt(req.query.offset, 10) || 0;
-  const search = req.query.search ? `%${req.query.search}%` : "%%";
-  const orderColumnIndex = parseInt(req.query.order) || 0;
-  const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
+app.get(
+  "/api/cms/genresList",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const offset = parseInt(req.query.offset, 10) || 0;
+    const search = req.query.search ? `%${req.query.search}%` : "%%";
+    const orderColumnIndex = parseInt(req.query.order) || 0;
+    const orderDir = req.query.dir === "desc" ? "DESC" : "ASC";
 
-  const orderColumns = [
-    "g.id", // 0
-    "g.name", // 1
-  ];
+    const orderColumns = [
+      "g.id", // 0
+      "g.name", // 1
+    ];
 
-  const orderColumn = orderColumns[orderColumnIndex] || "g.id";
+    const orderColumn = orderColumns[orderColumnIndex] || "g.id";
 
-  const countQuery = `
+    const countQuery = `
     SELECT COUNT(*) as total
     FROM genres g
     WHERE g.name LIKE ?
   `;
 
-  const dataQuery = `
+    const dataQuery = `
   SELECT g.id, g.name
   FROM genres g
   WHERE g.name LIKE ? AND g.deleted_at IS NULL
@@ -2127,224 +2248,111 @@ app.get("/api/cms/genresList", authorize(["admin"]), (req, res) => {
   LIMIT ? OFFSET ?
 `;
 
-  connection.query(countQuery, [search], (err, countResult) => {
-    if (err) {
-      console.error("Error in countQuery:", err); // Log the error
-      return res.status(500).json({
-        success: false,
-        message: "Database error in count query",
-        error: err,
-      });
-    }
-
-    const totalGenres = countResult[0].total;
-
-    connection.query(dataQuery, [search, limit, offset], (err, dataResults) => {
+    connection.query(countQuery, [search], (err, countResult) => {
       if (err) {
-        console.error("Error in dataQuery:", err); // Log the error
+        console.error("Error in countQuery:", err); // Log the error
         return res.status(500).json({
           success: false,
-          message: "Database error in data query",
+          message: "Database error in count query",
           error: err,
         });
       }
 
-      res.json({
-        genres: dataResults,
-        recordsTotal: totalGenres,
-        recordsFiltered: totalGenres,
-      });
+      const totalGenres = countResult[0].total;
+
+      connection.query(
+        dataQuery,
+        [search, limit, offset],
+        (err, dataResults) => {
+          if (err) {
+            console.error("Error in dataQuery:", err); // Log the error
+            return res.status(500).json({
+              success: false,
+              message: "Database error in data query",
+              error: err,
+            });
+          }
+
+          res.json({
+            genres: dataResults,
+            recordsTotal: totalGenres,
+            recordsFiltered: totalGenres,
+          });
+        }
+      );
     });
-  });
-});
+  }
+);
 
 // ----------------- CMS COUNTRY -----------------
 
 // Menambahkan negara baru
-app.post("/api/cms/countriesList", authorize(["admin"]), (req, res) => {
-  const { name } = req.body;
+app.post(
+  "/api/cms/countriesList",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const { name } = req.body;
 
-  if (!name || name.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Country name is required" });
-  }
-
-  console.log("Country to add:", name);
-
-  // Check if the country name already exists and hasn't been deleted
-  const checkQuery = `SELECT * FROM countries WHERE name = ? AND deleted_at IS NULL`;
-
-  connection.query(checkQuery, [name], (err, results) => {
-    if (err) {
-      console.error("Error in checkQuery:", err);
-      return res
-        .status(500)
-        .json({ success: false, message: "Country name already exists" });
-    }
-
-    if (results.length > 0) {
+    if (!name || name.trim() === "") {
       return res
         .status(400)
-        .json({ success: false, message: "Country name already exists" });
+        .json({ success: false, message: "Country name is required" });
     }
 
-    // If the country does not exist, add it to the database
-    const insertQuery = `INSERT INTO countries (name) VALUES (?)`;
+    console.log("Country to add:", name);
 
-    connection.query(insertQuery, [name], (err, results) => {
+    // Check if the country name already exists and hasn't been deleted
+    const checkQuery = `SELECT * FROM countries WHERE name = ? AND deleted_at IS NULL`;
+
+    connection.query(checkQuery, [name], (err, results) => {
       if (err) {
-        console.error("Error in insertQuery:", err);
+        console.error("Error in checkQuery:", err);
         return res
           .status(500)
           .json({ success: false, message: "Country name already exists" });
       }
 
-      res.json({ success: true, message: "Country added successfully" });
+      if (results.length > 0) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Country name already exists" });
+      }
+
+      // If the country does not exist, add it to the database
+      const insertQuery = `INSERT INTO countries (name) VALUES (?)`;
+
+      connection.query(insertQuery, [name], (err, results) => {
+        if (err) {
+          console.error("Error in insertQuery:", err);
+          return res
+            .status(500)
+            .json({ success: false, message: "Country name already exists" });
+        }
+
+        res.json({ success: true, message: "Country added successfully" });
+      });
     });
-  });
-});
-
-app.put("/api/cms/countriesList/:id", authorize(["admin"]), (req, res) => {
-  const countryId = req.params.id;
-  const { name } = req.body;
-
-  if (!name || name.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Country name is required" });
   }
+);
 
-  const updateQuery = `UPDATE countries SET name = ? WHERE id = ? AND deleted_at IS NULL`;
+app.put(
+  "/api/cms/countriesList/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const countryId = req.params.id;
+    const { name } = req.body;
 
-  connection.query(updateQuery, [name, countryId], (err, results) => {
-    if (err) {
-      console.error("Error in updateQuery:", err);
+    if (!name || name.trim() === "") {
       return res
-        .status(500)
-        .json({ success: false, message: "Database error in update query" });
+        .status(400)
+        .json({ success: false, message: "Country name is required" });
     }
 
-    if (results.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Country not found or already deleted",
-      });
-    }
+    const updateQuery = `UPDATE countries SET name = ? WHERE id = ? AND deleted_at IS NULL`;
 
-    res.json({ success: true, message: "Country updated successfully" });
-  });
-});
-
-app.delete("/api/cms/countriesList/:id", authorize(["admin"]), (req, res) => {
-  const countryId = req.params.id;
-
-  const deleteQuery = `UPDATE countries SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL`;
-
-  connection.query(deleteQuery, [countryId], (err, results) => {
-    if (err) {
-      console.error("Error in deleteQuery:", err);
-      return res
-        .status(500)
-        .json({ success: false, message: "Database error in delete query" });
-    }
-
-    if (results.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Country not found or already deleted",
-      });
-    }
-
-    res.json({ success: true, message: "Country deleted successfully" });
-  });
-});
-
-// ----------------- CMS MOVIE -----------------
-
-app.put("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
-  const movieId = req.params.id;
-  const { title } = req.body;
-  const { synopsis } = req.body;
-  const { status } = req.body;
-  const { poster } = req.body;
-  const { year } = req.body;
-  const { availability } = req.body;
-  const { trailer } = req.body;
-  const { actors } = req.body;
-  const { genres } = req.body;
-
-  if (!title || title.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Movie title is required" });
-  }
-
-  if (!synopsis || synopsis.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Movie synopsis is required" });
-  }
-
-  if (!status || status.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Movie status is required" });
-  }
-
-  if (!poster || poster.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Movie poster is required" });
-  }
-
-  if (!year || year.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Movie year is required" });
-  }
-
-  if (!availability || availability.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Movie availability is required" });
-  }
-
-  if (!trailer || trailer.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Movie trailer is required" });
-  }
-
-  if (!actors || actors.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Movie actors is required" });
-  }
-
-  if (!genres || genres.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Movie genres is required" });
-  }
-
-  const updateQuery = `UPDATE movies SET title = ? synopsis = ? status = ? poster = ? year = ? availability = ? trailer = ? actors = ? genres = ? WHERE id = ? AND deleted_at IS NULL`;
-
-  connection.query(
-    updateQuery,
-    [
-      title,
-      synopsis,
-      status,
-      poster,
-      year,
-      availability,
-      trailer,
-      actors,
-      genres,
-      movieId,
-    ],
-    (err, results) => {
+    connection.query(updateQuery, [name, countryId], (err, results) => {
       if (err) {
         console.error("Error in updateQuery:", err);
         return res
@@ -2355,20 +2363,163 @@ app.put("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
       if (results.affectedRows === 0) {
         return res.status(404).json({
           success: false,
-          message: "Movie not found or already deleted",
+          message: "Country not found or already deleted",
         });
       }
 
-      res.json({ success: true, message: "Movie updated successfully" });
+      res.json({ success: true, message: "Country updated successfully" });
+    });
+  }
+);
+
+app.delete(
+  "/api/cms/countriesList/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const countryId = req.params.id;
+
+    const deleteQuery = `UPDATE countries SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL`;
+
+    connection.query(deleteQuery, [countryId], (err, results) => {
+      if (err) {
+        console.error("Error in deleteQuery:", err);
+        return res
+          .status(500)
+          .json({ success: false, message: "Database error in delete query" });
+      }
+
+      if (results.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Country not found or already deleted",
+        });
+      }
+
+      res.json({ success: true, message: "Country deleted successfully" });
+    });
+  }
+);
+
+// ----------------- CMS MOVIE -----------------
+
+app.put(
+  "/api/cms/moviesList/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const movieId = req.params.id;
+    const { title } = req.body;
+    const { synopsis } = req.body;
+    const { status } = req.body;
+    const { poster } = req.body;
+    const { year } = req.body;
+    const { availability } = req.body;
+    const { trailer } = req.body;
+    const { actors } = req.body;
+    const { genres } = req.body;
+
+    if (!title || title.trim() === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Movie title is required" });
     }
-  );
-});
 
-app.get("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
-  const movieId = req.params.id;
-  console.log("Movie ID:", movieId);
+    if (!synopsis || synopsis.trim() === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Movie synopsis is required" });
+    }
 
-  const movieQuery = `
+    if (!status || status.trim() === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Movie status is required" });
+    }
+
+    if (!poster || poster.trim() === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Movie poster is required" });
+    }
+
+    if (!year || year.trim() === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Movie year is required" });
+    }
+
+    if (!availability || availability.trim() === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Movie availability is required" });
+    }
+
+    if (!trailer || trailer.trim() === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Movie trailer is required" });
+    }
+
+    if (!actors || actors.trim() === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Movie actors is required" });
+    }
+
+    if (!genres || genres.trim() === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Movie genres is required" });
+    }
+
+    const updateQuery = `UPDATE movies SET title = ? synopsis = ? status = ? poster = ? year = ? availability = ? trailer = ? actors = ? genres = ? WHERE id = ? AND deleted_at IS NULL`;
+
+    connection.query(
+      updateQuery,
+      [
+        title,
+        synopsis,
+        status,
+        poster,
+        year,
+        availability,
+        trailer,
+        actors,
+        genres,
+        movieId,
+      ],
+      (err, results) => {
+        if (err) {
+          console.error("Error in updateQuery:", err);
+          return res.status(500).json({
+            success: false,
+            message: "Database error in update query",
+          });
+        }
+
+        if (results.affectedRows === 0) {
+          return res.status(404).json({
+            success: false,
+            message: "Movie not found or already deleted",
+          });
+        }
+
+        res.json({ success: true, message: "Movie updated successfully" });
+      }
+    );
+  }
+);
+
+app.get(
+  "/api/cms/moviesList/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const movieId = req.params.id;
+    console.log("Movie ID:", movieId);
+
+    const movieQuery = `
   SELECT m.*, c.name AS country_name, IFNULL(AVG(cm.rate), 0) AS rating
   FROM movies m
   JOIN countries c ON m.countries_id = c.id
@@ -2377,7 +2528,7 @@ app.get("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
   GROUP BY m.id
   `;
 
-  const genresQuery = `
+    const genresQuery = `
     SELECT g.*
     FROM genres g
     JOIN movies_genres mg ON g.id = mg.genre_id
@@ -2385,7 +2536,7 @@ app.get("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
     WHERE mg.movie_id = ? AND m.deleted_at IS NULL AND g.deleted_at IS NULL
   `;
 
-  const actorsQuery = `
+    const actorsQuery = `
     SELECT a.*
     FROM actors a
     JOIN movies_actors ma ON a.id = ma.actor_id
@@ -2393,54 +2544,61 @@ app.get("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
     WHERE ma.movie_id = ? AND m.deleted_at IS NULL AND a.deleted_at IS NULL
   `;
 
-  connection.query(movieQuery, [movieId], (err, movieResults) => {
-    if (err) return res.status(500).send(err);
-
-    const movie = movieResults[0];
-
-    connection.query(genresQuery, [movieId], (err, genresResults) => {
+    connection.query(movieQuery, [movieId], (err, movieResults) => {
       if (err) return res.status(500).send(err);
 
-      connection.query(actorsQuery, [movieId], (err, actorsResults) => {
+      const movie = movieResults[0];
+
+      connection.query(genresQuery, [movieId], (err, genresResults) => {
         if (err) return res.status(500).send(err);
 
-        res.json({
-          ...movie,
-          genres: genresResults,
-          actors: actorsResults,
+        connection.query(actorsQuery, [movieId], (err, actorsResults) => {
+          if (err) return res.status(500).send(err);
+
+          res.json({
+            ...movie,
+            genres: genresResults,
+            actors: actorsResults,
+          });
         });
       });
     });
-  });
-});
+  }
+);
 
-app.delete("/api/cms/moviesList/:id", authorize(["admin"]), (req, res) => {
-  const movieId = req.params.id;
+app.delete(
+  "/api/cms/moviesList/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const movieId = req.params.id;
 
-  const deleteQuery = `UPDATE movies SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL`;
+    const deleteQuery = `UPDATE movies SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL`;
 
-  connection.query(deleteQuery, [movieId], (err, results) => {
-    if (err) {
-      console.error("Error in deleteQuery:", err);
-      return res
-        .status(500)
-        .json({ success: false, message: "Database error in delete query" });
-    }
+    connection.query(deleteQuery, [movieId], (err, results) => {
+      if (err) {
+        console.error("Error in deleteQuery:", err);
+        return res
+          .status(500)
+          .json({ success: false, message: "Database error in delete query" });
+      }
 
-    if (results.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Movie not found or already deleted",
-      });
-    }
+      if (results.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Movie not found or already deleted",
+        });
+      }
 
-    res.json({ success: true, message: "Movie deleted successfully" });
-  });
-});
+      res.json({ success: true, message: "Movie deleted successfully" });
+    });
+  }
+);
 
 // ----------------- UNTUK APPROVE MOVIE -----------------
 app.post(
   "/api/cms/moviesList/approve/:id",
+  cors(corsOptions),
   authorize(["admin"]),
   (req, res) => {
     const movieId = req.params.id;
@@ -2472,253 +2630,290 @@ app.post(
 );
 
 // ----------------- UNTUK REJECT MOVIE -----------------
-app.put("/api/cms/moviesList/reject/:id", authorize(["admin"]), (req, res) => {
-  const movieId = req.params.id;
+app.put(
+  "/api/cms/moviesList/reject/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const movieId = req.params.id;
 
-  // Query untuk memperbarui status menjadi 'rejected'
-  const updateQuery = `
+    // Query untuk memperbarui status menjadi 'rejected'
+    const updateQuery = `
     UPDATE movies
     SET status = 'rejected'
     WHERE id = ? AND status != 'rejected'`;
 
-  connection.query(updateQuery, [movieId], (err, result) => {
-    if (err) {
-      console.error("Error rejecting movie:", err);
-      return res
-        .status(500)
-        .json({ success: false, message: "Database error" });
-    }
+    connection.query(updateQuery, [movieId], (err, result) => {
+      if (err) {
+        console.error("Error rejecting movie:", err);
+        return res
+          .status(500)
+          .json({ success: false, message: "Database error" });
+      }
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Movie not found or already rejected",
-      });
-    }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Movie not found or already rejected",
+        });
+      }
 
-    res.json({ success: true, message: "Movie rejected successfully" });
-  });
-});
+      res.json({ success: true, message: "Movie rejected successfully" });
+    });
+  }
+);
 
 // ----------------- CMS AWARD -----------------
 
-app.post("/api/cms/awardsList2", authorize(["admin"]), (req, res) => {
-  const { name, year } = req.body;
-  console.log("Request Body:", req.body);
+app.post(
+  "/api/cms/awardsList2",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const { name, year } = req.body;
+    console.log("Request Body:", req.body);
 
-  if (!name || name.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Award name is required" });
-  }
-
-  console.log("Award name to add:", name);
-
-  if (!year || year.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Award year is required" });
-  }
-
-  console.log("Award year to add:", year);
-
-  // Check if the country name already exists and hasn't been deleted
-  const checkQuery = `SELECT * FROM awards WHERE name = ? AND year = ? AND deleted_at IS NULL`;
-
-  connection.query(checkQuery, [name, year], (err, results) => {
-    if (err) {
-      console.error("Error in checkQuery:", err);
-      return res
-        .status(500)
-        .json({ success: false, message: "Database error in check query" });
-    }
-
-    if (results.length > 0) {
+    if (!name || name.trim() === "") {
       return res
         .status(400)
-        .json({ success: false, message: "Award name already exists" });
+        .json({ success: false, message: "Award name is required" });
     }
 
-    // If the country does not exist, add it to the database
-    const insertQuery = `INSERT INTO awards (name, year) VALUES (?, ?)`;
+    console.log("Award name to add:", name);
 
-    connection.query(insertQuery, [name, year], (err, results) => {
+    if (!year || year.trim() === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Award year is required" });
+    }
+
+    console.log("Award year to add:", year);
+
+    // Check if the country name already exists and hasn't been deleted
+    const checkQuery = `SELECT * FROM awards WHERE name = ? AND year = ? AND deleted_at IS NULL`;
+
+    connection.query(checkQuery, [name, year], (err, results) => {
       if (err) {
-        console.error("Error in insertQuery:", err);
+        console.error("Error in checkQuery:", err);
         return res
           .status(500)
-          .json({ success: false, message: "Database error in insert query" });
+          .json({ success: false, message: "Database error in check query" });
       }
 
-      res.json({ success: true, message: "Award added successfully" });
+      if (results.length > 0) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Award name already exists" });
+      }
+
+      // If the country does not exist, add it to the database
+      const insertQuery = `INSERT INTO awards (name, year) VALUES (?, ?)`;
+
+      connection.query(insertQuery, [name, year], (err, results) => {
+        if (err) {
+          console.error("Error in insertQuery:", err);
+          return res.status(500).json({
+            success: false,
+            message: "Database error in insert query",
+          });
+        }
+
+        res.json({ success: true, message: "Award added successfully" });
+      });
     });
-  });
-});
-
-app.put("/api/cms/awardsList2/:id", authorize(["admin"]), (req, res) => {
-  const awardId = req.params.id;
-  const { name, year } = req.body; // Get name and year from the body
-
-  // Validate award name
-  if (!name || name.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Award name is required" });
   }
+);
 
-  // Validate award year
-  if (!year || year.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Award year is required" });
+app.put(
+  "/api/cms/awardsList2/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const awardId = req.params.id;
+    const { name, year } = req.body; // Get name and year from the body
+
+    // Validate award name
+    if (!name || name.trim() === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Award name is required" });
+    }
+
+    // Validate award year
+    if (!year || year.trim() === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Award year is required" });
+    }
+
+    // SQL query to update the award
+    const updateQuery = `UPDATE awards SET name = ?, year = ? WHERE id = ? AND deleted_at IS NULL`;
+
+    // Execute the query
+    connection.query(updateQuery, [name, year, awardId], (err, results) => {
+      if (err) {
+        console.error("Error in updateQuery:", err);
+        return res
+          .status(500)
+          .json({ success: false, message: "Database error in update query" });
+      }
+
+      if (results.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Award not found or already deleted",
+        });
+      }
+
+      res.json({ success: true, message: "Award updated successfully" });
+    });
   }
+);
 
-  // SQL query to update the award
-  const updateQuery = `UPDATE awards SET name = ?, year = ? WHERE id = ? AND deleted_at IS NULL`;
+app.delete(
+  "/api/cms/awardsList2/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const awardId = req.params.id;
 
-  // Execute the query
-  connection.query(updateQuery, [name, year, awardId], (err, results) => {
-    if (err) {
-      console.error("Error in updateQuery:", err);
-      return res
-        .status(500)
-        .json({ success: false, message: "Database error in update query" });
-    }
+    const deleteQuery = `UPDATE awards SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL`;
 
-    if (results.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Award not found or already deleted",
-      });
-    }
+    connection.query(deleteQuery, [awardId], (err, results) => {
+      if (err) {
+        console.error("Error in deleteQuery:", err);
+        return res
+          .status(500)
+          .json({ success: false, message: "Database error in delete query" });
+      }
 
-    res.json({ success: true, message: "Award updated successfully" });
-  });
-});
+      if (results.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Award not found or already deleted",
+        });
+      }
 
-app.delete("/api/cms/awardsList2/:id", authorize(["admin"]), (req, res) => {
-  const awardId = req.params.id;
-
-  const deleteQuery = `UPDATE awards SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL`;
-
-  connection.query(deleteQuery, [awardId], (err, results) => {
-    if (err) {
-      console.error("Error in deleteQuery:", err);
-      return res
-        .status(500)
-        .json({ success: false, message: "Database error in delete query" });
-    }
-
-    if (results.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Award not found or already deleted",
-      });
-    }
-
-    res.json({ success: true, message: "Award deleted successfully" });
-  });
-});
+      res.json({ success: true, message: "Award deleted successfully" });
+    });
+  }
+);
 
 // ----------------- CMS GENRE -----------------
-app.post("/api/cms/genresList", authorize(["admin"]), (req, res) => {
-  const { name } = req.body;
+app.post(
+  "/api/cms/genresList",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const { name } = req.body;
 
-  if (!name || name.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Genre name is required" });
-  }
-
-  console.log("Genre to add:", name);
-
-  // Check if the country name already exists and hasn't been deleted
-  const checkQuery = `SELECT * FROM genres WHERE name = ? AND deleted_at IS NULL`;
-
-  connection.query(checkQuery, [name], (err, results) => {
-    if (err) {
-      console.error("Error in checkQuery:", err);
-      return res
-        .status(500)
-        .json({ success: false, message: "Database error in check query" });
-    }
-
-    if (results.length > 0) {
+    if (!name || name.trim() === "") {
       return res
         .status(400)
-        .json({ success: false, message: "Genre name already exists" });
+        .json({ success: false, message: "Genre name is required" });
     }
 
-    // If the country does not exist, add it to the database
-    const insertQuery = `INSERT INTO genres (name) VALUES (?)`;
+    console.log("Genre to add:", name);
 
-    connection.query(insertQuery, [name], (err, results) => {
+    // Check if the country name already exists and hasn't been deleted
+    const checkQuery = `SELECT * FROM genres WHERE name = ? AND deleted_at IS NULL`;
+
+    connection.query(checkQuery, [name], (err, results) => {
       if (err) {
-        console.error("Error in insertQuery:", err);
+        console.error("Error in checkQuery:", err);
         return res
           .status(500)
-          .json({ success: false, message: "Database error in insert query" });
+          .json({ success: false, message: "Database error in check query" });
       }
 
-      res.json({ success: true, message: "Genre added successfully" });
+      if (results.length > 0) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Genre name already exists" });
+      }
+
+      // If the country does not exist, add it to the database
+      const insertQuery = `INSERT INTO genres (name) VALUES (?)`;
+
+      connection.query(insertQuery, [name], (err, results) => {
+        if (err) {
+          console.error("Error in insertQuery:", err);
+          return res.status(500).json({
+            success: false,
+            message: "Database error in insert query",
+          });
+        }
+
+        res.json({ success: true, message: "Genre added successfully" });
+      });
     });
-  });
-});
-
-app.put("/api/cms/genresList/:id", authorize(["admin"]), (req, res) => {
-  const genreId = req.params.id;
-  const { name } = req.body;
-
-  if (!name || name.trim() === "") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Genre name is required" });
   }
+);
 
-  const updateQuery = `UPDATE genres SET name = ? WHERE id = ? AND deleted_at IS NULL`;
+app.put(
+  "/api/cms/genresList/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const genreId = req.params.id;
+    const { name } = req.body;
 
-  connection.query(updateQuery, [name, genreId], (err, results) => {
-    if (err) {
-      console.error("Error in updateQuery:", err);
+    if (!name || name.trim() === "") {
       return res
-        .status(500)
-        .json({ success: false, message: "Database error in update query" });
+        .status(400)
+        .json({ success: false, message: "Genre name is required" });
     }
 
-    if (results.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Genre not found or already deleted",
-      });
-    }
+    const updateQuery = `UPDATE genres SET name = ? WHERE id = ? AND deleted_at IS NULL`;
 
-    res.json({ success: true, message: "Genre updated successfully" });
-  });
-});
+    connection.query(updateQuery, [name, genreId], (err, results) => {
+      if (err) {
+        console.error("Error in updateQuery:", err);
+        return res
+          .status(500)
+          .json({ success: false, message: "Database error in update query" });
+      }
 
-app.delete("/api/cms/genresList/:id", authorize(["admin"]), (req, res) => {
-  const genreId = req.params.id;
+      if (results.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Genre not found or already deleted",
+        });
+      }
 
-  const deleteQuery = `UPDATE genres SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL`;
+      res.json({ success: true, message: "Genre updated successfully" });
+    });
+  }
+);
 
-  connection.query(deleteQuery, [genreId], (err, results) => {
-    if (err) {
-      console.error("Error in deleteQuery:", err);
-      return res
-        .status(500)
-        .json({ success: false, message: "Database error in delete query" });
-    }
+app.delete(
+  "/api/cms/genresList/:id",
+  cors(corsOptions),
+  authorize(["admin"]),
+  (req, res) => {
+    const genreId = req.params.id;
 
-    if (results.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Genre not found or already deleted",
-      });
-    }
+    const deleteQuery = `UPDATE genres SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL`;
 
-    res.json({ success: true, message: "Genre deleted successfully" });
-  });
-});
+    connection.query(deleteQuery, [genreId], (err, results) => {
+      if (err) {
+        console.error("Error in deleteQuery:", err);
+        return res
+          .status(500)
+          .json({ success: false, message: "Database error in delete query" });
+      }
+
+      if (results.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Genre not found or already deleted",
+        });
+      }
+
+      res.json({ success: true, message: "Genre deleted successfully" });
+    });
+  }
+);
 
 // ! ===============================================  CMS ===============================================
 

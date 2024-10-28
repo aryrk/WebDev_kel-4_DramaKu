@@ -183,6 +183,7 @@ function MovieDetailModal(props) {
     if (show && movieId) {
       fetch(`/api/cms/moviesList/${movieId}`, {
         method: "GET",
+        mode: "cors",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -537,6 +538,7 @@ function CMSDramas({ config }) {
   //   try {
   //     const response = await fetch(`/api/cms/movieList/${id}`, {
   //       method: "DELETE",
+  //        mode: "cors",
   //       headers: {
   //         Authorization: `Bearer ${token}`,
   //       },
@@ -613,6 +615,7 @@ function CMSDramas({ config }) {
     try {
       const response = await fetch(`/api/cms/moviesList/${id}`, {
         method: "PUT",
+        mode: "cors",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

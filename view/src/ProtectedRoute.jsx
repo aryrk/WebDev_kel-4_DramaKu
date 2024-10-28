@@ -12,7 +12,14 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
   try {
     const decodedToken = jwtDecode(token);
 
-    fetch(`/api/is_username_exist/${decodedToken.username}`)
+    fetch(`/api/is_username_exist/${decodedToken.username}`,{
+      mode: "cors",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         if (!data.isExist) {

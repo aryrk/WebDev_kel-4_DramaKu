@@ -10,7 +10,13 @@ function MovieCarousel({ config }) {
 
   useEffect(() => {
     // Fetch movies for the carousel
-    fetch(`/api/all-movies?limit=5`) // Fetch 5 movies for the carousel
+    fetch(`/api/all-movies?limit=5`,{
+      mode: "cors",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }) // Fetch 5 movies for the carousel
       .then((response) => response.json())
       .then((data) => {
         setMovies(data.movies);

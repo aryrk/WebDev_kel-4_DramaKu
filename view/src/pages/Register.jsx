@@ -68,7 +68,13 @@ function RegisterForm() {
   };
 
   const checkusername = async (username) => {
-    fetch(`/api/checkusernames/${username}`)
+    fetch(`/api/checkusernames/${username}`, {
+      mode: "cors",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data.username) {
@@ -80,7 +86,13 @@ function RegisterForm() {
   };
 
   const checkemail = async (email) => {
-    fetch(`/api/checkemails/${email}`)
+    fetch(`/api/checkemails/${email}`, {
+      mode: "cors",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data.email) {

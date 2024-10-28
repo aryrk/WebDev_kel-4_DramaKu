@@ -125,6 +125,7 @@ function CMSAwards() {
     try {
       const response = await fetch(`/api/cms/awardsList2`, {
         method: "GET",
+        mode: "cors",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -334,6 +335,7 @@ function CMSAwards() {
     try {
       const response = await fetch(`/api/cms/awardsList2/${id}`, {
         method: "DELETE",
+        mode: "cors",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -380,6 +382,7 @@ function CMSAwards() {
     try {
       const response = await fetch(`/api/cms/awardsList2/${id}`, {
         method: "PUT",
+        mode: "cors",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

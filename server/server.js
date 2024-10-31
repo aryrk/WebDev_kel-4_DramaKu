@@ -49,9 +49,9 @@ const get_file_source = (file) => {
 //   optionsSuccessStatus: 204,
 // };
 
-// const allowedDomains = [client_domain, domain + "/auth/google/callback"];
+const allowedDomains = [client_domain, domain + "/auth/google/callback"];
 // allow all domain
-const allowedDomains = ["*"];
+// const allowedDomains = ["*"];
 const corsOptions = {
   AccessControlAllowOrigin: "*",
   origin: function (origin, callback) {
@@ -59,7 +59,11 @@ const corsOptions = {
     if (allowedDomains.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      if (origin === undefined) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
     }
   },
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",

@@ -356,50 +356,20 @@ app.use("/public", express.static("public"));
 //   database: "plutocinema",
 // });
 
-var connection = undefined;
-// if error, try to reconnect every 2 seconds
-function handleDisconnect() {
-  console.log("Connecting to database...");
-  connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-  });
+const connection = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+});
 
-  connection.connect((err) => {
-    if (err) {
-      console.log("Error connecting: " + err.stack);
-      setTimeout(handleDisconnect, 10000);
-      return;
-    }
-    console.log("Connected as id " + connection.threadId);
-  });
-
-  connection.on("error", (err) => {
-    console.log("Database error:", err);
-    if (err.code === "PROTOCOL_CONNECTION_LOST") {
-      handleDisconnect();
-    }
-  });
-}
-
-handleDisconnect();
-
-// const connection = mysql.createConnection({
-//   host: process.env.DB_HOST,
-//   user: process.env.DB_USER,
-//   password: process.env.DB_PASS,
-//   database: process.env.DB_NAME,
-// });
-
-// connection.connect((err) => {
-//   if (err) {
-//     console.error("Error connecting: " + err.stack);
-//     return;
-//   }
-//   console.log("Connected as id " + connection.threadId);
-// });
+connection.connect((err) => {
+  if (err) {
+    console.error("Error connecting: " + err.stack);
+    return;
+  }
+  console.log("Connected as id " + connection.threadId);
+});
 
 const email_template = (username, email, header_text, header, inner) => {
   return `

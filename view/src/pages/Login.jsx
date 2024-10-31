@@ -22,6 +22,8 @@ function LoginForm(props) {
   const [password, setPassword] = useState("");
   const handleLogin = async (e) => {
     e.preventDefault();
+    apiUrl = "/api/login";
+    console.log("apiUrl", apiUrl);
     const response = await fetch("/api/login", {
       method: "POST",
       headers: {

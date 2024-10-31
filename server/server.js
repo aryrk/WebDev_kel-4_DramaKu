@@ -53,6 +53,7 @@ const allowedDomains = [client_domain, domain + "/auth/google/callback"];
 const corsOptions = {
   AccessControlAllowOrigin: "*",
   origin: function (origin, callback) {
+    console.log("origin", origin);
     if (allowedDomains.includes(origin)) {
       callback(null, true);
     } else {
@@ -1869,13 +1870,7 @@ app.put(
 
     connection.query(
       query,
-      [
-        country_id,
-        name,
-        filename ? filename : oldPicture,
-        date,
-        actorId,
-      ],
+      [country_id, name, filename ? filename : oldPicture, date, actorId],
       (err, results) => {
         if (err) {
           queryDatabase("ROLLBACK");

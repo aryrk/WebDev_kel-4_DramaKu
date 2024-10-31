@@ -59,11 +59,8 @@ const corsOptions = {
     if (allowedDomains.includes(origin)) {
       callback(null, true);
     } else {
-      if (origin === undefined) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
+      // callback(new Error("Not allowed by CORS"));
+      callback(null, true);
     }
   },
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",

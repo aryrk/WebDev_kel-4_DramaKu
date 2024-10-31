@@ -7,13 +7,16 @@ import { faKey } from "@fortawesome/free-solid-svg-icons";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { withConfig } from "../Config";
+import { loadConfigNonAsync, withConfig } from "../Config";
 import { useGlobalState } from "../components/GlobalStateContext";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import "./pagesStyle/Login.css";
 import { useSwal } from "../components/SweetAlert";
+
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 function LoginForm(props) {
   const { alert } = useSwal();
@@ -22,9 +25,7 @@ function LoginForm(props) {
   const [password, setPassword] = useState("");
   const handleLogin = async (e) => {
     e.preventDefault();
-    apiUrl = "/api/login";
-    console.log("apiUrl", apiUrl);
-    const response = await fetch("/api/login", {
+    const response = await fetch(server + "/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -42,7 +43,7 @@ function LoginForm(props) {
     }
   };
   const handleGoogleRegister = () => {
-    window.open("/api/auth/google", "_self");
+    window.open(server + "/api/auth/google", "_self");
   };
 
   useEffect(() => {
@@ -158,7 +159,7 @@ function LoginBackground(props) {
   useEffect(() => {
     const fetchPosters = async () => {
       try {
-        const res = await fetch("/api/get-movies-poster/100");
+        const res = await fetch(server + "/api/get-movies-poster/100");
         const data = await res.json();
         setPosters(data);
       } catch (error) {
@@ -167,7 +168,7 @@ function LoginBackground(props) {
     };
 
     fetchPosters();
-  }, []);
+  }, [server]);
 
   let fixed_poster = [];
 

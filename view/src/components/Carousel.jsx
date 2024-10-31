@@ -3,14 +3,17 @@
 import React, { useEffect, useState } from "react";
 import { Carousel } from "flowbite-react";
 import { useGlobalState } from "../components/GlobalStateContext";
-import { withConfig } from "../Config";
+import { loadConfigNonAsync, withConfig } from "../Config";
+
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 function MovieCarousel({ config }) {
   const [movies, setMovies] = useState([]);
 
   useEffect(() => {
     // Fetch movies for the carousel
-    fetch(`/api/all-movies?limit=5`,{
+    fetch(server + `/api/all-movies?limit=5`, {
       mode: "cors",
       method: "GET",
       headers: {

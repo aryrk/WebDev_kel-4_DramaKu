@@ -1,6 +1,10 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { loadConfigNonAsync } from "./Config";
+
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 const ProtectedRoute = ({ element, allowedRoles }) => {
   const token = sessionStorage.getItem("token");
@@ -12,7 +16,7 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
   try {
     const decodedToken = jwtDecode(token);
 
-    fetch(`/api/is_username_exist/${decodedToken.username}`,{
+    fetch(server + `/api/is_username_exist/${decodedToken.username}`, {
       mode: "cors",
       method: "GET",
       headers: {

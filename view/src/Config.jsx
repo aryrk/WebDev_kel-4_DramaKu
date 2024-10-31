@@ -11,6 +11,15 @@ const loadConfig = async () => {
   }
 };
 
+const loadConfigNonAsync = () => {
+  return fetch("/manifest.json")
+    .then((response) => response.json())
+    .catch((error) => {
+      console.error("Error loading manifest.json:", error);
+      return {};
+    });
+};
+
 const withConfig = (WrappedComponent) => {
   return (props) => {
     const [config, setConfig] = useState({});
@@ -28,4 +37,4 @@ const withConfig = (WrappedComponent) => {
   };
 };
 
-export { loadConfig, withConfig };
+export { loadConfig, withConfig, loadConfigNonAsync };

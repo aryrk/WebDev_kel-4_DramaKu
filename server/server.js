@@ -17,6 +17,25 @@ const { google } = require("googleapis");
 require("dotenv").config();
 const MemoryStore = require("memorystore")(session);
 
+let queue = Promise.resolve();
+
+const queueMiddleware = (req, res, next) => {
+  queue = queue
+    .then(() => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          next();
+          resolve();
+        }, 100); // Tambahkan delay sesuai kebutuhan, contoh: 100 ms jika diperlukan
+      });
+    })
+    .catch((err) => console.error("Queue Error:", err));
+};
+
+if (process.env.APP_MODE != "local") {
+  app.use(queueMiddleware);
+}
+
 app.use(
   session({
     cookie: { maxAge: 86400000 },
@@ -337,20 +356,50 @@ app.use("/public", express.static("public"));
 //   database: "plutocinema",
 // });
 
-const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-});
+var connection = undefined;
+// if error, try to reconnect every 2 seconds
+function handleDisconnect() {
+  console.log("Connecting to database...");
+  connection = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+  });
 
-connection.connect((err) => {
-  if (err) {
-    console.error("Error connecting: " + err.stack);
-    return;
-  }
-  console.log("Connected as id " + connection.threadId);
-});
+  connection.connect((err) => {
+    if (err) {
+      console.log("Error connecting: " + err.stack);
+      setTimeout(handleDisconnect, 2000);
+      return;
+    }
+    console.log("Connected as id " + connection.threadId);
+  });
+
+  connection.on("error", (err) => {
+    console.log("Database error:", err);
+    if (err.code === "PROTOCOL_CONNECTION_LOST") {
+      handleDisconnect();
+    }
+  });
+}
+
+handleDisconnect();
+
+// const connection = mysql.createConnection({
+//   host: process.env.DB_HOST,
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASS,
+//   database: process.env.DB_NAME,
+// });
+
+// connection.connect((err) => {
+//   if (err) {
+//     console.error("Error connecting: " + err.stack);
+//     return;
+//   }
+//   console.log("Connected as id " + connection.threadId);
+// });
 
 const email_template = (username, email, header_text, header, inner) => {
   return `

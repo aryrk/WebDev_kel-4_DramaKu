@@ -9,7 +9,8 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: process.env.VITE_PROXY_TARGET,
+        // target: process.env.VITE_PROXY_TARGET,
+        target: "https://web-dev-kel-4-pluto-cinema-server.vercel.app",
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {

@@ -4,6 +4,8 @@ const mysql = require("mysql2");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const path = require("path");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const multer = require("multer");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
@@ -21,6 +23,24 @@ require("dotenv").config();
 const client_domain = process.env.CLIENT_URL;
 const port = process.env.SERVER_PORT;
 const domain = process.env.SERVER_URL;
+
+const STORAGE_MODE = process.env.STORAGE_MODE;
+
+if (STORAGE_MODE === "cloudinary") {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+}
+
+const get_file_source = (file) => {
+  if (STORAGE_MODE === "cloudinary") {
+    return file.path;
+  } else {
+    return "/public/uploads/" + file.filename;
+  }
+};
 
 // const corsOptions = {
 //   origin: client_domain,
@@ -146,27 +166,52 @@ app.get("/oauth2callback", async (req, res) => {
 // accessToken = oAuth2Client.getAccessToken();
 
 const fs = require("fs");
+const { get } = require("http");
 const dir = "./public/uploads";
-if (!fs.existsSync(dir)) {
-  fs.mkdirSync(dir, { recursive: true });
-}
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "public/uploads");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
+var storage = null;
+
+if (STORAGE_MODE === "cloudinary") {
+  storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+      folder: "plutocinema",
+      format: async (req, file) => "png",
+      public_id: (req, file) => {
+        return Date.now() + "-" + file.originalname;
+      },
+    },
+  });
+} else {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "public/uploads");
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + path.extname(file.originalname));
+    },
+  });
+}
 const upload = multer({ storage: storage });
 const deleteFile = (filename) => {
-  fs.unlink(filename, (err) => {
-    if (err) {
-      console.error(err);
-      return;
+  if (STORAGE_MODE === "cloudinary") {
+    try {
+      const result = cloudinary.uploader.destroy(publicId);
+      console.log("File deleted:", result);
+    } catch (error) {
+      console.error("Error deleting file:", error);
     }
-  });
+  } else {
+    fs.unlink(filename, (err) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+    });
+  }
 };
 
 app.use(
@@ -1713,7 +1758,7 @@ app.post(
   upload.single("file"),
   async (req, res) => {
     try {
-      const { filename } = req.file;
+      const filename = get_file_source(req.file);
       var { country, actorName, birthDate } = req.body;
       country = country.toUpperCase();
       let country_id = 0;
@@ -1751,7 +1796,7 @@ app.post(
 
       connection.query(
         query,
-        [country_id, actorName, `/public/uploads/${filename}`, birthDate],
+        [country_id, actorName, filename, birthDate],
         (err, results) => {
           if (err) {
             return res.status(500).json({ message: "Error inserting actor" });
@@ -1777,7 +1822,7 @@ app.put(
   async (req, res) => {
     const actorId = req.params.id;
     var { country, name, date } = req.body;
-    const filename = req.file ? req.file.filename : null;
+    const filename = req.file ? get_file_source(req.file) : null;
     country = country.toUpperCase();
     let country_id = 0;
 
@@ -1827,7 +1872,7 @@ app.put(
       [
         country_id,
         name,
-        filename ? `/public/uploads/${filename}` : oldPicture,
+        filename ? filename : oldPicture,
         date,
         actorId,
       ],
@@ -1875,7 +1920,8 @@ app.post(
   upload.single("poster"),
   async (req, res) => {
     try {
-      const { filename } = req.file;
+      const filename = get_file_source(req.file);
+
       var {
         title,
         alternative_title,
@@ -1973,7 +2019,7 @@ app.post(
         query,
         [
           country_id,
-          `/public/uploads/${filename}`,
+          filename,
           title,
           alternative_title,
           year,
@@ -2030,7 +2076,8 @@ app.post(
         }
       );
     } catch (error) {
-      await queryDatabase("ROLLBACK");
+      // await queryDatabase("ROLLBACK");
+      connection.query("ROLLBACK");
       res.status(500).json({ message: "Error uploading file" });
     }
   }

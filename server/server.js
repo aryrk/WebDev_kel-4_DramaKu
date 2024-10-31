@@ -230,13 +230,13 @@ const deleteFile = (filename) => {
   }
 };
 
-app.use(
-  session({
-    secret: process.env.SESSION_KEY,
-    resave: false,
-    saveUninitialized: true,
-  })
-);
+// app.use(
+//   session({
+//     secret: process.env.SESSION_KEY,
+//     resave: false,
+//     saveUninitialized: true,
+//   })
+// );
 
 app.use(passport.initialize());
 app.use(passport.session());

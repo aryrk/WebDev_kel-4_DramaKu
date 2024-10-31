@@ -26,4 +26,6 @@ export default defineConfig({
     },
     cors: true,
   },
+
+  base: "./",
 });

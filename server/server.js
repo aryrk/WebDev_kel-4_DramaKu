@@ -3012,7 +3012,10 @@ app.delete(
 
 // ! ===============================================  CMS ===============================================
 
-app.listen(port, () => {
+var server = app.listen(port, () => {
   console.log("Server is running on " + domain);
   // console.log("Create auth by opening : " + `${domain}/authkey`);
 });
+
+// set timeout 1 minute
+server.timeout = 60000;

@@ -370,7 +370,7 @@ function handleDisconnect() {
   connection.connect((err) => {
     if (err) {
       console.log("Error connecting: " + err.stack);
-      setTimeout(handleDisconnect, 2000);
+      setTimeout(handleDisconnect, 10000);
       return;
     }
     console.log("Connected as id " + connection.threadId);

@@ -7,5 +7,10 @@
       "src": "/(.*)",
       "dest": "/server.js"
     }
-  ]
+  ],
+  "functions": {
+    "api/test.js": {
+      "maxDuration": 60
+    }
+  }
 }

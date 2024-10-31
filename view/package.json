@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "vercel-build": "echo 'vercel-build'"
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",
@@ -23,12 +24,14 @@
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
+    "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
     "datatables.net": "^2.1.4",
     "datatables.net-dt": "^2.1.5",
     "datatables.net-react": "^1.0.0",
     "datatables.net-responsive": "^3.0.3",
     "datatables.net-responsive-dt": "^3.0.3",
+    "dotenv": "^16.4.5",
     "filepond": "^4.31.2",
     "filepond-plugin-image-crop": "^2.0.6",
     "filepond-plugin-image-edit": "^1.6.3",

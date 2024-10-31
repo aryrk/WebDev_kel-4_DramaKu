@@ -25,8 +25,11 @@ import "datatables.net-dt/css/dataTables.dataTables.min.css";
 import { useSwal } from "../../components/SweetAlert";
 
 import { jwtDecode } from "jwt-decode";
+import { loadConfigNonAsync } from "../../Config";
 
 const token = sessionStorage.getItem("token");
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 function AddUser() {
   const { notification } = useSwal();
@@ -42,7 +45,7 @@ function AddUser() {
       setUsernameAvailable(true);
       return;
     }
-    fetch(`/api/checkusernames/${username}`, {
+    fetch(server + `/api/checkusernames/${username}`, {
       mode: "cors",
       method: "GET",
       headers: {
@@ -64,7 +67,7 @@ function AddUser() {
       setEmailAvailable(true);
       return;
     }
-    fetch(`/api/checkemails/${email}`, {
+    fetch(server + `/api/checkemails/${email}`, {
       mode: "cors",
       method: "GET",
       headers: {
@@ -90,7 +93,7 @@ function AddUser() {
       role: role,
     };
 
-    fetch("/api/cms/users", {
+    fetch(server + "/api/cms/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -253,7 +256,7 @@ function UserTable() {
 
   const handleEditRole = async (id, role) => {
     try {
-      const response = await fetch(`/api/cms/users/role/${id}`, {
+      const response = await fetch(server + `/api/cms/users/role/${id}`, {
         method: "PUT",
         mode: "cors",
         headers: {
@@ -281,7 +284,7 @@ function UserTable() {
 
   const handleDeleteUser = async (id) => {
     try {
-      const response = await fetch(`/api/cms/users/${id}`, {
+      const response = await fetch(server + `/api/cms/users/${id}`, {
         method: "DELETE",
         mode: "cors",
         headers: {
@@ -306,7 +309,7 @@ function UserTable() {
 
   const handleRevert = async (id) => {
     try {
-      const response = await fetch(`/api/cms/users/revert/${id}`, {
+      const response = await fetch(server + `/api/cms/users/revert/${id}`, {
         method: "PUT",
         mode: "cors",
         headers: {
@@ -335,7 +338,7 @@ function UserTable() {
       const limit = 10;
       const offset = (page - 1) * limit;
       const response = await fetch(
-        `/api/cms/users?limit=${limit}&offset=${offset}`,
+        server + `/api/cms/users?limit=${limit}&offset=${offset}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -493,7 +496,7 @@ function UserTable() {
         serverSide: true,
         processing: true,
         ajax: {
-          url: "/api/cms/users",
+          url: server + "/api/cms/users",
           type: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -583,7 +586,7 @@ function UserTable() {
     };
 
     try {
-      const response = await fetch(`/api/cms/users/${id}`, {
+      const response = await fetch(server + `/api/cms/users/${id}`, {
         method: "PUT",
         mode: "cors",
         headers: {

@@ -27,7 +27,7 @@ function MovieCarousel({ config }) {
       .catch((error) => {
         console.error("Error:", error);
       });
-  }, []);
+  }, [server]);
 
   return (
     <div className="h-56 sm:h-64 xl:h-80 2xl:h-96">

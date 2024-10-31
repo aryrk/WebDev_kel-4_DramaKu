@@ -3,9 +3,12 @@ import { useGlobalState } from "../components/GlobalStateContext";
 import { useLocation } from "react-router-dom"; // To get query params
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row, Col, Image } from "react-bootstrap";
-import { withConfig } from "../Config";
+import { loadConfigNonAsync, withConfig } from "../Config";
 import { Link } from "react-router-dom";
 import Shortcut from "./Shortcut";
+
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 const MovieCard = (props) => {
   const { id, src, title, year, genre = [], cast = [], views } = props;
@@ -81,7 +84,7 @@ const SearchResultPage = ({ config }) => {
 
   useEffect(() => {
     fetch(
-      `/api/movies-search?search=${encodeURIComponent(
+      server+`/api/movies-search?search=${encodeURIComponent(
         searchTerm
       )}&country=${encodeURIComponent(country)}&genre=${encodeURIComponent(
         genre
@@ -94,7 +97,7 @@ const SearchResultPage = ({ config }) => {
       .catch((error) => {
         console.error("Error:", error);
       });
-  }, [searchTerm, country, genre, year, award]);
+  }, [searchTerm, country, genre, year, award, server]);
 
   return (
     <>

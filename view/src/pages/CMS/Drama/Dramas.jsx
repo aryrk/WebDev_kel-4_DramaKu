@@ -20,9 +20,11 @@ import { useEdit } from "../../../components/cmsEdit";
 import { useSwal } from "../../../components/SweetAlert";
 import { renderToString } from "react-dom/server";
 import axios from "axios";
-import { withConfig } from "../../../Config";
+import { loadConfigNonAsync, withConfig } from "../../../Config";
 
 const token = sessionStorage.getItem("token");
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 function MoviePreview(props) {
   // const {
@@ -160,7 +162,7 @@ function MovieDetailModal(props) {
   useEffect(() => {
     // if (show && movieId) {
     //   axios
-    //     .get(`/api/cms/moviesList/${movieId}`, {
+    //     .get(server+`/api/cms/moviesList/${movieId}`, {
     //       headers: {
     //         Authorization: `Bearer ${token}`,
     //       },
@@ -181,7 +183,7 @@ function MovieDetailModal(props) {
     // }
 
     if (show && movieId) {
-      fetch(`/api/cms/moviesList/${movieId}`, {
+      fetch(server + `/api/cms/moviesList/${movieId}`, {
         method: "GET",
         mode: "cors",
         headers: {
@@ -199,7 +201,7 @@ function MovieDetailModal(props) {
   const handleApprove = () => {
     axios
       .post(
-        `/api/cms/moviesList/approve/${movieId}`,
+        server + `/api/cms/moviesList/approve/${movieId}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -221,7 +223,7 @@ function MovieDetailModal(props) {
   const handleReject = () => {
     axios
       .put(
-        `/api/cms/moviesList/reject/${movieId}`,
+        server + `/api/cms/moviesList/reject/${movieId}`,
         {
           status: "rejected",
         },
@@ -297,7 +299,7 @@ function CMSDramas({ config }) {
       const limit = 10;
       const offset = (page - 1) * limit;
       const response = await fetch(
-        `/api/cms/movielist?limit=${limit}&offset=${offset}`,
+        server + `/api/cms/movielist?limit=${limit}&offset=${offset}`,
         {
           method: "GET",
           headers: {
@@ -452,7 +454,7 @@ function CMSDramas({ config }) {
         serverSide: true,
         processing: true,
         ajax: {
-          url: "/api/cms/movielist",
+          url: server + "/api/cms/movielist",
           type: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -536,7 +538,7 @@ function CMSDramas({ config }) {
   //   }
 
   //   try {
-  //     const response = await fetch(`/api/cms/movieList/${id}`, {
+  //     const response = await fetch(server+`/api/cms/movieList/${id}`, {
   //       method: "DELETE",
   //        mode: "cors",
   //       headers: {
@@ -613,7 +615,7 @@ function CMSDramas({ config }) {
     });
 
     try {
-      const response = await fetch(`/api/cms/moviesList/${id}`, {
+      const response = await fetch(server + `/api/cms/moviesList/${id}`, {
         method: "PUT",
         mode: "cors",
         headers: {

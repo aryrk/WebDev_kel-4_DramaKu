@@ -17,7 +17,7 @@ import {
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./componentsStyle/Navigation.css";
-import { withConfig } from "../Config";
+import { loadConfigNonAsync, withConfig } from "../Config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import $, { data } from "jquery";
@@ -46,6 +46,9 @@ const CustomNavbar = ({ config }) => {
     setShowMore(false);
   };
 
+  var server = loadConfigNonAsync();
+  server.then((result) => (server = result.server));
+
   // const [country, setCountry] = useState([]);
 
   // useEffect(() => {
@@ -60,7 +63,7 @@ const CustomNavbar = ({ config }) => {
 
   const fetchCountries = async () => {
     try {
-      const response = await fetch("/api/cms/countrylist");
+      const response = await fetch(server+"/api/cms/countrylist");
       const data = await response.json();
       setCountry(data); // Update the state with fetched countries
     } catch (error) {
@@ -70,37 +73,37 @@ const CustomNavbar = ({ config }) => {
 
   useEffect(() => {
     fetchCountries(); // Fetch countries when the component mounts
-  }, []);
+  }, [server]);
 
   const [year, setYear] = useState([]);
 
   useEffect(() => {
-    fetch("/api/cms/yearlist")
+    fetch(server+"/api/cms/yearlist")
       .then((res) => res.json())
       .then((data) => {
         setYear(data);
       });
-  }, []);
+  }, [server]);
 
   const [award, setAward] = useState([]);
 
   useEffect(() => {
-    fetch("/api/cms/awardlist")
+    fetch(server+"/api/cms/awardlist")
       .then((res) => res.json())
       .then((data) => {
         setAward(data);
       });
-  }, []);
+  }, [server]);
 
   const [genre, setGenre] = useState([]);
 
   useEffect(() => {
-    fetch("/api/cms/genrelist")
+    fetch(server+"/api/cms/genrelist")
       .then((res) => res.json())
       .then((data) => {
         setGenre(data);
       });
-  }, []);
+  }, [server]);
 
   useEffect(() => {
     document.title = `Page 1 - ${config.short_name}`;

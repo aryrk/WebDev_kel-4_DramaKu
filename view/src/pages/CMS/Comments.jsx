@@ -5,8 +5,11 @@ import { Button, Table } from "react-bootstrap";
 import "datatables.net-dt/css/dataTables.dataTables.min.css";
 import { useSwal } from "../../components/SweetAlert";
 import { useGlobalState } from "../../components/GlobalStateContext";
+import { loadConfigNonAsync } from "../../Config";
 
 const token = sessionStorage.getItem("token");
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 let selectedComments = [];
 window.update_selected_commennt = function (checkbox, id) {
@@ -28,7 +31,7 @@ function CommentsTable() {
       const limit = 10;
       const offset = (page - 1) * limit;
       const response = await fetch(
-        `/api/cms/comments?limit=${limit}&offset=${offset}`,
+        server+`/api/cms/comments?limit=${limit}&offset=${offset}`,
         {
           method: "GET",
           headers: {
@@ -46,7 +49,7 @@ function CommentsTable() {
 
   useEffect(() => {
     fetchComments();
-  }, []);
+  }, [server]);
 
   useEffect(() => {
     if (!tableInitialized && comments.length > 0) {
@@ -122,7 +125,7 @@ function CommentsTable() {
         serverSide: true,
         processing: true,
         ajax: {
-          url: "/api/cms/comments",
+          url: server+"/api/cms/comments",
           type: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -200,7 +203,7 @@ function Footer() {
 
   const handleApprove = async () => {
     try {
-      const response = await fetch("/api/cms/comments/action", {
+      const response = await fetch(server+"/api/cms/comments/action", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -221,7 +224,7 @@ function Footer() {
 
   const handleReject = async () => {
     try {
-      const response = await fetch("/api/cms/comments/action", {
+      const response = await fetch(server+"/api/cms/comments/action", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

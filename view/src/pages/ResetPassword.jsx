@@ -3,11 +3,14 @@ import { useEffect } from "react";
 import { Form, InputGroup } from "react-bootstrap";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { withConfig } from "../Config";
+import { loadConfigNonAsync, withConfig } from "../Config";
 import { LoginBackground } from "./Login";
 import { useGlobalState } from "../components/GlobalStateContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useSwal } from "../components/SweetAlert";
+
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 function ResetPasswordForm() {
   const { alert } = useSwal();
@@ -52,7 +55,7 @@ function ResetPasswordForm() {
       return;
     }
 
-    fetch("/api/reset-password", {
+    fetch(server+"/api/reset-password", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

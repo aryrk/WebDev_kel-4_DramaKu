@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { withConfig } from "../Config";
+import { loadConfigNonAsync, withConfig } from "../Config";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Container, Row, Col, Button, ListGroup, Form } from "react-bootstrap";
@@ -10,6 +10,9 @@ import {
   faInstagram,
   faTwitter,
 } from "@fortawesome/free-brands-svg-icons";
+
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 const Footer = ({ config }) => {
   const [activeCountry, setActiveCountry] = useState("");
@@ -23,41 +26,41 @@ const Footer = ({ config }) => {
   const [country, setCountry] = useState([]);
 
   useEffect(() => {
-    fetch("/api/cms/countrylist")
+    fetch(server + "/api/cms/countrylist")
       .then((res) => res.json())
       .then((data) => {
         setCountry(data);
       });
-  }, []);
+  }, [server]);
 
   const [year, setYear] = useState([]);
 
   useEffect(() => {
-    fetch("/api/cms/yearlist")
+    fetch(server + "/api/cms/yearlist")
       .then((res) => res.json())
       .then((data) => {
         setYear(data);
       });
-  }, []);
+  }, [server]);
 
   const [award, setAward] = useState([]);
 
   useEffect(() => {
-    fetch("/api/cms/awardlist")
+    fetch(server + "/api/cms/awardlist")
       .then((res) => res.json())
       .then((data) => {
         setAward(data);
       });
-  }, []);
+  }, [server]);
 
   const [genre, setGenre] = useState([]);
   useEffect(() => {
-    fetch("/api/cms/genrelist")
+    fetch(server + "/api/cms/genrelist")
       .then((res) => res.json())
       .then((data) => {
         setGenre(data);
       });
-  }, []);
+  }, [server]);
 
   useEffect(() => {
     document.title = `Page 1 - ${config.short_name}`;

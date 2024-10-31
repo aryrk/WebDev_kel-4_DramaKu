@@ -22,7 +22,7 @@ import {
 import { renderToString } from "react-dom/server";
 import CreatableSelect from "react-select/creatable";
 
-import { withConfig } from "../../../Config";
+import { loadConfigNonAsync, withConfig } from "../../../Config";
 import { useSwal } from "../../../components/SweetAlert";
 import { useGlobalState } from "../../../components/GlobalStateContext";
 
@@ -37,6 +37,8 @@ var GenreRef = null;
 var AwardRef = null;
 
 const token = sessionStorage.getItem("token");
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 function PosterUpload() {
   registerPlugin(
@@ -67,7 +69,7 @@ function PosterUpload() {
       formData.append("actors[]", actorId);
     });
 
-    fetch("/api/cms/movies", {
+    fetch(server + "/api/cms/movies", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -157,7 +159,7 @@ function AddActor(props) {
       const limit = 10;
       const offset = (page - 1) * limit;
       const response = await fetch(
-        `/api/cms/actors?limit=${limit}&offset=${offset}`,
+        server + `/api/cms/actors?limit=${limit}&offset=${offset}`,
         {
           method: "GET",
           headers: {
@@ -254,7 +256,7 @@ function AddActor(props) {
         serverSide: true,
         processing: true,
         ajax: {
-          url: "/api/cms/actors",
+          url: server + "/api/cms/actors",
           type: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -381,19 +383,19 @@ function DramaForm() {
   const [awards, setAwards] = useState([]);
 
   const fetch_data = () => {
-    fetch("/api/cms/countrylist")
+    fetch(server + "/api/cms/countrylist")
       .then((res) => res.json())
       .then((data) => {
         setCountries(data);
       });
 
-    fetch("/api/cms/genrelist")
+    fetch(server + "/api/cms/genrelist")
       .then((res) => res.json())
       .then((data) => {
         setGenres(data);
       });
 
-    fetch("/api/cms/awardlist")
+    fetch(server + "/api/cms/awardlist")
       .then((res) => res.json())
       .then((data) => {
         setAwards(data);

@@ -26,9 +26,11 @@ import "datatables.net-dt/css/dataTables.dataTables.min.css";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import { useSwal } from "../../components/SweetAlert";
 import { renderToString } from "react-dom/server";
-import { withConfig } from "../../Config";
+import { loadConfigNonAsync, withConfig } from "../../Config";
 
 const token = sessionStorage.getItem("token");
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 function AddActor() {
   registerPlugin(
@@ -55,7 +57,7 @@ function AddActor() {
     formData.append("actorName", e.target.actorName.value);
     formData.append("birthDate", e.target.birthDate.value);
 
-    fetch("/api/cms/actors", {
+    fetch(server+"/api/cms/actors", {
       method: "POST",
       body: formData,
       headers: {
@@ -75,12 +77,12 @@ function AddActor() {
 
   const [countries, setCountries] = useState([]);
   useEffect(() => {
-    fetch("/api/cms/countrylist")
+    fetch(server+"/api/cms/countrylist")
       .then((res) => res.json())
       .then((data) => {
         setCountries(data);
       });
-  }, []);
+  }, [server]);
 
   return (
     <>
@@ -215,7 +217,7 @@ function ActorTable(props) {
       const limit = 10;
       const offset = (page - 1) * limit;
       const response = await fetch(
-        `/api/cms/actors?limit=${limit}&offset=${offset}`,
+        server+`/api/cms/actors?limit=${limit}&offset=${offset}`,
         {
           method: "GET",
           headers: {
@@ -230,7 +232,7 @@ function ActorTable(props) {
   };
   useEffect(() => {
     fetchActors();
-  }, []);
+  }, [server]);
 
   useEffect(() => {
     if (!tableInitialized && actors.length > 0) {
@@ -346,7 +348,7 @@ function ActorTable(props) {
         serverSide: true,
         processing: true,
         ajax: {
-          url: "/api/cms/actors",
+          url: server+"/api/cms/actors",
           type: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -422,7 +424,7 @@ function ActorTable(props) {
   }, [actors, tableInitialized]);
   const handleDeleteUser = async (id) => {
     try {
-      const response = await fetch(`/api/cms/actors/${id}`, {
+      const response = await fetch(server+`/api/cms/actors/${id}`, {
         method: "DELETE",
         mode: "cors",
         headers: {
@@ -451,7 +453,7 @@ function ActorTable(props) {
     const picture = formData.get("img");
 
     try {
-      const response = await fetch(`/api/cms/actors/${id}`, {
+      const response = await fetch(server+`/api/cms/actors/${id}`, {
         method: "PUT",
         mode: "cors",
         headers: {

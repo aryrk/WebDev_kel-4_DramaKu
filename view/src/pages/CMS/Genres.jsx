@@ -15,8 +15,11 @@ import { useGlobalState } from "../../components/GlobalStateContext";
 import { useSwal } from "../../components/SweetAlert";
 import { renderToString } from "react-dom/server";
 import { useEdit } from "../../components/cmsEdit";
+import { loadConfigNonAsync } from "../../Config";
 
 const token = sessionStorage.getItem("token");
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 function AddGenres({ fetchGenres }) {
   const { notification } = useSwal();
@@ -30,7 +33,7 @@ function AddGenres({ fetchGenres }) {
     };
 
     try {
-      const response = await fetch("/api/cms/genresList", {
+      const response = await fetch(server + "/api/cms/genresList", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -105,7 +108,7 @@ function CMSGenres() {
     try {
       // const limit = 10;
       // const offset = (page - 1) * limit;
-      const response = await fetch("/api/cms/genresList", {
+      const response = await fetch(server + "/api/cms/genresList", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -210,7 +213,7 @@ function CMSGenres() {
         serverSide: true,
         processing: true,
         ajax: {
-          url: "/api/cms/genresList",
+          url: server + "/api/cms/genresList",
           type: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -287,7 +290,7 @@ function CMSGenres() {
 
   const handleDeleteGenre = async (id) => {
     try {
-      const response = await fetch(`/api/cms/genresList/${id}`, {
+      const response = await fetch(server + `/api/cms/genresList/${id}`, {
         method: "DELETE",
         mode: "cors",
         headers: {
@@ -330,7 +333,7 @@ function CMSGenres() {
     }
 
     try {
-      const response = await fetch(`/api/cms/genresList/${id}`, {
+      const response = await fetch(server + `/api/cms/genresList/${id}`, {
         method: "PUT",
         mode: "cors",
         headers: {

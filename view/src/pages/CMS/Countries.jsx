@@ -15,8 +15,11 @@ import { useGlobalState } from "../../components/GlobalStateContext";
 import { useSwal } from "../../components/SweetAlert";
 import { renderToString } from "react-dom/server";
 import { useEdit } from "../../components/cmsEdit";
+import { loadConfigNonAsync } from "../../Config";
 
 const token = sessionStorage.getItem("token");
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 function AddCountries({ fetchCountries }) {
   const { notification } = useSwal();
@@ -30,7 +33,7 @@ function AddCountries({ fetchCountries }) {
     };
 
     try {
-      const response = await fetch("/api/cms/countriesList", {
+      const response = await fetch(server + "/api/cms/countriesList", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +102,7 @@ function CMSCountries() {
 
   const fetchCountries = async () => {
     try {
-      const response = await fetch("/api/cms/countriesList", {
+      const response = await fetch(server + "/api/cms/countriesList", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -204,7 +207,7 @@ function CMSCountries() {
         serverSide: true,
         processing: true,
         ajax: {
-          url: "/api/cms/countriesList",
+          url: server + "/api/cms/countriesList",
           type: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -281,7 +284,7 @@ function CMSCountries() {
 
   const handleDeleteCountry = async (id) => {
     try {
-      const response = await fetch(`/api/cms/countriesList/${id}`, {
+      const response = await fetch(server + `/api/cms/countriesList/${id}`, {
         method: "DELETE",
         mode: "cors",
         headers: {
@@ -324,7 +327,7 @@ function CMSCountries() {
     }
 
     try {
-      const response = await fetch(`/api/cms/countriesList/${id}`, {
+      const response = await fetch(server + `/api/cms/countriesList/${id}`, {
         method: "PUT",
         mode: "cors",
         headers: {

@@ -6,7 +6,10 @@ import { useGlobalState } from "../components/GlobalStateContext";
 import Pagination from "../components/Pagination"; // Import the Pagination component
 import "./pagesStyle/ContentCard.css";
 import Shortcut from "./Shortcut";
-import { withConfig } from "../Config";
+import { loadConfigNonAsync, withConfig } from "../Config";
+
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 function ContentCard({ config }) {
   const { setShowNavigation, setShowFooter, setShowSidebar } = useGlobalState();
@@ -26,7 +29,7 @@ function ContentCard({ config }) {
 
   useEffect(() => {
     const offset = (currentPage - 1) * limit;
-    fetch(`/api/all-movies?limit=${limit}&offset=${offset}`, {
+    fetch(server+`/api/all-movies?limit=${limit}&offset=${offset}`, {
       mode: "cors",
       method: "GET",
       headers: {
@@ -41,7 +44,7 @@ function ContentCard({ config }) {
       .catch((error) => {
         console.error("Error:", error);
       });
-  }, [currentPage]);
+  }, [currentPage, server]);
 
   const totalPages = Math.ceil(totalMovies / limit);
 

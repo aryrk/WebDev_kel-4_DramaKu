@@ -20,11 +20,14 @@ import { useGlobalState } from "../components/GlobalStateContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useParams } from "react-router-dom";
 import { useSwal } from "../components/SweetAlert";
-import { withConfig } from "../Config";
+import { loadConfigNonAsync, withConfig } from "../Config";
 import Shortcut from "./Shortcut";
 import { jwtDecode } from "jwt-decode";
 
 const token = sessionStorage.getItem("token");
+
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 function MovieInfo(props) {
   var {
@@ -411,13 +414,16 @@ window.loadMoreComments = function (movieId, limit = 3) {
   if (limit === 0) {
     limit = commentHidden;
   }
-  fetch(`/api/movies/comments/${movieId}?limit=${limit}&offset=${offset}`, {
-    mode: "cors",
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
+  fetch(
+    server + `/api/movies/comments/${movieId}?limit=${limit}&offset=${offset}`,
+    {
+      mode: "cors",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  )
     .then((response) => response.json())
     .then((data) => {
       totalComments = data.total;
@@ -505,7 +511,7 @@ function CommentSection() {
   const [comment, setComment] = useState([]);
 
   useEffect(() => {
-    fetch(`/api/movies/comments/${movieId}?limit=3&offset=0`, {
+    fetch(server + `/api/movies/comments/${movieId}?limit=3&offset=0`, {
       mode: "cors",
       method: "GET",
       headers: {
@@ -518,7 +524,7 @@ function CommentSection() {
         totalComments = data.total;
       })
       .catch((error) => console.error("Error:", error));
-  }, [movieId]);
+  }, [movieId, server]);
   useEffect(() => {
     if (comment) {
       comment_data = {};
@@ -662,7 +668,7 @@ function AddComment({ movieId, onNewComment }) {
       comment_date: new Date().toISOString(),
     };
 
-    fetch(`/api/movies/comments/${movieId}`, {
+    fetch(server + `/api/movies/comments/${movieId}`, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -817,7 +823,7 @@ function DetailPage({ config }) {
   const [movie, setMovie] = useState(null);
 
   useEffect(() => {
-    fetch(`/api/movie-details/${movieId}`, {
+    fetch(server + `/api/movie-details/${movieId}`, {
       mode: "cors",
       method: "GET",
       headers: {
@@ -845,7 +851,7 @@ function DetailPage({ config }) {
         }
       })
       .catch((error) => console.error("Error:", error));
-  }, [movieId]);
+  }, [movieId, server]);
 
   return (
     <>

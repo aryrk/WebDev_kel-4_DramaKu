@@ -4,7 +4,7 @@ import { Form, InputGroup } from "react-bootstrap";
 import { faKey } from "@fortawesome/free-solid-svg-icons";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { withConfig } from "../Config";
+import { loadConfigNonAsync, withConfig } from "../Config";
 import { LoginBackground } from "./Login";
 import { useGlobalState } from "../components/GlobalStateContext";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -23,6 +23,9 @@ function RegisterForm() {
   const [passwordAllowed, setPasswordAllowed] = useState(false);
   const [passwordIsValid, setPasswordIsValid] = useState(true);
 
+  var server = loadConfigNonAsync();
+  server.then((result) => (server = result.server));
+
   const checkPassword = (password) => {
     const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
     if (passwordRegex.test(password)) {
@@ -34,7 +37,7 @@ function RegisterForm() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    fetch("/api/register", {
+    fetch(server + "/api/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -68,7 +71,7 @@ function RegisterForm() {
   };
 
   const checkusername = async (username) => {
-    fetch(`/api/checkusernames/${username}`, {
+    fetch(server + `/api/checkusernames/${username}`, {
       mode: "cors",
       method: "GET",
       headers: {
@@ -86,7 +89,7 @@ function RegisterForm() {
   };
 
   const checkemail = async (email) => {
-    fetch(`/api/checkemails/${email}`, {
+    fetch(server + `/api/checkemails/${email}`, {
       mode: "cors",
       method: "GET",
       headers: {
@@ -108,7 +111,7 @@ function RegisterForm() {
   }, []);
 
   const handleGoogleRegister = () => {
-    window.open("/api/auth/google", "_self");
+    window.open(server + "/api/auth/google", "_self");
   };
 
   return (

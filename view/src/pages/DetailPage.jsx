@@ -837,7 +837,7 @@ function DetailPage({ config }) {
         if (sessionStorage.getItem(movieId) === null) {
           sessionStorage.setItem(movieId, "true");
 
-          fetch(`/api/movies/update-view-count/${movieId}`, {
+          fetch(server + `/api/movies/update-view-count/${movieId}`, {
             mode: "cors",
             headers: {
               "Content-Type": "application/json",

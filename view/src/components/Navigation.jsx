@@ -172,7 +172,7 @@ const CustomNavbar = ({ config }) => {
         console.log(decodedToken.username);
       }
     } catch (error) {}
-  }, []);
+  }, [country]);
 
   return (
     <>

@@ -447,7 +447,7 @@ const CustomNavbar = ({ config }) => {
                 </NavDropdown>
               )}
 
-              <NavDropdown
+              {/* <NavDropdown
                 title="Sorted by"
                 id="sorted-dropdown"
                 className="me-2"
@@ -455,7 +455,7 @@ const CustomNavbar = ({ config }) => {
                 <NavDropdown.Item href="#alphabetics">
                   Alphabetics
                 </NavDropdown.Item>
-              </NavDropdown>
+              </NavDropdown> */}
             </Nav>
 
             <Button

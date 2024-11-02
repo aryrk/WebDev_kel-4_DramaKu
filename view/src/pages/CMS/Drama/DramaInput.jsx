@@ -55,6 +55,9 @@ function PosterUpload() {
   const onSubmit = async (e) => {
     e.preventDefault();
 
+    $("#submittext").addClass("d-none");
+    $("#loading").removeClass("d-none");
+
     const formData = new FormData(e.target);
     if (files.length === 0) {
       alert("error", "Please upload a poster");
@@ -76,6 +79,8 @@ function PosterUpload() {
       },
       body: formData,
     }).then((response) => {
+      $("#submittext").removeClass("d-none");
+      $("#loading").addClass("d-none");
       if (response.status === 200) {
         notification("success", "Drama added successfully");
         e.target.reset();
@@ -138,7 +143,15 @@ function PosterUpload() {
         type="submit"
         form="form-drama"
       >
-        Submit
+        <span id="submittext">Submit</span>
+        {/* loading */}
+        <span id="loading" className="d-none">
+          <span
+            className="spinner-border spinner-border-sm ms-2"
+            role="status"
+          ></span>
+          <span> Loading</span>
+        </span>
       </Button>
     </center>
   );

@@ -22,6 +22,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import $, { data } from "jquery";
 import { jwtDecode } from "jwt-decode";
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
 
 const CustomNavbar = ({ config }) => {
   const [show, setShow] = useState(false);
@@ -45,9 +47,6 @@ const CustomNavbar = ({ config }) => {
     handleSearch(null, searchTerm, country);
     setShowMore(false);
   };
-
-  var server = loadConfigNonAsync();
-  server.then((result) => (server = result.server));
 
   // const [country, setCountry] = useState([]);
 
@@ -192,7 +191,7 @@ const CustomNavbar = ({ config }) => {
           {/* Mobile Navbar Toggle */}
           <div className="d-lg-none d-flex justify-content-between align-items-center w-100">
             {/* Login Button for Mobile */}
-            <div className="dropdown-container">
+            {/* <div className="dropdown-container d-lg-none">
               {LoginAllowed ? (
                 <DropdownButton
                   id="dropdown-basic-button"
@@ -210,7 +209,7 @@ const CustomNavbar = ({ config }) => {
                   Login
                 </Button>
               )}
-            </div>
+            </div> */}
 
             {/* Search Icon for Mobile */}
             <Button

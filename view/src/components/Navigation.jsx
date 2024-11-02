@@ -63,7 +63,7 @@ const CustomNavbar = ({ config }) => {
 
   const fetchCountries = async () => {
     try {
-      const response = await fetch(server+"/api/cms/countrylist");
+      const response = await fetch(server + "/api/cms/countrylist");
       const data = await response.json();
       setCountry(data); // Update the state with fetched countries
     } catch (error) {
@@ -78,7 +78,7 @@ const CustomNavbar = ({ config }) => {
   const [year, setYear] = useState([]);
 
   useEffect(() => {
-    fetch(server+"/api/cms/yearlist")
+    fetch(server + "/api/cms/yearlist")
       .then((res) => res.json())
       .then((data) => {
         setYear(data);
@@ -88,7 +88,7 @@ const CustomNavbar = ({ config }) => {
   const [award, setAward] = useState([]);
 
   useEffect(() => {
-    fetch(server+"/api/cms/awardlist")
+    fetch(server + "/api/cms/awardlist")
       .then((res) => res.json())
       .then((data) => {
         setAward(data);
@@ -98,7 +98,7 @@ const CustomNavbar = ({ config }) => {
   const [genre, setGenre] = useState([]);
 
   useEffect(() => {
-    fetch(server+"/api/cms/genrelist")
+    fetch(server + "/api/cms/genrelist")
       .then((res) => res.json())
       .then((data) => {
         setGenre(data);
@@ -160,7 +160,7 @@ const CustomNavbar = ({ config }) => {
         console.log(decodedToken.username);
       }
     } catch (error) {}
-  }, []);
+  }, [country]);
 
   return (
     <>

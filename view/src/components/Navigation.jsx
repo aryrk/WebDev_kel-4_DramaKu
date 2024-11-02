@@ -146,7 +146,7 @@ const CustomNavbar = ({ config }) => {
     navigate("/login");
   };
 
-  const remainingCountries = country.slice(5);
+  const [remainingCountries, setRemainingCountries] = useState([]);
   const token = sessionStorage.getItem("token");
   const [LoginAllowed, setAllowedLogin] = useState(false);
   const [Username, setUsername] = useState("");
@@ -154,13 +154,18 @@ const CustomNavbar = ({ config }) => {
   useEffect(() => {
     try {
       const decodedToken = jwtDecode(token);
+      if (Array.isArray(country)) {
+        setRemainingCountries(country.slice(5));
+        console.log(country);
+      }
+
       if (decodedToken.role === "admin" || decodedToken.role === "writer") {
         setAllowedLogin(true);
         setUsername(decodedToken.username);
         console.log(decodedToken.username);
       }
     } catch (error) {}
-  }, [country]);
+  }, [country, token]);
 
   return (
     <>

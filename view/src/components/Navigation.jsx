@@ -17,7 +17,7 @@ import {
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./componentsStyle/Navigation.css";
-import { loadConfigNonAsync, withConfig } from "../Config";
+import { loadConfig, loadConfigNonAsync, withConfig } from "../Config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import $, { data } from "jquery";
@@ -63,9 +63,21 @@ const CustomNavbar = ({ config }) => {
 
   const fetchCountries = async () => {
     try {
-      const response = await fetch(server + "/api/cms/countrylist");
-      const data = await response.json();
-      setCountry(data); // Update the state with fetched countries
+      //   const response = await fetch(server + "/api/cms/countrylist");
+      //   const data = await response.json();
+      //   setCountry(data); // Update the state with fetched countries
+      // console.log(data);
+
+      var temp_server = loadConfig();
+      temp_server.then((result) => {
+        server = result.server;
+        fetch(server + "/api/cms/countrylist")
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            setCountry(data);
+          });
+      });
     } catch (error) {
       console.error("Error fetching countries:", error);
     }

@@ -1686,7 +1686,8 @@ app.get("/api/cms/countrylist", cors(corsOptions), (req, res) => {
       id: result.id,
       name: result.name,
     })); // Include id for potential use
-    res.json(formattedResults);
+    // res.json(formattedResults);
+    return res.json(formattedResults);
   });
 });
 

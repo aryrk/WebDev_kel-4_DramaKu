@@ -157,7 +157,7 @@ const CustomNavbar = ({ config }) => {
     navigate("/login");
   };
 
-  const remainingCountries = country.slice(5);
+  const [remainingCountries, setRemainingCountries] = useState([]);
   const token = sessionStorage.getItem("token");
   const [LoginAllowed, setAllowedLogin] = useState(false);
   const [Username, setUsername] = useState("");
@@ -165,13 +165,18 @@ const CustomNavbar = ({ config }) => {
   useEffect(() => {
     try {
       const decodedToken = jwtDecode(token);
+      if (Array.isArray(country)) {
+        setRemainingCountries(country.slice(5));
+        console.log(country);
+      }
+
       if (decodedToken.role === "admin" || decodedToken.role === "writer") {
         setAllowedLogin(true);
         setUsername(decodedToken.username);
         console.log(decodedToken.username);
       }
     } catch (error) {}
-  }, [country]);
+  }, [country, token]);
 
   return (
     <>
@@ -186,7 +191,7 @@ const CustomNavbar = ({ config }) => {
           {/* Mobile Navbar Toggle */}
           <div className="d-lg-none d-flex justify-content-between align-items-center w-100">
             {/* Login Button for Mobile */}
-            <div className="dropdown-container">
+            {/* <div className="dropdown-container d-lg-none">
               {LoginAllowed ? (
                 <DropdownButton
                   id="dropdown-basic-button"
@@ -204,7 +209,7 @@ const CustomNavbar = ({ config }) => {
                   Login
                 </Button>
               )}
-            </div>
+            </div> */}
 
             {/* Search Icon for Mobile */}
             <Button
@@ -442,7 +447,7 @@ const CustomNavbar = ({ config }) => {
                 </NavDropdown>
               )}
 
-              <NavDropdown
+              {/* <NavDropdown
                 title="Sorted by"
                 id="sorted-dropdown"
                 className="me-2"
@@ -450,7 +455,7 @@ const CustomNavbar = ({ config }) => {
                 <NavDropdown.Item href="#alphabetics">
                   Alphabetics
                 </NavDropdown.Item>
-              </NavDropdown>
+              </NavDropdown> */}
             </Nav>
 
             <Button

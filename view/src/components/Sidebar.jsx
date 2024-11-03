@@ -178,6 +178,13 @@ const Sidebar = ({ config }) => {
             <a href="/cms/users">Users</a>
           </li>
           <li
+            id="Home"
+            className={`ps-4 pe-4 ${activeMenu === "Home" ? "active" : ""}`}
+            onClick={() => handleMenuClick("Home")}
+          >
+            <a href="/home">Back to Home</a>
+          </li>
+          <li
             id="Logout"
             className={`ps-4 pe-4 ${activeMenu === "Logout" ? "active" : ""}`}
             onClick={() => handleMenuClick("Logout")}

@@ -1,7 +1,7 @@
 {
   "short_name": "PlutoCinema",
   "name": "PlutoChinema",
-  "description": "Kami menyediakan film terbaru dan terbaik untuk Anda. Tonton film sekarang juga!",
+  "description": "Kami menyediakan film terbaru dan terbaik untuk Anda. Tonton film sekarang juga! \n \nDibuat oleh Aryo Rakatama dan Hasna Fitriyani Khairunissa",
   "logo_png": "/images/logo.png",
   "logo_svg": "/images/logo.svg",
   "server": "http://localhost:5000"

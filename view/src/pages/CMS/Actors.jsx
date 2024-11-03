@@ -49,6 +49,9 @@ function AddActor() {
   const onSubmit = async (e) => {
     e.preventDefault();
 
+    $("#submittext").addClass("d-none");
+    $("#loading").removeClass("d-none");
+
     const formData = new FormData();
     if (files.length > 0) {
       formData.append("file", files[0].file);
@@ -57,13 +60,15 @@ function AddActor() {
     formData.append("actorName", e.target.actorName.value);
     formData.append("birthDate", e.target.birthDate.value);
 
-    fetch(server+"/api/cms/actors", {
+    fetch(server + "/api/cms/actors", {
       method: "POST",
       body: formData,
       headers: {
         Authorization: `Bearer ${token}`,
       },
     }).then((response) => {
+      $("#submittext").removeClass("d-none");
+      $("#loading").addClass("d-none");
       if (response.status === 200) {
         notification("success", "Actor added successfully");
         e.target.reset();
@@ -77,7 +82,7 @@ function AddActor() {
 
   const [countries, setCountries] = useState([]);
   useEffect(() => {
-    fetch(server+"/api/cms/countrylist")
+    fetch(server + "/api/cms/countrylist")
       .then((res) => res.json())
       .then((data) => {
         setCountries(data);
@@ -195,7 +200,15 @@ function AddActor() {
               variant="primary"
               type="submit"
             >
-              Submit
+              <span id="submittext">Submit</span>
+              {/* loading */}
+              <span id="loading" className="d-none">
+                <span
+                  className="spinner-border spinner-border-sm ms-2"
+                  role="status"
+                ></span>
+                <span> Loading</span>
+              </span>
             </Button>
           </Container>
         </Form>
@@ -217,7 +230,7 @@ function ActorTable(props) {
       const limit = 10;
       const offset = (page - 1) * limit;
       const response = await fetch(
-        server+`/api/cms/actors?limit=${limit}&offset=${offset}`,
+        server + `/api/cms/actors?limit=${limit}&offset=${offset}`,
         {
           method: "GET",
           headers: {
@@ -348,7 +361,7 @@ function ActorTable(props) {
         serverSide: true,
         processing: true,
         ajax: {
-          url: server+"/api/cms/actors",
+          url: server + "/api/cms/actors",
           type: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -424,7 +437,7 @@ function ActorTable(props) {
   }, [actors, tableInitialized]);
   const handleDeleteUser = async (id) => {
     try {
-      const response = await fetch(server+`/api/cms/actors/${id}`, {
+      const response = await fetch(server + `/api/cms/actors/${id}`, {
         method: "DELETE",
         mode: "cors",
         headers: {
@@ -453,7 +466,7 @@ function ActorTable(props) {
     const picture = formData.get("img");
 
     try {
-      const response = await fetch(server+`/api/cms/actors/${id}`, {
+      const response = await fetch(server + `/api/cms/actors/${id}`, {
         method: "PUT",
         mode: "cors",
         headers: {

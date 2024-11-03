@@ -1341,7 +1341,7 @@ app.get("/api/movie-details/:id", cors(corsOptions), (req, res) => {
 SELECT m.*, c.name AS country_name, IFNULL(AVG(cm.rate), 0) AS rating
 FROM movies m
 JOIN countries c ON m.countries_id = c.id
-LEFT JOIN comments cm ON m.id = cm.movie_id
+LEFT JOIN comments cm ON m.id = cm.movie_id AND cm.status = 'accepted' AND cm.deleted_at IS NULL
 WHERE m.id = ? and m.status = 'accepted' and m.deleted_at IS NULL and c.deleted_at IS NULL 
 GROUP BY m.id
 `;
@@ -1407,7 +1407,7 @@ app.get(
 
     const orderColumn = orderColumns[orderColumnIndex] || "c.comment_date";
 
-    console.log(search, orderColumn, orderDir);
+    // console.log(search, orderColumn, orderDir);
 
     const countQuery = `
     SELECT COUNT(*) as total 
@@ -2226,7 +2226,7 @@ app.get(
       }
 
       const totalAwards = countResult[0].total;
-      console.log("Total awards:", totalAwards);
+      // console.log("Total awards:", totalAwards);
 
       connection.query(
         dataQuery,
@@ -2241,7 +2241,7 @@ app.get(
             });
           }
 
-          console.log("Data Results:", dataResults);
+          // console.log("Data Results:", dataResults);
 
           res.json({
             awards: dataResults,

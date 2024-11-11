@@ -99,7 +99,7 @@ const Footer = ({ config }) => {
         <Row className="g-4">
           <Col xs={12} md={4}>
             <h5>{config.short_name}</h5>
-            <p>{config.description}</p>
+            <p style={{ whiteSpace: "pre-line" }}>{config.description}</p>
             <div className="d-flex flex-wrap">
               <Button
                 variant="link"

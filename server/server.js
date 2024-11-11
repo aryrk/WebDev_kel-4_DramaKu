@@ -1800,7 +1800,7 @@ app.post(
       country = country.toUpperCase();
       let country_id = 0;
 
-      const countryQuery = `SELECT id FROM countries WHERE UPPER(name) = ?`;
+      const countryQuery = `SELECT id FROM countries WHERE UPPER(name) = ? AND DELETED_AT IS NULL`;
 
       const queryDatabase = (query, params) => {
         return new Promise((resolve, reject) => {
@@ -1863,7 +1863,7 @@ app.put(
     country = country.toUpperCase();
     let country_id = 0;
 
-    const countryQuery = `SELECT id FROM countries WHERE UPPER(name) = ?`;
+    const countryQuery = `SELECT id FROM countries WHERE UPPER(name) = ? AND DELETED_AT IS NULL`;
 
     const queryDatabase = (query, params) => {
       return new Promise((resolve, reject) => {
@@ -1978,7 +1978,7 @@ app.post(
       country = country.toUpperCase();
       let country_id = 0;
 
-      const countryQuery = `SELECT id FROM countries WHERE UPPER(name) = ?`;
+      const countryQuery = `SELECT id FROM countries WHERE UPPER(name) = ? AND DELETED_AT IS NULL`;
 
       const queryDatabase = (query, params) => {
         return new Promise((resolve, reject) => {

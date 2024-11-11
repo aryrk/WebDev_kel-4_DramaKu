@@ -11,6 +11,7 @@ import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import { Button, Col, Container, Form, Row, Table } from "react-bootstrap";
 import FilePondPluginImageTransform from "filepond-plugin-image-transform";
 import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
+import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 
 import { faSave, faTimes, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faEdit } from "@fortawesome/free-regular-svg-icons";
@@ -39,7 +40,8 @@ function AddActor() {
     FilePondPluginImageCrop,
     FilepondPluginImageResize,
     FilePondPluginImageTransform,
-    FilePondPluginImageEdit
+    FilePondPluginImageEdit,
+    FilePondPluginFileValidateType
   );
 
   const { notification } = useSwal();

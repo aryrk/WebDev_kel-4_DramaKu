@@ -9,6 +9,7 @@ import FilepondPluginImageResize from "filepond-plugin-image-resize";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginImageTransform from "filepond-plugin-image-transform";
 import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
+import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import {
   Button,
   Col,
@@ -47,7 +48,8 @@ function PosterUpload() {
     FilePondPluginImageCrop,
     FilepondPluginImageResize,
     FilePondPluginImageTransform,
-    FilePondPluginImageEdit
+    FilePondPluginImageEdit,
+    FilePondPluginFileValidateType
   );
 
   const { alert, notification } = useSwal();
@@ -60,10 +62,14 @@ function PosterUpload() {
 
     const formData = new FormData(e.target);
     if (files.length === 0) {
+      $("#submittext").removeClass("d-none");
+      $("#loading").addClass("d-none");
       alert("error", "Please upload a poster");
       return;
     }
     if (actors_id.length === 0) {
+      $("#submittext").removeClass("d-none");
+      $("#loading").addClass("d-none");
       alert("error", "Please select at least one actor");
       return;
     }
@@ -143,7 +149,7 @@ function PosterUpload() {
         type="submit"
         form="form-drama"
       >
-        <span id="submittext">Submit</span>
+        <span id="submittext">Save Movie</span>
         {/* loading */}
         <span id="loading" className="d-none">
           <span
@@ -395,6 +401,40 @@ function DramaForm() {
   const [genres, setGenres] = useState([]);
   const [awards, setAwards] = useState([]);
 
+  const [linkIsValid, setLinkIsValid] = useState(false);
+  const [link, setLink] = useState("");
+
+  const [genresIsValid, setGenresIsValid] = useState(false);
+  const [awardsIsValid, setAwardsIsValid] = useState(false);
+
+  const checkGenres = (genres_input) => {
+    if (genres_input.length === 0) {
+      setGenresIsValid(false);
+    } else {
+      setGenresIsValid(true);
+    }
+  };
+
+  const checkAwards = (awards_input) => {
+    if (awards_input.length === 0) {
+      setAwardsIsValid(false);
+    } else {
+      setAwardsIsValid(true);
+    }
+  };
+
+  const checkLink = (link) => {
+    var regex = new RegExp(
+      "^(https?://)?(www.youtube.com/watch\\?v=|youtu.be/)([a-zA-Z0-9_-]{11})"
+    );
+
+    if (regex.test(link)) {
+      setLinkIsValid(true);
+    } else {
+      setLinkIsValid(false);
+    }
+  };
+
   const fetch_data = () => {
     fetch(server + "/api/cms/countrylist")
       .then((res) => res.json())
@@ -447,6 +487,7 @@ function DramaForm() {
     genre.forEach((genreId) => {
       var input = document.createElement("input");
       input.setAttribute("type", "hidden");
+      input.setAttribute("required", "true");
       input.setAttribute("name", "genres[]");
       input.setAttribute("value", genreId);
       form.appendChild(input);
@@ -467,6 +508,7 @@ function DramaForm() {
     award.forEach((awardId) => {
       var input = document.createElement("input");
       input.setAttribute("type", "hidden");
+      input.setAttribute("required", "true");
       input.setAttribute("name", "award[]");
       input.setAttribute("value", awardId);
       form.appendChild(input);
@@ -505,7 +547,8 @@ function DramaForm() {
             <Form.Control
               required
               type="number"
-              min={1900}
+              min={1000}
+              max={new Date().getFullYear()}
               step={1}
               className="bg_pallete_1 text-light border-0"
               form="form-drama"
@@ -558,7 +601,11 @@ function DramaForm() {
           <Form.Group as={Col} sm="100" className="mt-3">
             <Form.Label>Genres</Form.Label>
             <CreatableSelect
-              onChange={handleGenreChange}
+              // onChange={handleGenreChange}
+              onChange={(newValue, actionMeta) => {
+                handleGenreChange(newValue, actionMeta);
+                checkGenres(newValue);
+              }}
               ref={(ref) => (GenreRef = ref)}
               isClearable
               required
@@ -601,20 +648,54 @@ function DramaForm() {
               }}
             />
           </Form.Group>
+          {genresIsValid === false ? (
+            <span className="invalid-feedback d-block">
+              Please select genre
+            </span>
+          ) : null}
           <Form.Group as={Col} md="6" className="mt-3">
             <Form.Label>Link Trailer</Form.Label>
             <Form.Control
               required
+              onChange={(e) => {
+                setLink(e.target.value);
+                checkLink(e.target.value);
+              }}
               type="text"
-              className="bg_pallete_1 text-light border-0"
+              // className="bg_pallete_1 text-light border-0"
+              className={`bg_pallete_1 text-light border-0 ${
+                link === "" ? "" : linkIsValid ? "is-valid" : "is-invalid"
+              }`}
               form="form-drama"
               name="link_trailer"
+              aria-describedby={linkIsValid ? "" : "invalid-link"}
             />
+            <div
+              id="invalid-link"
+              className={`invalid-feedback ${
+                link === "" ? "" : linkIsValid ? "" : "d-block"
+              }`}
+            >
+              Invalid YouTube link
+            </div>
+            {linkIsValid === false ? (
+              <input
+                type="hidden"
+                name="link_trailer"
+                value=""
+                required
+                form="form-drama"
+              />
+            ) : null}
           </Form.Group>
           <Form.Group as={Col} md="6" className="mt-3">
             <Form.Label>Award</Form.Label>
             <CreatableSelect
-              onChange={handleAwardChange}
+              // onChange={handleAwardChange}
+              onChange={(newValue, actionMeta) => {
+                handleAwardChange(newValue, actionMeta);
+                checkAwards(newValue);
+              }}
               ref={(ref) => (AwardRef = ref)}
               isClearable
               required
@@ -656,6 +737,11 @@ function DramaForm() {
                 }),
               }}
             />
+            {awardsIsValid === false ? (
+              <span className="invalid-feedback d-block">
+                Please select award
+              </span>
+            ) : null}
           </Form.Group>
         </Row>
       )}

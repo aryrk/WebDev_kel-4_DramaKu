@@ -34,7 +34,7 @@ function AddAwards({ fetchAwards }) {
     };
 
     try {
-      const response = await fetch(server+"/api/cms/awardsList2", {
+      const response = await fetch(server + "/api/cms/awardsList2", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -127,7 +127,7 @@ function CMSAwards() {
   const fetchAwards = async () => {
     try {
       console.log(server);
-      const response = await fetch(server+`/api/cms/awardsList2`, {
+      const response = await fetch(server + `/api/cms/awardsList2`, {
         method: "GET",
         mode: "cors",
         headers: {
@@ -248,7 +248,7 @@ function CMSAwards() {
         serverSide: true,
         processing: true,
         ajax: {
-          url: server+"/api/cms/awardsList2",
+          url: server + "/api/cms/awardsList2",
           type: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -337,7 +337,7 @@ function CMSAwards() {
     }
 
     try {
-      const response = await fetch(server+`/api/cms/awardsList2/${id}`, {
+      const response = await fetch(server + `/api/cms/awardsList2/${id}`, {
         method: "DELETE",
         mode: "cors",
         headers: {
@@ -383,7 +383,7 @@ function CMSAwards() {
 
     console.log("Data to be sent:", { id, name: awardName, year: awardYear });
 
-    const response = await fetch(server+`/api/cms/awardsList2/${id}`, {
+    const response = await fetch(server + `/api/cms/awardsList2/${id}`, {
       method: "PUT",
       mode: "cors",
       headers: {

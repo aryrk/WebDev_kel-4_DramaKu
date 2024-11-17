@@ -34,7 +34,7 @@ function AddAwards({ fetchAwards }) {
     };
 
     try {
-      const response = await fetch(server+"/api/cms/awardsList2", {
+      const response = await fetch(server + "/api/cms/awardsList2", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -127,7 +127,7 @@ function CMSAwards() {
   const fetchAwards = async () => {
     try {
       console.log(server);
-      const response = await fetch(server+`/api/cms/awardsList2`, {
+      const response = await fetch(server + `/api/cms/awardsList2`, {
         method: "GET",
         mode: "cors",
         headers: {
@@ -195,6 +195,7 @@ function CMSAwards() {
           {
             render: function (data, type, row, meta) {
               const no = row.id;
+              const relation_count = row.relation_count;
 
               return renderToString(
                 <div className="d-flex justify-content-center">
@@ -220,14 +221,20 @@ function CMSAwards() {
                   >
                     <FontAwesomeIcon icon={faSave} />
                   </Button>
-                  <Button
-                    variant="danger"
-                    className="mx-2"
-                    id={`deleteBtn${no}`}
-                    onClick={() => handleDeleteAward(no)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </Button>
+                  {relation_count > 0 ? (
+                    <Button variant="secondary" className="mx-2" disabled>
+                      <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="danger"
+                      className="mx-2"
+                      id={`deleteBtn${no}`}
+                      onClick={() => handleDeleteAward(no)}
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                  )}
                   <Button
                     variant="warning"
                     id={`cancelBtn${no}`}
@@ -248,7 +255,7 @@ function CMSAwards() {
         serverSide: true,
         processing: true,
         ajax: {
-          url: server+"/api/cms/awardsList2",
+          url: server + "/api/cms/awardsList2",
           type: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -293,10 +300,12 @@ function CMSAwards() {
               cancelEdit(row.id);
             };
 
-            const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
-            deleteBtn.onclick = () => {
-              handleDeleteAward(row.id);
-            };
+            try {
+              const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
+              deleteBtn.onclick = () => {
+                handleDeleteAward(row.id);
+              };
+            } catch {}
 
             const tds = row.getElementsByTagName("td");
             for (let i = 1; i < tds.length - 1; i++) {
@@ -337,7 +346,7 @@ function CMSAwards() {
     }
 
     try {
-      const response = await fetch(server+`/api/cms/awardsList2/${id}`, {
+      const response = await fetch(server + `/api/cms/awardsList2/${id}`, {
         method: "DELETE",
         mode: "cors",
         headers: {
@@ -383,7 +392,7 @@ function CMSAwards() {
 
     console.log("Data to be sent:", { id, name: awardName, year: awardYear });
 
-    const response = await fetch(server+`/api/cms/awardsList2/${id}`, {
+    const response = await fetch(server + `/api/cms/awardsList2/${id}`, {
       method: "PUT",
       mode: "cors",
       headers: {

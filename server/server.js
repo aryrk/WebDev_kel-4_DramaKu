@@ -1278,7 +1278,7 @@ app.get("/api/movies-search", cors(corsOptions), (req, res) => {
     FROM movies m
     LEFT JOIN movies_genres mg ON m.id = mg.movie_id
     LEFT JOIN genres g ON mg.genre_id = g.id
-    LEFT JOIN countries c ON m.id = c.id
+    LEFT JOIN countries c ON m.countries_id = c.id
     LEFT JOIN movies_awards ma ON m.id = ma.movie_id
     LEFT JOIN awards a ON ma.award_id = a.id
     WHERE m.status = "accepted"
@@ -1758,10 +1758,12 @@ app.get(
     WHERE (name LIKE ? OR birthdate LIKE ?) AND deleted_at IS NULL
   `;
     const dataQuery = `
-  SELECT a.*, c.name AS country_name
+  SELECT a.*, c.name AS country_name, COUNT(ma.movie_id) AS relation_count
   FROM actors a
   JOIN countries c ON a.countries_id = c.id
+  LEFT JOIN movies_actors ma ON a.id = ma.actor_id
   WHERE (a.name LIKE ? OR a.birthdate LIKE ?) AND a.deleted_at IS NULL
+  GROUP BY a.id
   ORDER BY ${orderColumn} ${orderDir}
   LIMIT ? OFFSET ?
 `;
@@ -1776,6 +1778,7 @@ app.get(
         [search, search, limit, offset],
         (err, dataResults) => {
           if (err) return res.status(500).send(err);
+          // if (err) console.log(err);
 
           res.json({
             actors: dataResults,
@@ -2139,9 +2142,12 @@ app.get(
   `;
 
     const dataQuery = `
-  SELECT c.id, c.name
+  SELECT c.id, c.name, COUNT(m.id) + COUNT(a.id) AS relation_count
   FROM countries c
+  LEFT JOIN movies m ON c.id = m.countries_id
+  LEFT JOIN actors a ON c.id = a.countries_id
   WHERE c.name LIKE ? AND c.deleted_at IS NULL
+  GROUP BY c.id
   ORDER BY ${orderColumn} ${orderDir}
   LIMIT ? OFFSET ?
 `;
@@ -2170,6 +2176,7 @@ app.get(
               error: err,
             });
           }
+          console.log("Data Results:", dataResults);
 
           res.json({
             countries: dataResults,
@@ -2208,9 +2215,11 @@ app.get(
   `;
 
     const dataQuery = `
-  SELECT a.id, a.name, a.year
+  SELECT a.id, a.name, a.year, COUNT(ma.movie_id) AS relation_count
   FROM awards a
+  LEFT JOIN movies_awards ma ON a.id = ma.award_id
   WHERE a.name LIKE ? AND a.deleted_at IS NULL
+  GROUP BY a.id
   ORDER BY ${orderColumn} ${orderDir}
   LIMIT ? OFFSET ?
 `;
@@ -2346,9 +2355,11 @@ app.get(
   `;
 
     const dataQuery = `
-  SELECT g.id, g.name
+  SELECT g.id, g.name, COUNT(mg.movie_id) AS relation_count
   FROM genres g
+  LEFT JOIN movies_genres mg ON g.id = mg.genre_id
   WHERE g.name LIKE ? AND g.deleted_at IS NULL
+  GROUP BY g.id
   ORDER BY ${orderColumn} ${orderDir}
   LIMIT ? OFFSET ?
 `;

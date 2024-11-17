@@ -165,6 +165,7 @@ function CMSGenres() {
           {
             render: function (data, type, row, meta) {
               const no = row.id;
+              const relation_count = row.relation_count;
 
               return renderToString(
                 <div className="d-flex justify-content-center">
@@ -185,14 +186,20 @@ function CMSGenres() {
                   >
                     <FontAwesomeIcon icon={faSave} />
                   </Button>
-                  <Button
-                    variant="danger"
-                    className="mx-2"
-                    id={`deleteBtn${no}`}
-                    onClick={() => handleDeleteGenre(no)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </Button>
+                  {relation_count > 0 ? (
+                    <Button variant="secondary" className="mx-2" disabled>
+                      <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="danger"
+                      className="mx-2"
+                      id={`deleteBtn${no}`}
+                      onClick={() => handleDeleteGenre(no)}
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                  )}
                   <Button
                     variant="warning"
                     id={`cancelBtn${no}`}
@@ -254,10 +261,12 @@ function CMSGenres() {
               cancelEdit(row.id);
             };
 
-            const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
-            deleteBtn.onclick = () => {
-              handleDeleteGenre(row.id);
-            };
+            try {
+              const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
+              deleteBtn.onclick = () => {
+                handleDeleteGenre(row.id);
+              };
+            } catch {}
 
             const tds = row.getElementsByTagName("td");
             for (let i = 1; i < tds.length - 1; i++) {

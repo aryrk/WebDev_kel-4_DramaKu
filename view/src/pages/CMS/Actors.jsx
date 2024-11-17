@@ -319,6 +319,7 @@ function ActorTable(props) {
           {
             render: function (data, type, row, meta) {
               const no = row.id;
+              const relation_count = row.relation_count;
 
               return renderToString(
                 <center>
@@ -340,9 +341,15 @@ function ActorTable(props) {
                     <FontAwesomeIcon icon={faSave} />
                   </Button>
                   <br></br>
-                  <Button variant="danger" id={`deleteBtn${no}`}>
-                    <FontAwesomeIcon icon={faTrash} />
-                  </Button>
+                  {relation_count > 0 ? (
+                    <Button variant="secondary" disabled>
+                      <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                  ) : (
+                    <Button variant="danger" id={`deleteBtn${no}`}>
+                      <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                  )}
                   <Button
                     variant="warning"
                     id={`cancelBtn${no}`}
@@ -404,10 +411,12 @@ function ActorTable(props) {
               cancelEdit(row.id);
             };
 
-            const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
-            deleteBtn.onclick = () => {
-              handleDeleteUser(row.id);
-            };
+            try {
+              const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
+              deleteBtn.onclick = () => {
+                handleDeleteUser(row.id);
+              };
+            } catch {}
 
             const tds = row.getElementsByTagName("td");
             for (let i = 1; i < tds.length - 1; i++) {

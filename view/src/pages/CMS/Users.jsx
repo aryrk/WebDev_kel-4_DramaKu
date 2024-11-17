@@ -252,7 +252,7 @@ function UserTable() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [tableInitialized, setTableInitialized] = useState(false);
   const { cancelEdit, edit, last_edit } = useEdit();
-  const { notification } = useSwal();
+  const { notification, confirmation_action } = useSwal();
 
   const handleEditRole = async (id, role) => {
     try {
@@ -300,7 +300,7 @@ function UserTable() {
         $(`#revert${id}`).removeClass("d-none");
         $(`#role-${id}`).addClass("d-none");
 
-        notification("success", "User deleted successfully!");
+        notification("success", "User suspended successfully!");
       } else {
         notification("error", "Failed to delete user!");
       }
@@ -539,7 +539,13 @@ function UserTable() {
 
             const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
             deleteBtn.onclick = () => {
-              handleDeleteUser(row.id);
+              confirmation_action(
+                "warning",
+                "Suspend User",
+                "Are you sure you want to suspend this user?",
+                "Yes, suspend user",
+                () => handleDeleteUser(row.id)
+              );
             };
 
             const revertBtn = document.getElementById(`revertBtn${row.id}`);

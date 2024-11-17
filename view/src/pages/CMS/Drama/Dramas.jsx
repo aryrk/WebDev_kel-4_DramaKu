@@ -158,6 +158,7 @@ function MoviePreview(props) {
 function MovieDetailModal(props) {
   const { show, handleClose, movieId, config } = props;
   const [movieDetails, setMovieDetails] = useState(null);
+  const { confirmation_action } = useSwal();
 
   useEffect(() => {
     // if (show && movieId) {
@@ -254,11 +255,32 @@ function MovieDetailModal(props) {
             <center>
               <Button
                 className="bg_pallete_3 border-0 me-3"
-                onClick={handleApprove}
+                // onClick={handleApprove}
+                onClick={() =>
+                  confirmation_action(
+                    "question",
+                    "Approve Movie",
+                    "Are you sure you want to approve this movie?",
+                    "Yes",
+                    () => handleApprove()
+                  )
+                }
               >
                 Approve
               </Button>
-              <Button variant="danger" onClick={handleReject}>
+              <Button
+                variant="danger"
+                // onClick={handleReject}
+                onClick={() =>
+                  confirmation_action(
+                    "question",
+                    "Reject Movie",
+                    "Are you sure you want to reject this movie?",
+                    "Yes",
+                    () => handleReject()
+                  )
+                }
+              >
                 Delete
               </Button>
             </center>

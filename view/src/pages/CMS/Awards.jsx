@@ -117,7 +117,7 @@ function CMSAwards() {
   // const [currentId, setCurrentId] = useState(null); // State to hold the current award ID
   // const [awardName, setAwardName] = useState(""); // State for award name
   // const [awardYear, setAwardYear] = useState(""); // State for award year
-  const { notification } = useSwal();
+  const { notification, confirmation_action } = useSwal();
   const { edit, cancelEdit } = useEdit();
 
   // useEffect(() => {
@@ -303,7 +303,13 @@ function CMSAwards() {
             try {
               const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
               deleteBtn.onclick = () => {
-                handleDeleteAward(row.id);
+                confirmation_action(
+                  "warning",
+                  "Delete Award",
+                  "Are you sure you want to delete this award?",
+                  "Yes, delete it!",
+                  () => handleDeleteAward(row.id)
+                );
               };
             } catch {}
 

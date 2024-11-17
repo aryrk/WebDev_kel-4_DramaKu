@@ -48,10 +48,32 @@ export const SwalProvider = ({ children }) => {
     });
   };
 
-  const [allowedLogin, setAllowedLogin] = useState(false);
+  const confirmation_action = (
+    icon,
+    title,
+    text,
+    confirmButtonText,
+    callback
+  ) => {
+    Swal.fire({
+      icon: icon,
+      title: title,
+      text: text,
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      background: "#1c1c1c",
+      color: "#fff",
+      confirmButtonText: confirmButtonText,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        callback();
+      }
+    });
+  };
 
   return (
-    <swalFun.Provider value={{ notification, alert, setAllowedLogin }}>
+    <swalFun.Provider value={{ notification, alert, confirmation_action }}>
       {children}
     </swalFun.Provider>
   );

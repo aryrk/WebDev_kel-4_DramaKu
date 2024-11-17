@@ -98,7 +98,7 @@ function CMSCountries() {
   const [tableInitialized, setTableInitialized] = useState(false);
 
   const { cancelEdit, edit } = useEdit();
-  const { notification } = useSwal();
+  const { notification, confirmation_action } = useSwal();
 
   const fetchCountries = async () => {
     try {
@@ -258,7 +258,13 @@ function CMSCountries() {
             try {
               const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
               deleteBtn.onclick = () => {
-                handleDeleteCountry(row.id);
+                confirmation_action(
+                  "warning",
+                  "Delete Country",
+                  "Are you sure you want to delete this country?",
+                  "Yes, delete",
+                  () => handleDeleteCountry(row.id)
+                );
               };
             } catch {}
 

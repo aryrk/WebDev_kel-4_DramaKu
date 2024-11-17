@@ -225,7 +225,7 @@ function ActorTable(props) {
   const [totalActors, setTotalActors] = useState(0);
   const [tableInitialized, setTableInitialized] = useState(false);
   const { cancelEdit, edit, last_edit } = useEdit();
-  const { notification } = useSwal();
+  const { notification, confirmation_action } = useSwal();
 
   const fetchActors = async (page = 1) => {
     try {
@@ -414,7 +414,13 @@ function ActorTable(props) {
             try {
               const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
               deleteBtn.onclick = () => {
-                handleDeleteUser(row.id);
+                confirmation_action(
+                  "warning",
+                  "Delete Actor",
+                  "Are you sure?",
+                  "Yes, delete it!",
+                  () => handleDeleteUser(row.id)
+                );
               };
             } catch {}
 

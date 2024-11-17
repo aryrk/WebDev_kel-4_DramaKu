@@ -102,7 +102,7 @@ function CMSGenres() {
   const [tableInitialized, setTableInitialized] = useState(false);
 
   const { cancelEdit, edit } = useEdit();
-  const { notification } = useSwal();
+  const { notification, confirmation_action } = useSwal();
 
   const fetchGenres = async () => {
     try {
@@ -264,7 +264,14 @@ function CMSGenres() {
             try {
               const deleteBtn = document.getElementById(`deleteBtn${row.id}`);
               deleteBtn.onclick = () => {
-                handleDeleteGenre(row.id);
+                // handleDeleteGenre(row.id);
+                confirmation_action(
+                  "warning",
+                  "Delete Genre",
+                  "Are you sure you want to delete this genre?",
+                  "Yes, delete it!",
+                  () => handleDeleteGenre(row.id)
+                );
               };
             } catch {}
 

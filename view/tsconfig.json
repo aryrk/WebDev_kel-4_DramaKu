@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "jsx": "react", // Aktifkan dukungan JSX
+        "esModuleInterop": true, // Aktifkan interop untuk modul ECMAScript
+        "skipLibCheck": true, // Abaikan pemeriksaan tipe di pustaka
+        "strict": true, // Aktifkan pemeriksaan ketat
+        "allowSyntheticDefaultImports": true,
+        "allowJs": true // Izinkan file JavaScript
+    },
+    "include": ["src"]
+}

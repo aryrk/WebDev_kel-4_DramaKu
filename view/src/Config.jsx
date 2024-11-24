@@ -6,7 +6,7 @@ const loadConfig = async () => {
     const manifestData = await response.json();
     return manifestData;
   } catch (error) {
-    console.error("Error loading manifest.json:", error);
+    // console.error("Error loading manifest.json:", error);
     return {};
   }
 };
@@ -15,7 +15,7 @@ const loadConfigNonAsync = () => {
   return fetch("/manifest.json")
     .then((response) => response.json())
     .catch((error) => {
-      console.error("Error loading manifest.json:", error);
+      // console.error("Error loading manifest.json:", error);
       return {};
     });
 };

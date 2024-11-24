@@ -11,7 +11,7 @@ var server = loadConfigNonAsync();
 server.then((result) => (server = result.server));
 
 const MovieCard = (props) => {
-  const { id, src, title, year, genre = [], cast = [], views } = props;
+  const { id, src, title, year, views } = props;
   return (
     <Col xs="12" sm="6" md="4" lg="3" className="mb-4">
       <Link
@@ -32,28 +32,18 @@ const MovieCard = (props) => {
               <Col className="p-0">
                 <div className="ms-3">
                   <h5 className="mb-1" style={{ color: "white" }}>
-                    {title}
+                    {title === undefined ? "Unknown" : `${title}`}
                   </h5>
                   <p className="mb-1" style={{ color: "white" }}>
-                    {year}
+                    {year === undefined ? "Unknown year" : year}
                   </p>
-                  <p className="mb-1" style={{ color: "white" }}>
-                    {genre.map((title, i) => (
-                      <span key={i}>
-                        {title}
-                        {i < genre.length - 1 ? ", " : ""}
-                      </span>
-                    ))}
+                  <p style={{ color: "white" }}>
+                    {views === undefined
+                      ? "N/A views"
+                      : views === 0
+                      ? "N/A views"
+                      : `${views} views`}
                   </p>
-                  <p className="mb-1" style={{ color: "white" }}>
-                    {cast.map((title, i) => (
-                      <span key={i}>
-                        {title}
-                        {i < cast.length - 1 ? " • " : ""}
-                      </span>
-                    ))}
-                  </p>
-                  <p style={{ color: "white" }}>{views} views</p>
                 </div>
               </Col>
             </Row>
@@ -75,7 +65,7 @@ const SearchResultPage = ({ config }) => {
     setShowSidebar(false);
   }, [setShowNavigation]);
 
-  const searchParams = new URLSearchParams(location.search);
+  const searchParams = new URLSearchParams(location.search) || "";
   const searchTerm = searchParams.get("query") || "";
   const country = searchParams.get("country") || "";
   const genre = searchParams.get("genre") || "";
@@ -84,18 +74,19 @@ const SearchResultPage = ({ config }) => {
 
   useEffect(() => {
     fetch(
-      server+`/api/movies-search?search=${encodeURIComponent(
-        searchTerm
-      )}&country=${encodeURIComponent(country)}&genre=${encodeURIComponent(
-        genre
-      )}&year=${encodeURIComponent(year)}&award=${encodeURIComponent(award)}`
+      server +
+        `/api/movies-search?search=${encodeURIComponent(
+          searchTerm
+        )}&country=${encodeURIComponent(country)}&genre=${encodeURIComponent(
+          genre
+        )}&year=${encodeURIComponent(year)}&award=${encodeURIComponent(award)}`
     )
       .then((response) => response.json())
       .then((data) => {
         setMovies(Array.isArray(data.movies) ? data.movies : []);
       })
       .catch((error) => {
-        console.error("Error:", error);
+        // console.error("Error:", error);
       });
   }, [searchTerm, country, genre, year, award, server]);
 
@@ -121,8 +112,6 @@ const SearchResultPage = ({ config }) => {
                   }
                   title={movie.title || "No Title"}
                   year={movie.year || "Unknown Year"}
-                  genre={Array.isArray(movie.genres) ? movie.genres : []}
-                  cast={Array.isArray(movie.cast) ? movie.cast : []}
                   views={movie.views || "N/A"}
                 />
               ))}
@@ -138,3 +127,4 @@ const SearchResultPage = ({ config }) => {
 };
 
 export default withConfig(SearchResultPage);
+export { SearchResultPage, MovieCard };

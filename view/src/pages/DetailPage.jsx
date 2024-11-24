@@ -364,6 +364,8 @@ function Comment(props) {
                       <Rating
                         name="half-rating-read"
                         defaultValue={rating}
+                        value={rating}
+                        data-testid={`ratingInComment${username}${date}`}
                         precision={0.1}
                         readOnly
                         icon={
@@ -682,6 +684,8 @@ function AddComment({ movieId, onNewComment }) {
         // onNewComment(data.comment);
         setRate(0);
         setThoughts("");
+
+        notification("success", "Comment added!\nAwaiting admin approval");
       })
       .catch((error) => console.error("Error:", error));
   };
@@ -765,16 +769,7 @@ function AddComment({ movieId, onNewComment }) {
               </Form.Group>
               <Form.Group as={Row} className="mb-3">
                 <Col className="d-flex justify-content-start">
-                  <Button
-                    className="rounded-4"
-                    type="submit"
-                    onClick={() =>
-                      notification(
-                        "success",
-                        "Comment added!\nAwaiting admin approval"
-                      )
-                    }
-                  >
+                  <Button className="rounded-4" type="submit">
                     Submit
                   </Button>
                 </Col>
@@ -931,4 +926,13 @@ function DetailPage({ config }) {
 }
 
 export default withConfig(DetailPage);
-export { StarRating, MovieInfo, Actor, Trailer, BackgroundPoster };
+export {
+  StarRating,
+  MovieInfo,
+  Actor,
+  Trailer,
+  BackgroundPoster,
+  CommentSection,
+  Comment,
+  AddComment,
+};

@@ -10,6 +10,9 @@ import { useGlobalState } from "../components/GlobalStateContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useSwal } from "../components/SweetAlert";
 
+var server = loadConfigNonAsync();
+server.then((result) => (server = result.server));
+
 function RegisterForm() {
   const { alert } = useSwal();
 
@@ -22,9 +25,6 @@ function RegisterForm() {
   const [emailAllowed, setEmailAllowed] = useState(false);
   const [passwordAllowed, setPasswordAllowed] = useState(false);
   const [passwordIsValid, setPasswordIsValid] = useState(true);
-
-  var server = loadConfigNonAsync();
-  server.then((result) => (server = result.server));
 
   const checkPassword = (password) => {
     const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
@@ -130,6 +130,7 @@ function RegisterForm() {
               @
             </InputGroup.Text>
             <Form.Control
+            type="text"
               placeholder="Username"
               aria-label="Username"
               aria-describedby={`basic-addon1 ${
@@ -162,6 +163,7 @@ function RegisterForm() {
               <FontAwesomeIcon icon={faGoogle} />
             </InputGroup.Text>
             <Form.Control
+            type="email"
               placeholder="Email"
               aria-label="Email"
               aria-describedby={`basic-addon1 ${
@@ -312,3 +314,4 @@ const Register = ({ config }) => {
 };
 
 export default withConfig(Register);
+export { RegisterForm };

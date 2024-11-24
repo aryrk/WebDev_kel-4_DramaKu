@@ -2,7 +2,7 @@ import React from "react";
 import { MovieCard,SearchResultPage } from "../pages/SearchResultPage";
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { MemoryRouter } from 'react-router-dom'; // Import MemoryRouter
+import { MemoryRouter } from 'react-router-dom';
 import { renderWithProviders } from "../utils/test-utils";
 
 describe('MovieCard', () => {
@@ -120,7 +120,7 @@ describe('SearchResultPage', () => {
                             },
                         ],
                     }),
-            })
+            }),
         );
         
     });

@@ -242,4 +242,4 @@ const Login = ({ config }) => {
 };
 
 export default withConfig(Login);
-export { LoginBackground };
+export { LoginBackground, LoginForm, CarouselImage };

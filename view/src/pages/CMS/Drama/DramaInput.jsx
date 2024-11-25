@@ -527,6 +527,7 @@ function DramaForm() {
             <Form.Control
               required
               type="text"
+              placeholder="Enter title"
               className="bg_pallete_1 text-light border-0"
               form="form-drama"
               name="title"
@@ -656,6 +657,7 @@ function DramaForm() {
           <Form.Group as={Col} md="6" className="mt-3">
             <Form.Label>Link Trailer</Form.Label>
             <Form.Control
+              placeholder="https://www.youtube.com/watch?v=..."
               required
               onChange={(e) => {
                 setLink(e.target.value);
@@ -790,4 +792,4 @@ const DramaInput = ({ config }) => {
 };
 
 export default withConfig(DramaInput);
-export { FormDramaInput };
+export { FormDramaInput, DramaForm };

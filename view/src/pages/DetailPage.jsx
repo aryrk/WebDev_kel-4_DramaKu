@@ -510,7 +510,7 @@ window.loadMoreComments = function (movieId, limit = 3) {
 
 function CommentSection() {
   const { movieId } = useParams();
-  const [comment, setComment] = useState([]);
+  const [comment, setComment] = useState(null);
 
   useEffect(() => {
     fetch(server + `/api/movies/comments/${movieId}?limit=3&offset=0`, {

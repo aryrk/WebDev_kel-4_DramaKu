@@ -82,7 +82,7 @@ function AddActor() {
     });
   };
 
-  const [countries, setCountries] = useState([]);
+  const [countries, setCountries] = useState(null);
   useEffect(() => {
     fetch(server + "/api/cms/countrylist")
       .then((res) => res.json())
@@ -104,7 +104,7 @@ function AddActor() {
                 <Form.Group
                   as={Row}
                   className="mb-3"
-                  controlId="formPlaintextEmail"
+                  // controlId="formPlaintextEmail"
                 >
                   <Form.Label column sm="3" md="4" lg="3">
                     Country
@@ -121,7 +121,9 @@ function AddActor() {
                     />
                     <datalist id="countries">
                       {countries.map((country, index) => (
-                        <option key={index} value={country.name} />
+                        <option key={index} value={country.name}>
+                          {country.name}
+                        </option>
                       ))}
                     </datalist>
                   </Col>
@@ -130,7 +132,7 @@ function AddActor() {
                 <Form.Group
                   as={Row}
                   className="mb-3"
-                  controlId="formPlaintextPassword"
+                  // controlId="formPlaintextPassword"
                 >
                   <Form.Label column sm="3" md="4" lg="3">
                     Actor Name
@@ -148,7 +150,7 @@ function AddActor() {
                 <Form.Group
                   as={Row}
                   className="mb-3"
-                  controlId="formPlaintextPassword"
+                  // controlId="formPlaintextPassword"
                 >
                   <Form.Label column sm="3" md="4" lg="3">
                     Birth Date
@@ -156,6 +158,7 @@ function AddActor() {
                   <Col sm="9" md="8" lg="9">
                     <Form.Control
                       type="date"
+                      placeholder="Birth Date"
                       className="bg-black border-0 text-light"
                       id="birthDate"
                       name="birthDate"
@@ -186,6 +189,7 @@ function AddActor() {
                           credits={false}
                           stylePanelAspectRatio={141 / 110}
                           imageCropAspectRatio="141:110"
+                          data-testid="filepond--browser"
                           required={true}
                           // instantUpload={true}
                           files={files}
@@ -582,3 +586,4 @@ const Actors = ({ config }) => {
 };
 
 export default withConfig(Actors);
+export { AddActor, ActorTable };

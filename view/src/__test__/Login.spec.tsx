@@ -139,7 +139,7 @@ describe("LoginForm", () => {
     window.location = { href: "https://localhost:5173" };
   });
 
-  it("should not doing anything if the form is empty",  () => {
+  it("should not doing anything if the form is empty", () => {
     const config = { short_name: "MovieDB" };
     const { getByText } = renderMemoryRouterWithProvider(
       <LoginForm config={config} />

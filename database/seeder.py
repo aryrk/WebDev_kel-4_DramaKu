@@ -1,13 +1,29 @@
 import mysql.connector
 import json
 import os
+from dotenv import load_dotenv
+import time
+load_dotenv()
 
-db = mysql.connector.connect(
-    host="localhost",      
-    user="root",            
-    password="",    
-    database="plutocinema"
-)
+db = ""
+
+def connectDB():
+    global db
+    while True:
+        try:
+            db = mysql.connector.connect(
+                host=os.getenv("DB_HOST"),
+                user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASSWORD"),
+                database=os.getenv("DB_NAME")
+            )
+            break
+        except:
+            print("Reconnecting to database in 5 seconds...")
+            time.sleep(5)
+            continue
+    
+connectDB()
 
 cursor = db.cursor()
 
@@ -175,16 +191,16 @@ def load_json_data(file_name):
     with open(file_path, 'r') as file:
         return json.load(file)
 
-countries_data = load_json_data('result_cleanse\\countries.json')
-award_data = load_json_data('result_cleanse\\awards.json')
-genres_data = load_json_data('result_cleanse\\genres.json')
-actor_data = load_json_data('result_cleanse\\actors.json')
-movie_data = load_json_data('result_cleanse\\movies.json')
-comments_data = load_json_data('result_cleanse\\comments.json')
-movie_actor_data = load_json_data('result_cleanse\\movies_actors.json')
-movie_award_data = load_json_data('result_cleanse\\movies_awards.json')
-movie_genre_data = load_json_data('result_cleanse\\movies_genres.json')
-users_data = load_json_data('result_cleanse\\users.json')
+countries_data = load_json_data('result_cleanse/countries.json')
+award_data = load_json_data('result_cleanse/awards.json')
+genres_data = load_json_data('result_cleanse/genres.json')
+actor_data = load_json_data('result_cleanse/actors.json')
+movie_data = load_json_data('result_cleanse/movies.json')
+comments_data = load_json_data('result_cleanse/comments.json')
+movie_actor_data = load_json_data('result_cleanse/movies_actors.json')
+movie_award_data = load_json_data('result_cleanse/movies_awards.json')
+movie_genre_data = load_json_data('result_cleanse/movies_genres.json')
+users_data = load_json_data('result_cleanse/users.json')
 
 for country in countries_data:
     print(country['name'])
@@ -219,10 +235,13 @@ for actor in actor_data:
     
 for movie in movie_data:
     print(movie['title'])
+    year = movie['year']
+    if not isinstance(year, int) or year < 1900 or year > 2100:
+        year = time.strftime("%Y")
     cursor.execute("""
         INSERT INTO movies (countries_id, poster, title, alternative_titles, year, synopsis, availability, views, trailer, created_at, updated_at, status)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW(), %s)
-    """, (movie['countries_id'], movie['poster'], movie['title'], movie['alternative_titles'], movie['year'], movie['synopsis'], movie['availability'], movie['views'], movie['trailer'], movie['status']))
+    """, (movie['countries_id'], movie['poster'], movie['title'], movie['alternative_titles'], year, movie['synopsis'], movie['availability'], movie['views'], movie['trailer'], movie['status']))
 
 for user in users_data:
     print(user['username'])
@@ -237,8 +256,14 @@ for user in users_data:
         INSERT INTO users (username, profile_picture, email, password, role, created_at, updated_at)
         VALUES (%s, %s, %s, %s, %s, NOW(), NOW())
     """, (user['username'], profile_picture, user['email'], user['password'], user['role']))
+
+cursor.execute("""
+        INSERT INTO users (username, email, password, role, created_at, updated_at, is_verified)
+        VALUES (%s, %s, %s, %s, NOW(), NOW(), %s)
+    """, ('admin', 'plutocinemaofficial@gmail.com','$2b$10$bu6xfSKovaVj.iXXgW9Iwed20OsdHbFV9GuvsN2E5oqNuTEr983Vi', 'admin', '1'))
     
-    
+
+from datetime import datetime
 
 for comment in comments_data:
     print(comment['movie_id'])
@@ -246,10 +271,15 @@ for comment in comments_data:
     if comment['rate'] != None:
         rate = comment['rate']
     
+    try:
+        comment_date = datetime.strptime(comment['comment_date'], '%Y-%m-%dT%H:%M:%S.%fZ').date()
+    except ValueError:
+        comment_date = datetime.now().date()
+    
     cursor.execute("""
         INSERT INTO comments (movie_id, user_id, rate, comments, comment_date, status, created_at, updated_at)
         VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW())
-    """, (comment['movie_id'], comment['user_id'], rate, comment['comments'], comment['comment_date'], comment['status']))
+    """, (comment['movie_id'], comment['user_id'], rate, comment['comments'], comment_date, comment['status']))
 
 for movie_actor in movie_actor_data:
     print(movie_actor['movie_id'])

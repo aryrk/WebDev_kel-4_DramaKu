@@ -76,26 +76,29 @@ Our application has be deployed on Vercel and can be accessed <a href="https://w
     <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON Web Tokens&logoColor=white" alt="jwt" />
     <img src="https://img.shields.io/badge/Nodemailer-22b573?style=for-the-badge" alt="jwt" />
     <img src="https://img.shields.io/badge/Cloudinary-3333ff?style=for-the-badge&logo=cloudinary&logoColor=white" alt="cloudinary" />
+    <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="docker" />
     <img src="https://img.shields.io/badge/and%20many%20more-000000?style=for-the-badge" alt="and many more" />
 </div>
 
-<h1>Installation</h1>
-Ensure you have Node.js installed on your machine. If not, you can download it <a href="https://nodejs.org/en/download/">here</a>.
+<h1>Setup</h1>
 
 1. Clone the repository and install the dependencies.
 
 ```bash
 git clone https://github.com/aryrk/WebDev_kel-4_PlutoCinema.git
 ```
+2. Copy the `.env.example` file <b>inside server folder</b> and rename it to `.env`.
 
-2. Create a database named 'plutocinema'.
+3. Fill in the `.env` file inside <b>server, client, and database</b> folder with your own configuration.
 
-3. Copy the `.env.example` file and rename it to `.env`.
+<h1>Installation (Local)</h1>
+Ensure you have Node.js installed on your machine. If not, you can download it <a href="https://nodejs.org/en/download/">here</a>.
 
-4. Fill in the `.env` file with your own configuration.
+- Create a database named 'plutocinema'.
 
 
-if you are using windows, you can run the following commands:
+
+if you are using windows, you can run the following files:
 
 ```bash
 1_setup.bat
@@ -121,6 +124,21 @@ npm install
 npm run dev
 ```
 
+<h1>Installation (Docker)</h1>
+  
+  Ensure you have Docker installed on your machine. If not, you can download it <a href="https://www.docker.com/products/docker-desktop">here</a>.
+  
+if you are using windows, you can run the following files:
+```bash
+DOCKER_build.bat
+DOCKER_start.bat
+```
+
+or equivalent commands:
+
+```bash
+docker-compose up --build
+```
 
 
 <h1>Licence</h1>

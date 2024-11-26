@@ -356,20 +356,41 @@ app.use("/public", express.static("public"));
 //   database: "plutocinema",
 // });
 
-const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-});
+var connection = null;
 
-connection.connect((err) => {
-  if (err) {
-    console.error("Error connecting: " + err.stack);
-    return;
-  }
-  console.log("Connected as id " + connection.threadId);
-});
+const connectDB = () => {
+  connection = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+  });
+
+  connection.connect((err) => {
+    if (err) {
+      console.error("Error connecting: " + err.stack);
+      setTimeout(connectDB, 5000);
+    }
+    console.log("Connected as id " + connection.threadId);
+  });
+};
+
+connectDB();
+
+// const connection = mysql.createConnection({
+//   host: process.env.DB_HOST,
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASS,
+//   database: process.env.DB_NAME,
+// });
+
+// connection.connect((err) => {
+//   if (err) {
+//     console.error("Error connecting: " + err.stack);
+//     return;
+//   }
+//   console.log("Connected as id " + connection.threadId);
+// });
 
 const email_template = (username, email, header_text, header, inner) => {
   return `

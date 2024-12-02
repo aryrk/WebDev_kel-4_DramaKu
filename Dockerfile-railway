@@ -42,10 +42,7 @@ ENV CLIENT_URL=http://localhost:4173
 
 EXPOSE 3306 5000 4173
 
-# CMD ["sh", "-c", "python /app/seeder/database/seeder.py > /dev/null 2>&1 & \
-#     npm start --prefix /app/server & \
-#     npm run preview --prefix /app/client -- --host && wait"]
-
+CMD ["apt-get install -y npm"]
 CMD ["python", "/app/seeder/database/seeder.py"]
 CMD ["npm", "start", "--prefix", "/app/server"]
 CMD ["npm", "run", "preview", "--prefix", "/app/client", "--", "--host"]

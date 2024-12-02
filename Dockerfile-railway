@@ -13,10 +13,10 @@ COPY server/package*.json ./
 RUN npm install
 COPY server/ .
 
-FROM python:3.9-slim as python-seeder
+FROM python:3.9 as python-seeder
 
 WORKDIR /seeder
-RUN apt-get update && apt-get install -y python3-pip
+RUN apt-get update && apt-get install -y python3-pip libmysqlclient-dev
 COPY requirements.txt ./
 RUN pip3 install --no-cache-dir -r requirements.txt
 COPY . .

@@ -16,7 +16,7 @@ COPY server/ .
 FROM python:3.9 as python-seeder
 
 WORKDIR /seeder
-RUN apt-get update && apt-get install -y python3-pip libmysqlclient-dev
+RUN apt-get update && apt-get install -y python3-pip libmariadb-dev
 COPY requirements.txt ./
 RUN pip3 install --no-cache-dir -r requirements.txt
 COPY . .
@@ -39,7 +39,7 @@ ENV MYSQL_ROOT_HOST=%
 EXPOSE 3306 5000 4173
 
 RUN apt-get update && apt-get install -y \
-    libmysqlclient-dev && \
+    libmariadb-dev && \
     pip3 install mysql-connector-python
 
 CMD ["sh", "-c", "python3 /app/seeder/database/seeder.py > /dev/null 2>&1 && \

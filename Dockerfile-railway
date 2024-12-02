@@ -1,6 +1,6 @@
 FROM node:18-alpine as client-builder
 
-WORKDIR /client
+WORKDIR /app
 COPY view/package*.json ./
 RUN npm install
 COPY view/ .
@@ -8,7 +8,7 @@ RUN npm run build
 
 FROM node:18-alpine as server-builder
 
-WORKDIR /server
+WORKDIR /app
 COPY server/package*.json ./
 RUN npm install
 COPY server/ .
@@ -24,8 +24,8 @@ RUN pip install mysql-connector-python
 FROM mysql:8
 
 COPY ./dump/plutocinema.sql /docker-entrypoint-initdb.d/01.sql
-COPY --from=client-builder /client/dist /app/client
-COPY --from=server-builder /server /app/server
+COPY --from=client-builder /app /app/client
+COPY --from=server-builder /app /app/server
 COPY --from=python-seeder /app /app/seeder
 
 ENV MYSQL_ROOT_PASSWORD=root

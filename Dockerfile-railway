@@ -16,10 +16,11 @@ COPY server/ .
 FROM python:3.9-slim as python-seeder
 
 WORKDIR /seeder
+RUN apt-get update && apt-get install -y python3-pip
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 COPY . .
-RUN pip install mysql-connector-python
+RUN pip3 install mysql-connector-python
 
 FROM mysql:8
 
@@ -37,8 +38,10 @@ ENV MYSQL_ROOT_HOST=%
 
 EXPOSE 3306 5000 4173
 
-RUN pip install mysql-connector-python
+RUN apt-get update && apt-get install -y \
+    libmysqlclient-dev && \
+    pip3 install mysql-connector-python
 
-CMD ["sh", "-c", "python /app/seeder/database/seeder.py > /dev/null 2>&1 && \
+CMD ["sh", "-c", "python3 /app/seeder/database/seeder.py > /dev/null 2>&1 && \
     node /app/server/index.js & \
     npm run preview --prefix /app/client -- --host"]

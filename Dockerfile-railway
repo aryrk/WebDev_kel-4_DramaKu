@@ -13,24 +13,20 @@ COPY server/package*.json ./
 RUN npm install
 COPY server/ .
 
-FROM python:3.9 as python-seeder
+FROM python:3.9-slim as python-seeder
 
-WORKDIR /seeder
-RUN apt-get update && apt-get install -y python3-pip libmariadb-dev
+WORKDIR /app
 COPY requirements.txt ./
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-RUN pip3 install mysql-connector-python
+RUN pip install mysql-connector-python
 
 FROM mysql:8
 
 COPY ./dump/plutocinema.sql /docker-entrypoint-initdb.d/01.sql
-
 COPY --from=client-builder /client/dist /app/client
-
 COPY --from=server-builder /server /app/server
-
-COPY --from=python-seeder /seeder /app/seeder
+COPY --from=python-seeder /app /app/seeder
 
 ENV MYSQL_ROOT_PASSWORD=root
 ENV MYSQL_DATABASE=plutocinema
@@ -38,10 +34,6 @@ ENV MYSQL_ROOT_HOST=%
 
 EXPOSE 3306 5000 4173
 
-RUN apt-get update && apt-get install -y \
-    libmariadb-dev && \
-    pip3 install mysql-connector-python
-
-CMD ["sh", "-c", "python3 /app/seeder/database/seeder.py > /dev/null 2>&1 && \
+CMD ["sh", "-c", "python /app/seeder/database/seeder.py > /dev/null 2>&1 && \
     node /app/server/index.js & \
     npm run preview --prefix /app/client -- --host"]

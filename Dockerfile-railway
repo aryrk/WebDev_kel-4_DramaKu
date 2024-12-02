@@ -12,7 +12,6 @@ WORKDIR /app
 COPY server/package*.json ./
 RUN npm install
 COPY server/ .
-COPY .env /app/server/.env  # Menyalin file .env ke dalam folder server
 
 FROM python:3.9-slim as python-seeder
 

@@ -1,0 +1,43 @@
+FROM node:18-alpine as client-builder
+
+WORKDIR /client
+COPY view/package*.json ./
+RUN npm install
+COPY view/ .
+RUN npm run build
+
+FROM node:18-alpine as server-builder
+
+WORKDIR /server
+COPY server/package*.json ./
+RUN npm install
+COPY server/ .
+
+FROM python:3.9-slim as python-seeder
+
+WORKDIR /seeder
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+RUN pip install mysql-connector-python
+
+FROM mysql:8
+
+COPY ./dump/plutocinema.sql /docker-entrypoint-initdb.d/01.sql
+
+COPY --from=client-builder /client/dist /app/client
+
+COPY --from=server-builder /server /app/server
+
+COPY --from=python-seeder /seeder /app/seeder
+
+ENV MYSQL_ROOT_PASSWORD=root
+ENV MYSQL_DATABASE=plutocinema
+ENV MYSQL_ROOT_HOST=%
+
+EXPOSE 3306 5000 4173
+
+CMD ["sh", "-c", "service mysql start && \
+    node /app/server/index.js & \
+    python /app/seeder/database/seeder.py && \
+    npm run preview --prefix /app/client -- --host"]

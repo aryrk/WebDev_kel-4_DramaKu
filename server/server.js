@@ -26,7 +26,7 @@ const queueMiddleware = (req, res, next) => {
         setTimeout(() => {
           next();
           resolve();
-        }, 100); // Tambahkan delay sesuai kebutuhan, contoh: 100 ms jika diperlukan
+        }, 100);
       });
     })
     .catch((err) => console.error("Queue Error:", err));

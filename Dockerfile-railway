@@ -37,9 +37,7 @@ ENV MYSQL_ROOT_HOST=%
 
 EXPOSE 3306 5000 4173
 
-RUN apt-get update && apt-get install -y \
-    libmysqlclient-dev && \
-    pip install mysql-connector-python
+RUN pip install mysql-connector-python
 
 CMD ["sh", "-c", "python /app/seeder/database/seeder.py > /dev/null 2>&1 && \
     node /app/server/index.js & \
